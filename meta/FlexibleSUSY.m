@@ -53,7 +53,7 @@ BeginPackage["FlexibleSUSY`",
               "FSMathLink`",
               "FlexibleTower`",
               "WeinbergAngle`",
-	      "SelfEnergies2L`"}];
+	            "SelfEnergies2L`"}];
 
 $flexiblesusyMetaDir     = DirectoryName[FindFile[$Input]];
 $flexiblesusyConfigDir   = FileNameJoin[{ParentDirectory[$flexiblesusyMetaDir], "config"}];
@@ -272,7 +272,8 @@ GSLNewton;   (* Newton method *)
 FPIRelative; (* Fixed point iteration, convergence crit. relative step size *)
 FPIAbsolute; (* Fixed point iteration, convergence crit. absolute step size *)
 FPITadpole;  (* Fixed point iteration, convergence crit. relative step size + tadpoles *)
-FSEWSBSolvers = { FPIRelative, GSLHybridS, GSLBroyden };
+ConsistentSolver;  (* Consistent solution using 1L2L shifts *)
+FSEWSBSolvers = { FPIRelative, GSLHybridS, GSLBroyden, ConsistentSolver };
 
 (* BVP solvers *)
 TwoScaleSolver;      (* two-scale algorithm *)
@@ -330,7 +331,7 @@ allOutputParameters = {};
 numberOfModelParameters = 0;
 
 allEWSBSolvers = { GSLHybrid, GSLHybridS, GSLBroyden, GSLNewton,
-                   FPIRelative, FPIAbsolute, FPITadpole };
+                   FPIRelative, FPIAbsolute, FPITadpole, ConsistentSolver };
 
 allBVPSolvers = { TwoScaleSolver, LatticeSolver, SemiAnalyticSolver };
 
@@ -1652,7 +1653,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            saveEWSBOutputParameters = Parameters`SaveParameterLocally[parametersToSave];
            (ewsbSolverHeaders = ewsbSolverHeaders
                                 <> EnableForBVPSolver[#, ("#include \"" <> FlexibleSUSY`FSModelName
-                                                          <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")&
+                                                          <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")& (* <> If[FlexibleSUSY`UseConsistentEWSBSolution === True,"_consistent",""] <> *)
                                 /@ FlexibleSUSY`FSBVPSolvers;
            defaultEWSBSolverCctor = CreateDefaultEWSBSolverConstructor[FlexibleSUSY`FSBVPSolvers];
            reorderDRbarMasses           = TreeMasses`ReorderGoldstoneBosons[""];
@@ -1910,7 +1911,7 @@ WriteObservables[extraSLHAOutputBlocks_, files_List] :=
                                        Sequence @@ GeneralReplacementRules[]
                                    } ];
            ];
-           
+
 (* Write the CXXDiagrams c++ files *)
 WriteCXXDiagramClass[vertices_List,massMatrices_,files_List] :=
   Module[{fields, nPointFunctions, vertexRules, vertexData, cxxVertices, massFunctions, unitCharge},
@@ -1923,7 +1924,7 @@ WriteCXXDiagramClass[vertices_List,massMatrices_,files_List] :=
     cxxVertices = CXXDiagrams`CreateVertices[vertices,vertexRules];
     massFunctions = CXXDiagrams`CreateMassFunctions[];
     unitCharge = CXXDiagrams`CreateUnitCharge[massMatrices];
-    
+
     WriteOut`ReplaceInFiles[files,
                             {"@CXXDiagrams_Fields@"          -> fields,
                              "@CXXDiagrams_VertexData@"      -> vertexData,
@@ -1940,22 +1941,22 @@ WriteEDMClass[edmFields_List,files_List] :=
           interfacePrototypes,interfaceDefinitions},
     graphs = EDM`EDMContributingGraphs[];
     diagrams = Outer[EDM`EDMContributingDiagramsForFieldAndGraph,edmFields,graphs,1];
-    
+
     vertices = Flatten[CXXDiagrams`VerticesForDiagram /@ Flatten[diagrams,2],1];
-    
-    {interfacePrototypes,interfaceDefinitions} = 
+
+    {interfacePrototypes,interfaceDefinitions} =
       If[diagrams === {},
          {"",""},
-         StringJoin @@@ 
-          (Riffle[#, "\n\n"] & /@ Transpose[EDM`EDMCreateInterfaceFunctionForField @@@ 
+         StringJoin @@@
+          (Riffle[#, "\n\n"] & /@ Transpose[EDM`EDMCreateInterfaceFunctionForField @@@
             Transpose[{edmFields,Transpose[{graphs,#}] & /@ diagrams}]])];
-    
+
     WriteOut`ReplaceInFiles[files,
                             {"@EDM_InterfacePrototypes@"       -> interfacePrototypes,
                              "@EDM_InterfaceDefinitions@"      -> interfaceDefinitions,
                              Sequence @@ GeneralReplacementRules[]
                             }];
-    
+
     vertices
   ]
 
@@ -1968,14 +1969,14 @@ WriteAMuonClass[files_List] :=
             getMSUSY},
       graphs = AMuon`AMuonContributingGraphs[];
       diagrams = AMuon`AMuonContributingDiagramsForGraph /@ graphs;
-      
+
       vertices = Flatten[CXXDiagrams`VerticesForDiagram /@ Flatten[diagrams,1],1];
-      
+
       muonPhysicalMass = AMuon`AMuonCreateMuonPhysicalMass[];
       calculation = AMuon`AMuonCreateCalculation @ Transpose[{graphs,diagrams}];
-            
+
       getMSUSY = AMuon`AMuonGetMSUSY[];
-      
+
       WriteOut`ReplaceInFiles[files,
         {"@AMuon_MuonField@"      -> CXXDiagrams`CXXNameOfField[AMuon`AMuonGetMuon[]],
          "@AMuon_MuonPhysicalMass@"       -> TextFormatting`IndentText[muonPhysicalMass],
@@ -1983,7 +1984,7 @@ WriteAMuonClass[files_List] :=
          "@AMuon_GetMSUSY@"       -> IndentText[WrapLines[getMSUSY]],
          Sequence @@ GeneralReplacementRules[]
         }];
-                              
+
       vertices
       ];
 
@@ -2888,7 +2889,7 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                solver = First[solverSolutions[[i]]];
                solution = Last[solverSolutions[[i]]];
                validSolvers = ewsbSolvers;
-               If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
+               (*If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
                   Print["Error: ConsistentSolver has to be used when using the 2-loop results"];
                   Print["   of SARAH. Please enable it and re-run Flexible SUSY."];
                   Quit[1];
@@ -2897,10 +2898,10 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                   Print["Warning: For SARAH 2-loop results, the ConsistenSolver has to be used"];
                   Print["   as EWSB solver. All other solvers will be removed."];
                   validSolvers = {FlexibleSUSY`ConsistentSolver};
-                 ];
-               If[FlexibleSUSY`UseConsistentEWSBSolution === False,
+                 ];*)
+               (*If[FlexibleSUSY`UseConsistentEWSBSolution === False,
                   validSolvers = Cases[validSolvers, Except[FlexibleSUSY`ConsistentSolver]];
-                 ];
+                 ];*)
                If[solution === {},
                   (* Fixed-point iteration can only be used if an analytic EWSB solution exists *)
                   If[MemberQ[validSolvers, FlexibleSUSY`FPIRelative],
@@ -2915,12 +2916,12 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                      Print["   FPIAbsolute will be removed from the list of EWSB solvers."];
                      validSolvers = Cases[validSolvers, Except[FlexibleSUSY`FPIAbsolute]];
                     ];
-                  If[MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver]
+                  (*If[MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver]
                      Print["Warning: ConsistentSolver was selected, but no analytic"];
                      Print["   solution to the EWSB eqs. is provided."];
                      Print["   ConsistentSolver will be removed from the list of EWSB solvers."];
                      validSolvers = Cases[validSolvers, Except[FlexibleSUSY`ConsistentSolver]];
-                    ];
+                    ];*)
                  ];
                solverEwsbSolvers = Append[solverEwsbSolvers, solver -> validSolvers];
               ];
@@ -3928,7 +3929,12 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                                    {{FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_solver.hpp.in"}],
                                      FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_solver.hpp"}]},
                                     {FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_solver.cpp.in"}],
-                                     FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_solver.cpp"}]}}];
+                                     FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_solver.cpp"}]}
+                                     (*,{FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_consistent_solver.hpp.in"}],
+                                     FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_consistent_solver.hpp"}]},
+                                    {FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_consistent_solver.cpp.in"}],
+                                     FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_consistent_solver.cpp"}]}*)
+                                     }];
 
               Print["Creating class for two-scale model ..."];
               WriteTwoScaleModelClass[{{FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_model.hpp.in"}],
@@ -4096,7 +4102,12 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                                                {{FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_solver.hpp.in"}],
                                                  FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_solver.hpp"}]},
                                                 {FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_solver.cpp.in"}],
-                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_solver.cpp"}]}}];
+                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_solver.cpp"}]}
+                                                 (*,{FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_consistent_solver.hpp.in"}],
+                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_consistent_solver.hpp"}]},
+                                                {FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_consistent_solver.cpp.in"}],
+                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_consistent_solver.cpp"}]}*)
+                                                 }];
 
               Print["Creating class for semi-analytic model ..."];
               WriteSemiAnalyticModelClass[semiAnalyticBCs, semiAnalyticSolns,
@@ -4140,11 +4151,11 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                               FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_observables.hpp"}]},
                              {FileNameJoin[{$flexiblesusyTemplateDir, "observables.cpp.in"}],
                               FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_observables.cpp"}]}}];
-                      
-                      
+
+
            Print["Setting up CXXDiagrams..."];
            CXXDiagrams`CXXDiagramsInitialize[];
-           
+
            Print["Creating EDM class..."];
            edmFields = DeleteDuplicates @ Cases[Observables`GetRequestedObservables[extraSLHAOutputBlocks],
                                                 FlexibleSUSYObservable`EDM[p_[__]|p_] :> p];
@@ -4154,14 +4165,14 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_edm.hpp"}]},
                             {FileNameJoin[{$flexiblesusyTemplateDir, "edm.cpp.in"}],
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_edm.cpp"}]}}];
-           
+
            Print["Creating AMuon class..."];
-           aMuonVertices = 
+           aMuonVertices =
              WriteAMuonClass[{{FileNameJoin[{$flexiblesusyTemplateDir, "a_muon.hpp.in"}],
                                FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_a_muon.hpp"}]},
                               {FileNameJoin[{$flexiblesusyTemplateDir, "a_muon.cpp.in"}],
                                FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_a_muon.cpp"}]}}];
-           
+
            WriteCXXDiagramClass[Join[edmVertices,aMuonVertices],Lat$massMatrices,
                                 {{FileNameJoin[{$flexiblesusyTemplateDir, "cxx_diagrams.hpp.in"}],
                                  FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_cxx_diagrams.hpp"}]}}];
