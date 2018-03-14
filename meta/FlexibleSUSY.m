@@ -52,7 +52,8 @@ BeginPackage["FlexibleSUSY`",
               "FlexibleEFTHiggsMatching`",
               "FSMathLink`",
               "FlexibleTower`",
-              "WeinbergAngle`"}];
+              "WeinbergAngle`",
+	      "SelfEnergies2L`"}];
 
 $flexiblesusyMetaDir     = DirectoryName[FindFile[$Input]];
 $flexiblesusyConfigDir   = FileNameJoin[{ParentDirectory[$flexiblesusyMetaDir], "config"}];
@@ -195,6 +196,15 @@ ExtraSLHAOutputBlocks = {
 FSAuxiliaryParameterInfo = {};
 IMMINPAR = {};
 IMEXTPAR = {};
+
+(* 2L flags*)
+IncludeSARAH2L = True;
+Exclude1L2LShifts = False;
+Exclude1L2LAhSelfEnergySSSSshifts = False;
+Exclude1L2LFermionShifts = False;
+Exclude1L2LAhShiftSSSS = False;
+OnlyAtAtAndAtAs2L = False;
+UseConsistentEWSBSolution = True;
 
 (* Standard Model input parameters (SLHA input parameters) *)
 (* {parameter, {"block", entry}, type}                     *)
@@ -495,6 +505,22 @@ CheckModelFileSettings[] :=
            If[Head[FlexibleSUSY`EWSBSubstitutions] =!= List,
               FlexibleSUSY`EWSBSubstitutions = {};
              ];
+           If[FlexibleSUSY`IncludeSARAH2L === False,
+              FlexibleSUSY`Exclude1L2LShifts = True;
+             ];
+           If[FlexibleSUSY`UseConsistentEWSBSolution === True &&
+               FlexibleSUSY`Exclude1L2LShifts === True && FlexibleSUSY`IncludeSARAH2L === True,
+               Print["Error: Consistent solution of EWSB equations including"];
+               Print["   the SARAH 2-loop expressions cannot be used"];
+               Print["   without 1L2L shifts."];
+               Quit[1];
+             ];
+           If[FlexibleSUSY`IncludeSARAH2L === True && (SARAH`UseHiggs2LoopMSSM === True ||
+              FlexibleSUSY`UseHiggs2LoopNMSSM === True || FlexibleSUSY`UseHiggs2LoopSM === True ),
+              Print["Error: Both SARAH 2-loop routines and fixed expressions for",
+                    "    SM, MSSM or NMSSM are active. Please disable one of them."];
+              Quit[1];
+             ];
            If[ValueQ[FlexibleSUSY`FSExtraInputParameters],
               Print["Error: the use of FSExtraInputParameters is no longer supported!"];
               Print["   Please add the entries in FSExtraInputParameters to"];
@@ -645,6 +671,7 @@ GeneralReplacementRules[] :=
              ]]
             ],
       "@RenScheme@"           -> ToString[FlexibleSUSY`FSRenormalizationScheme],
+      "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
       "@ModelTypes@"          -> FlexibleTower`GetModelTypes[],
       "@DateAndTime@"         -> DateString[],
       "@SARAHVersion@"        -> SA`Version,
@@ -1436,6 +1463,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             dependencePrototypes, dependenceFunctions,
             clearOutputParameters = "",
             clearPhases = "", clearExtraParameters = "",
+            writeEnterGauglessLimit = "",
             softScalarMasses, treeLevelEWSBOutputParameters,
             parametersToSave, saveEWSBOutputParameters,
             solveTreeLevelEWSBviaSoftHiggsMasses,
@@ -1481,6 +1509,13 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            higgsToEWSBEqAssociation     = CreateHiggsToEWSBEqAssociation[];
            calculateTreeLevelTadpoles   = EWSB`FillArrayWithEWSBEqs[SARAH`HiggsBoson, "tadpole"];
            calculateOneLoopTadpoles     = SelfEnergies`FillArrayWithLoopTadpoles[1, higgsToEWSBEqAssociation, "tadpole", "-"];
+           If[FlexibleSUSY`IncludeSARAH2L === True,
+               calculateTwoLoopTadpoles = calculateTwoLoopTadpoles <> "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n";
+               calculateTwoLoopTadpoles     = calculateTwoLoopTadpoles <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "-"];
+               If[UseConsistentEWSBSolution === True,
+                  calculateTwoLoopTadpoles     = calculateTwoLoopTadpoles <> SelfEnergies`FillArrayWithLoopTadpolesShifts1L[2, higgsToEWSBEqAssociation, "tadpole", "-"];
+                 ];
+           ];
            divideTadpoleByVEV           = SelfEnergies`DivideTadpoleByVEV[Parameters`DecreaseIndexLiterals @ CreateVEVToTadpoleAssociation[], "tadpole"];
            If[SARAH`UseHiggs2LoopMSSM === True || FlexibleSUSY`UseHiggs2LoopNMSSM === True,
               calculateTwoLoopTadpoles  = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "-"];
@@ -1545,6 +1580,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                                                                                  Parameters`GetType[#]]& /@
                                                         Parameters`GetExtraParameters[]];
              ];
+           writeEnterGauglessLimit      = SelfEnergies2L`CreateEnterGauglessLimitFunction[{g1,g2}];
            loopMassesPrototypes         = LoopMasses`CreateOneLoopPoleMassPrototypes[];
            (* If you want to add tadpoles, call the following routine like this:
               CreateOneLoopPoleMassFunctions[diagonalizationPrecision, Cases[nPointFunctions, SelfEnergies`Tadpole[___]], vevs];
@@ -1686,6 +1722,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@setMasses@"                    -> IndentText[setMasses],
                             "@getExtraParameters@"           -> IndentText[getExtraParameters],
                             "@setExtraParameters@"           -> IndentText[setExtraParameters],
+                            "@WriteEnterGauglessLimit@"      -> IndentText[writeEnterGauglessLimit],
                             "@printMixingMatrices@"          -> IndentText[printMixingMatrices],
                             "@dependencePrototypes@"         -> IndentText[dependencePrototypes],
                             "@dependenceFunctions@"          -> WrapLines[dependenceFunctions],
@@ -2340,9 +2377,31 @@ GetRGEFileNames[outputDir_String] :=
            FileNameJoin[{rgeDir, #}]& /@ fileNames
           ];
 
+Get1LSelfEnergyFileName[outputDir_String, eigenstates_] :=
+    FileNameJoin[{outputDir, ToString[eigenstates], "One-Loop", "SelfEnergy.m"}];
+
+Get2LDiagramFileName[outputDir_String, eigenstates_, field_String] :=
+    FileNameJoin[{outputDir, ToString[eigenstates], "Two-Loop", field <> ".m"}];
+
+Get2LSelfEnergyFileNames[outputDir_String, eigenstates_] :=
+    If[True || SARAH`SupersymmetricModel,
+       {
+           Get2LDiagramFileName[outputDir, eigenstates, "hh"],
+           Get2LDiagramFileName[outputDir, eigenstates, "Ah"]
+       },
+       {}
+      ];
+
+Get2LTadpoleFileNames[outputDir_String, eigenstates_] :=
+    If[True || SARAH`SupersymmetricModel,
+       { Get2LDiagramFileName[outputDir, eigenstates, "tadpoles"] },
+       {}
+      ];
+
 GetSelfEnergyFileNames[outputDir_String, eigenstates_] :=
-    FileNameJoin[{outputDir, ToString[eigenstates],
-                  "One-Loop", "SelfEnergy.m"}];
+    Join[{ Get1LSelfEnergyFileName[outputDir, eigenstates] },
+         Get2LSelfEnergyFileNames[outputDir, eigenstates]
+        ];
 
 NeedToCalculateSelfEnergies[eigenstates_] :=
     NeedToUpdateTarget[
@@ -2352,6 +2411,18 @@ NeedToCalculateSelfEnergies[eigenstates_] :=
 GetTadpoleFileName[outputDir_String, eigenstates_] :=
     FileNameJoin[{outputDir, ToString[eigenstates],
                   "One-Loop", "Tadpoles1Loop.m"}];
+
+GetTadpoleListFileName[outputDir_String, eigenstates_] :=
+    FileNameJoin[{outputDir, ToString[eigenstates],
+                  "One-Loop", "Tadpoles1Loop-list.m"}];
+
+GetSelfEnergyRotatedListFileName[outputDir_String, eigenstates_] :=
+    FileNameJoin[{outputDir, ToString[eigenstates],
+                  "One-Loop", "SelfEnergyRotatedFields-list.m"}];
+
+GetSelfEnergyUnrotatedListFileName[outputDir_String, eigenstates_] :=
+    FileNameJoin[{outputDir, ToString[eigenstates],
+                  "One-Loop", "SelfEnergyUnrotatedFields-list.m"}];
 
 NeedToCalculateTadpoles[eigenstates_] :=
     NeedToUpdateTarget[
@@ -2463,6 +2534,7 @@ FSCheckLoopCorrections[eigenstates_] :=
                                               ];
            If[needToCalculateLoopCorrections,
               SARAH`CalcLoopCorrections[eigenstates];
+              SARAH`Calc2LoopCorrections[eigenstates];
              ];
           ];
 
@@ -2607,39 +2679,112 @@ FSCheckFlags[] :=
              ];
           ];
 
+Get2LExpressionOutputFileName[type_String,field_String]:=FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_"
+                                       <> type <> "_" <> field <> "_2loop_expr.m"}];
+
+Get2LSelfEnergy[eigenstates_] :=
+    Module[{files,result={}},
+           files = Get2LSelfEnergyFileNames[$sarahCurrentOutputMainDir, eigenstates];
+           If[files === {}, {},
+              Print["Reading 2-loop self-energies from ", files, " ..."];
+              SARAH`twoloophiggsmassdiags = {0, 0};
+              Get /@ files;
+              result={
+                        {SARAH`HiggsBoson  , Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twoloophiggsmassdiags[[1]]]},
+                        {SARAH`PseudoScalar, Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twoloophiggsmassdiags[[2]]]}
+                     };
+               Put[result[[1,3]],Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`HiggsBoson]]];
+               Put[result[[2,3]],Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`PseudoScalar]]];
+               Print["2L selfenergy expressions written to:",Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`HiggsBoson]],
+                     Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`PseudoScalar]]];
+
+               result
+             ]
+          ];
+
+Get2LTadpole[eigenstates_] :=
+    Module[{files,result={}},
+           files = Get2LTadpoleFileNames[$sarahCurrentOutputMainDir, eigenstates];
+           If[files === {}, {},
+              Print["Reading 2-loop tadpole from ", files, " ..."];
+              SARAH`twolooptadpolediags = { 0 };
+              Get /@ files;
+              result={
+                        {SARAH`HiggsBoson, Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twolooptadpolediags]}
+                     };
+              Put[result[[1,3]],Get2LExpressionOutputFileName["tadpole",ToString[SARAH`HiggsBoson]]];
+              Print["2L tadpole expression written to:",Get2LExpressionOutputFileName["tadpole",ToString[SARAH`HiggsBoson]]];
+              result
+             ]
+          ];
+
+
+Append2LNPointFunctions[{hh | SARAH`HiggsBoson, se1_}, se2L_] :=
+    Module[{se2 = Cases[se2L, {SARAH`HiggsBoson, _, ex_} :> ex]},
+           If[se2 === {},
+              {SARAH`HiggsBoson, se1},
+              {SARAH`HiggsBoson, se1, First[se2]} (* we assume, everything is in gauge eigenstates*)
+             ]
+          ];
+
+Append2LNPointFunctions[{Ah | SARAH`PseudoScalar, se1_}, se2L_List] :=
+    Module[{se2 = Cases[se2L, {SARAH`PseudoScalar, _, ex_} :> ex]},
+           If[se2 === {},
+              {SARAH`PseudoScalar, se1},
+              {SARAH`PseudoScalar, se1, First[se2]} (* we assume, everything is in gauge eigenstates*)
+             ]
+          ];
+
+Append2LNPointFunctions[p:{_, _}, _] := p;
+
+(* 2L expressions are assumed to be translated into gauge Eigenstates by replacing hh[{gE1}] with Uhh[{gO1}], etc. *)
+
+MergeNPointFunctions[se1L_List, se2L_List] := Append2LNPointFunctions[#, se2L]& /@ se1L;
+
 PrepareSelfEnergies[eigenstates_] :=
-    Module[{selfEnergies = {}, selfEnergiesFile},
-           selfEnergiesFile = GetSelfEnergyFileNames[$sarahCurrentOutputMainDir, eigenstates];
+    Module[{selfEnergies, selfEnergies2L, selfEnergiesFile},
+           selfEnergiesFile = Get1LSelfEnergyFileName[$sarahCurrentOutputMainDir, eigenstates];
            If[!FileExistsQ[selfEnergiesFile],
-              Print["Error: self-energy files not found: ", selfEnergiesFile];
+              Print["Error: 1-loop self-energy file not found: ", selfEnergiesFile];
               Quit[1];
              ];
-           Print["Reading self-energies from file ", selfEnergiesFile, " ..."];
+           Print["Reading 1-loop self-energies from file ", selfEnergiesFile, " ..."];
            selfEnergies = Get[selfEnergiesFile];
-           If[selfEnergies === Null,
-              Print["Error: Could not read self-energies from ", selfEnergiesFile];
-              Quit[1];
-             ];
+           selfEnergies2L = If[FlexibleSUSY`IncludeSARAH2L===False,{},Get2LSelfEnergy[eigenstates]];
            Print["Converting self-energies ..."];
-           ConvertSarahSelfEnergies[ApplyFSSelfEnergyRules @ selfEnergies]
+           ConvertSarahSelfEnergies[MergeNPointFunctions[selfEnergies, selfEnergies2L]]
           ];
 
 PrepareTadpoles[eigenstates_] :=
-    Module[{tadpoles = {}, tadpolesFile},
+    Module[{tadpoles, tadpoles2L, tadpolesFile},
            tadpolesFile = GetTadpoleFileName[$sarahCurrentOutputMainDir, eigenstates];
            If[!FilesExist[tadpolesFile],
-              Print["Error: tadpole file not found: ", tadpolesFile];
+              Print["Error: 1-loop tadpole file not found: ", tadpolesFile];
               Quit[1];
              ];
-           Print["Reading tadpoles from file ", tadpolesFile, " ..."];
+           Print["Reading 1-loop tadpoles from file ", tadpolesFile, " ..."];
            tadpoles = Get[tadpolesFile];
-           If[tadpoles === Null,
-              Print["Error: Could not read tadpoles from ", tadpolesFile];
-              Quit[1];
-             ];
+           tadpoles2L = If[FlexibleSUSY`IncludeSARAH2L===False,{},Get2LTadpole[eigenstates]];
            Print["Converting tadpoles ..."];
-           ConvertSarahTadpoles[ApplyFSSelfEnergyRules @ tadpoles]
+           ConvertSarahTadpoles[MergeNPointFunctions[tadpoles, tadpoles2L]]
           ];
+
+MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_]:=
+    Module[{higgstoEWSB=CreateHiggsToEWSBEqAssociation[],
+            tadListFile=GetTadpoleListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
+            selfenergyRotListFile=GetSelfEnergyRotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
+            selfenergyUnrotListFile=GetSelfEnergyUnrotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
+            treesolutionfile=treeLevelEwsbSolutionOutputFiles[[1]]//.{Rule[a_, c_] -> c},tempnPoints={},selfenergylist={}},
+
+            If[FilesExist[{tadListFile,selfenergyRotListFile,selfenergyUnrotListFile,treesolutionfile}],
+               selfenergylist=Join[Get[selfenergyRotListFile],Get[selfenergyUnrotListFile]];
+               tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfenergylist,nPointFunctions,higgstoEWSB,FlexibleSUSY`EWSBOutputParameters,
+                                                            Flatten[Get[treesolutionfile]],{g1->0,g2->0},FlexibleSUSY`FSEigenstates];
+               ,
+               Print["Could not find Tadpole-list, SelfEnergy-List or treelevel EWSB solution file for 1L2L shifts, can't do anyhting."];
+            ];
+            tempnPoints
+    ];
 
 PrepareUnrotatedParticles[eigenstates_] :=
     Module[{nonMixedParticles = {}, nonMixedParticlesFile},
@@ -2743,6 +2888,19 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                solver = First[solverSolutions[[i]]];
                solution = Last[solverSolutions[[i]]];
                validSolvers = ewsbSolvers;
+               If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
+                  Print["Error: ConsistentSolver has to be used when using the 2-loop results"];
+                  Print["   of SARAH. Please enable it and re-run Flexible SUSY."];
+                  Quit[1];
+                 ];
+               If[FlexibleSUSY`IncludeSARAH2L === True,
+                  Print["Warning: For SARAH 2-loop results, the ConsistenSolver has to be used"];
+                  Print["   as EWSB solver. All other solvers will be removed."];
+                  validSolvers = {FlexibleSUSY`ConsistentSolver};
+                 ];
+               If[FlexibleSUSY`UseConsistentEWSBSolution === False,
+                  validSolvers = Cases[validSolvers, Except[FlexibleSUSY`ConsistentSolver]];
+                 ];
                If[solution === {},
                   (* Fixed-point iteration can only be used if an analytic EWSB solution exists *)
                   If[MemberQ[validSolvers, FlexibleSUSY`FPIRelative],
@@ -2756,6 +2914,12 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                      Print["   solution to the EWSB eqs. is provided."];
                      Print["   FPIAbsolute will be removed from the list of EWSB solvers."];
                      validSolvers = Cases[validSolvers, Except[FlexibleSUSY`FPIAbsolute]];
+                    ];
+                  If[MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver]
+                     Print["Warning: ConsistentSolver was selected, but no analytic"];
+                     Print["   solution to the EWSB eqs. is provided."];
+                     Print["   ConsistentSolver will be removed from the list of EWSB solvers."];
+                     validSolvers = Cases[validSolvers, Except[FlexibleSUSY`ConsistentSolver]];
                     ];
                  ];
                solverEwsbSolvers = Append[solverEwsbSolvers, solver -> validSolvers];
@@ -3514,9 +3678,17 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                     If[i != Length[FlexibleSUSY`EWSBOutputParameters], ",", ""]];
                    ];
               Print["   };\n"];
+              If[FlexibleSUSY`UseConsistentEWSBSolution === True,
+                 Print["Error: The consistent EWSB solution method can only be used",
+                        " if an analytic tree-level solution is available."];
+                 Quit[1];
+              ];
              ];
            solverEwsbSolvers = SelectValidEWSBSolvers[solverEwsbSolutions, FlexibleSUSY`FSEWSBSolvers];
-
+           If[FlexibleSUSY`Exclude1L2LShifts=!=True && FlexibleSUSY`IncludeSARAH2L=!=False,
+               Print["\nGenerating shifts for consistent EWSB solution ...\n"];
+               nPointFunctions=Join[nPointFunctions,EnforceCpColorStructures @ SortCps @ MakeShifts[nPointFunctions,treeLevelEwsbSolutionOutputFiles]];
+           ];
            Print["Input parameters: ", InputForm[Parameters`GetInputParameters[]]];
 
            Print["Creating class for input parameters ..."];
@@ -3576,6 +3748,12 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_mass_eigenstates.hpp"}]},
                             {FileNameJoin[{$flexiblesusyTemplateDir, "mass_eigenstates.cpp.in"}],
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_mass_eigenstates.cpp"}]},
+									 {FileNameJoin[{$flexiblesusyTemplateDir, "2LPoleFunctions.cpp.in"}],
+                             FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_2LPoleFunctions.cpp"}]},
+									 {FileNameJoin[{$flexiblesusyTemplateDir, "2LPoleFunctions_fortran.f90.in"}],
+                             FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_2LPoleFunctions_fortran.f90"}]},
+									 {FileNameJoin[{$flexiblesusyTemplateDir, "2LPoleFunctions_fortran.h.in"}],
+                             FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_2LPoleFunctions_fortran.h"}]},
                             {FileNameJoin[{$flexiblesusyTemplateDir, "physical.hpp.in"}],
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_physical.hpp"}]},
                             {FileNameJoin[{$flexiblesusyTemplateDir, "physical.cpp.in"}],

@@ -81,6 +81,7 @@ THREADLIBS         := @THREADLIBS@
 TSILFLAGS          := @TSILFLAGS@
 TSILLIBS           := @TSILLIBS@
 
+
 # the modules add their dependency files to this variable
 ALLDEP   :=
 # the modules add soucre files to be created to this variable
@@ -232,6 +233,9 @@ depend:  $(ALLDEP)
 
 %.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.f90
+	$(FC) $(FFLAGS) -c $< -o $@
 
 %.o: %.f
 	$(FC) $(FFLAGS) -c $< -o $@

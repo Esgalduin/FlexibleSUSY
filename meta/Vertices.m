@@ -86,14 +86,36 @@ VertexRules[nPointFunctions_, massMatrices_] := Block[{
 ];
 
 SortCps[nPointFunctions_List] := Module[{
-	exprs = nPointFunctions[[All,2]]
-    },
-    Fold[
-	Module[{sortedCp = SortCp[#2]},
+	exprs = Sequence @@ Drop[#, 1] & /@ nPointFunctions,
+	cpls, relevantcpls, k=0, result},
+	cpls=DeleteDuplicates[Cases[exprs, _SARAH`Cp|_SARAH`Cp[_], Infinity]];
+  If[Length[cpls]>50,
+    Print["sorting couplings"];
+	Print["extracting couplings..."];
+
+	Utils`StartProgressBar[Dynamic[k], Length[cpls]];
+
+	relevantcpls=Union @ Select[cpls,Module[{},k++;
+		Utils`UpdateProgressBar[k, Length[cpls]];
+		UnresolvedColorFactorFreeQ[#, exprs] ]&];
+
+	Utils`StopProgressBar[Length[cpls]];
+	k=0;
+	Utils`StartProgressBar[Dynamic[k], Length[relevantcpls]];
+
+	Print["sort and replace..."];
+
+    result=Fold[Module[{sortedCp = SortCp[#2]},k++;
+		 Utils`UpdateProgressBar[k, Length[relevantcpls]];
 	    If[sortedCp =!= #2, #1 /. #2 -> sortedCp, #1]] &,
-	nPointFunctions,
-	Union @ Select[Cases[exprs, _SARAH`Cp|_SARAH`Cp[_], Infinity],
-		       UnresolvedColorFactorFreeQ[#, exprs] &]]
+	nPointFunctions, relevantcpls];
+
+	Utils`StopProgressBar[Length[relevantcpls]];,
+    relevantcpls=Union @ Select[cpls, UnresolvedColorFactorFreeQ[#, exprs] &];
+    result=Fold[Module[{sortedCp = SortCp[#2]}, If[sortedCp =!= #2, #1 /. #2 -> sortedCp, #1]] &,
+                nPointFunctions, relevantcpls];
+  ];
+	result
 ];
 
 SortCp[SARAH`Cp[fields__]] :=
