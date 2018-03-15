@@ -75,6 +75,7 @@ private:
    int number_of_iterations{100}; ///< maximum number of iterations
    int loop_order{2};             ///< loop order to solve EWSB at
    double precision{1.e-5};       ///< precision goal
+   bool solve_consistently{false}; ///< use consistent ewsb solution
 
    void set_ewsb_solution(@ModelName@_mass_eigenstates&, const EWSB_solver*);
    template <typename It> void set_best_ewsb_solution(@ModelName@_mass_eigenstates&, It, It);
@@ -83,9 +84,11 @@ private:
    int solve_iteratively(@ModelName@_mass_eigenstates&);
    int solve_iteratively_at(@ModelName@_mass_eigenstates&, int);
    int solve_iteratively_with(@ModelName@_mass_eigenstates&, EWSB_solver*, const EWSB_vector_t&);
+   int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates&, int );
 
    EWSB_vector_t initial_guess(const @ModelName@_mass_eigenstates&) const;
    EWSB_vector_t tadpole_equations(const @ModelName@_mass_eigenstates&) const;
+   EWSB_vector_t tadpole_equations_loop(const @ModelName@_mass_eigenstates& ) const;
    EWSB_vector_t ewsb_step(const @ModelName@_mass_eigenstates&) const;
 };
 

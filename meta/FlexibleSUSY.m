@@ -204,7 +204,7 @@ Exclude1L2LAhSelfEnergySSSSshifts = False;
 Exclude1L2LFermionShifts = False;
 Exclude1L2LAhShiftSSSS = False;
 OnlyAtAtAndAtAs2L = False;
-UseConsistentEWSBSolution = True;
+UseConsistentEWSBSolution = False;
 
 (* Standard Model input parameters (SLHA input parameters) *)
 (* {parameter, {"block", entry}, type}                     *)
@@ -273,7 +273,7 @@ FPIRelative; (* Fixed point iteration, convergence crit. relative step size *)
 FPIAbsolute; (* Fixed point iteration, convergence crit. absolute step size *)
 FPITadpole;  (* Fixed point iteration, convergence crit. relative step size + tadpoles *)
 ConsistentSolver;  (* Consistent solution using 1L2L shifts *)
-FSEWSBSolvers = { FPIRelative, GSLHybridS, GSLBroyden };
+FSEWSBSolvers = { FPIRelative, GSLHybridS, GSLBroyden, ConsistentSolver};
 
 (* BVP solvers *)
 TwoScaleSolver;      (* two-scale algorithm *)
@@ -1291,7 +1291,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
             ewsbEquationsTreeLevel, independentEwsbEquationsTreeLevel,
             independentEwsbEquations, higgsToEWSBEqAssociation,
             calculateOneLoopTadpolesNoStruct = "", calculateTwoLoopTadpolesNoStruct = "",
-            ewsbInitialGuess = "", solveEwsbTreeLevel = "", setTreeLevelSolution = "", EWSBSolvers = "",
+            ewsbInitialGuess = "", solveEwsbTreeLevel = "", solveEwsbConsistent = "", setTreeLevelSolution = "", EWSBSolvers = "",
             setEWSBSolution = "", fillArrayWithEWSBParameters = "",
             solveEwsbWithTadpoles = "", getEWSBParametersFromVector = "",
             setEWSBParametersFromLocalCopies = "", applyEWSBSubstitutions = "",
@@ -1314,8 +1314,10 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
              ];
            ewsbInitialGuess             = EWSB`FillInitialGuessArray[parametersFixedByEWSB, ewsbInitialGuessValues];
            solveEwsbTreeLevel           = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
+           solveEwsbConsistent          = EWSB`CreateConsistentEwsbSolver[ewsbSolution];
            setTreeLevelSolution         = EWSB`SetTreeLevelSolution[ewsbSolution, ewsbSubstitutions];
-           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[allowedEwsbSolvers];
+           setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
+           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers],Except[FlexibleSUSY`ConsistentSolver]];
            setEWSBSolution              = EWSB`SetEWSBSolution[parametersFixedByEWSB, freePhases, "solution", "model."];
            If[ewsbSolution =!= {},
               fillArrayWithEWSBParameters  = EWSB`FillArrayWithParameters["ewsb_parameters", parametersFixedByEWSB];
@@ -1331,7 +1333,9 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
                             "@numberOfEWSBEquations@"-> ToString[TreeMasses`GetDimension[SARAH`HiggsBoson]],
                             "@ewsbInitialGuess@"       -> IndentText[ewsbInitialGuess],
                             "@solveEwsbTreeLevel@"           -> IndentText[WrapLines[solveEwsbTreeLevel]],
+                            "@solveEwsbConsistent@"          -> IndentText[WrapLines[solveEwsbConsistent]],
                             "@setTreeLevelSolution@"         -> IndentText[WrapLines[setTreeLevelSolution]],
+                            "@setConsistentSolution@"        -> IndentText[WrapLines[setConsistentSolution]],
                             "@EWSBSolvers@"                  -> IndentText[IndentText[EWSBSolvers]],
                             "@fillArrayWithEWSBParameters@"  -> IndentText[fillArrayWithEWSBParameters],
                             "@solveEwsbWithTadpoles@"        -> IndentText[WrapLines[solveEwsbWithTadpoles]],
@@ -2889,19 +2893,19 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                solver = First[solverSolutions[[i]]];
                solution = Last[solverSolutions[[i]]];
                validSolvers = ewsbSolvers;
-               (*If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
+               If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
                   Print["Error: ConsistentSolver has to be used when using the 2-loop results"];
                   Print["   of SARAH. Please enable it and re-run Flexible SUSY."];
                   Quit[1];
                  ];
-               If[FlexibleSUSY`IncludeSARAH2L === True,
+               If[FlexibleSUSY`IncludeSARAH2L === True && MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
                   Print["Warning: For SARAH 2-loop results, the ConsistenSolver has to be used"];
-                  Print["   as EWSB solver. All other solvers will be removed."];
-                  validSolvers = {FlexibleSUSY`ConsistentSolver};
-                 ];*)
-               (*If[FlexibleSUSY`UseConsistentEWSBSolution === False,
+                  Print["   as EWSB solver to get correct results, but it is not active. "];
+                  Print["   Proceed with caution. "];
+                 ];
+               If[FlexibleSUSY`UseConsistentEWSBSolution === False,
                   validSolvers = Cases[validSolvers, Except[FlexibleSUSY`ConsistentSolver]];
-                 ];*)
+                 ];
                If[solution === {},
                   (* Fixed-point iteration can only be used if an analytic EWSB solution exists *)
                   If[MemberQ[validSolvers, FlexibleSUSY`FPIRelative],
@@ -2916,12 +2920,12 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                      Print["   FPIAbsolute will be removed from the list of EWSB solvers."];
                      validSolvers = Cases[validSolvers, Except[FlexibleSUSY`FPIAbsolute]];
                     ];
-                  (*If[MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver]
+                  If[MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver]
                      Print["Warning: ConsistentSolver was selected, but no analytic"];
                      Print["   solution to the EWSB eqs. is provided."];
                      Print["   ConsistentSolver will be removed from the list of EWSB solvers."];
                      validSolvers = Cases[validSolvers, Except[FlexibleSUSY`ConsistentSolver]];
-                    ];*)
+                    ];
                  ];
                solverEwsbSolvers = Append[solverEwsbSolvers, solver -> validSolvers];
               ];
@@ -3930,10 +3934,6 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                                      FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_solver.hpp"}]},
                                     {FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_solver.cpp.in"}],
                                      FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_solver.cpp"}]}
-                                     (*,{FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_consistent_solver.hpp.in"}],
-                                     FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_consistent_solver.hpp"}]},
-                                    {FileNameJoin[{$flexiblesusyTemplateDir, "two_scale_ewsb_consistent_solver.cpp.in"}],
-                                     FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_two_scale_ewsb_consistent_solver.cpp"}]}*)
                                      }];
 
               Print["Creating class for two-scale model ..."];
@@ -4102,12 +4102,8 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                                                {{FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_solver.hpp.in"}],
                                                  FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_solver.hpp"}]},
                                                 {FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_solver.cpp.in"}],
-                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_solver.cpp"}]}
-                                                 (*,{FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_consistent_solver.hpp.in"}],
-                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_consistent_solver.hpp"}]},
-                                                {FileNameJoin[{$flexiblesusyTemplateDir, "semi_analytic_ewsb_consistent_solver.cpp.in"}],
-                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_consistent_solver.cpp"}]}*)
-                                                 }];
+                                                 FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_semi_analytic_ewsb_solver.cpp"}]}}
+                                               ];
 
               Print["Creating class for semi-analytic model ..."];
               WriteSemiAnalyticModelClass[semiAnalyticBCs, semiAnalyticSolns,

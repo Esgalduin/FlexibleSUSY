@@ -52,6 +52,9 @@ to C form";
 CreateTreeLevelEwsbSolver::usage="Converts tree-level EWSB solutions
 to C form";
 
+CreateConsistentEwsbSolver::usage="Creates C function solving EWSB eq.
+consistently";
+
 CreateEWSBRootFinders::usage="Creates comma separated list of GSL root
 finders";
 
@@ -60,6 +63,9 @@ provided by the solver";
 
 SetTreeLevelSolution::usage="sets the model parameters to the
 tree-level solution";
+
+SetConsistentSolution::usage="sets the model parameters to the
+consistent solution";
 
 FillArrayWithParameters::usage="fill an array with parameters";
 
@@ -1092,6 +1098,74 @@ SolveEWSBIgnoringFailures[loops_Integer] :=
            IndentText[result] <> warning
           ];
 
+CreateConsistentEwsbSolver[solution_List] :=
+    Module[{result = "",
+        i, par, expr, parStr, decls = "", reducedSolution,
+        type},
+       reducedSolution = solution;
+       If[reducedSolution =!= {},
+          (* create local const refs to input parameters appearing
+             in the solution *)
+          reducedSolution = ReplaceFixedParametersBySymbolsInTarget[reducedSolution];
+          result = Parameters`CreateLocalConstRefs[RemoveFixedParameters[reducedSolution]] <> "\n";
+          (* save old parameters *)
+          For[i = 1, i <= Length[reducedSolution], i++,
+              par  = reducedSolution[[i,1]];
+              type = CConversion`CreateCType[CConversion`GetScalarElementType[Parameters`GetType[par]]];
+              parStr = CConversion`ToValidCSymbolString[par];
+              result = result <> type <> " " <> parStr <> ";\n";
+             ];
+          result = result <> "\n";
+          (* write solution *)
+          For[i = 1, i <= Length[reducedSolution], i++,
+              par  = reducedSolution[[i,1]];
+              expr = reducedSolution[[i,2]] /. {Symbol["tadpole"][d_]->HoldForm[loopTadpoles[[d-1]]]};
+              type = CConversion`GetScalarElementType[Parameters`GetType[par]];
+              result = result <> CConversion`ToValidCSymbolString[par] <> " = " <>
+                       CConversion`CastTo[CConversion`RValueToCFormString[expr], type] <> ";\n";
+             ];
+          result = result <> "\n";
+          ,
+          Print["Error: no analytic EWSB solution given while creating consistent EWSB solver."];
+          Print["   This should have been caught before this point, i.e. you should never see "];
+          Print["   this message. Tell someone to fix this."];
+          Quit[1];
+         ];
+       Return[result];
+      ];
+
+SetConsistentSolution[ewsbSolution_, substitutions_List:{}, struct_String:"model."] :=
+    Module[{i, parametersFixedByEWSB, par, parStr, body = "", result = ""},
+           If[ewsbSolution =!= {},
+              parametersFixedByEWSB = #[[1]]& /@ ewsbSolution;
+              result = result <> "const bool is_finite = ";
+              For[i = 1, i <= Length[parametersFixedByEWSB], i++,
+                  par    = parametersFixedByEWSB[[i]];
+                  parStr = CConversion`ToValidCSymbolString[par];
+                  result = result <> "IsFinite(" <> parStr <> ")";
+                  If[i != Length[parametersFixedByEWSB],
+                     result = result <> " && ";
+                    ];
+                 ];
+              result = result <> ";\n\n";
+              For[i = 1, i <= Length[parametersFixedByEWSB], i++,
+                  par    = parametersFixedByEWSB[[i]];
+                  parStr = CConversion`ToValidCSymbolString[par];
+                  body = body <> Parameters`SetParameter[par, parStr, struct, None];
+                 ];
+              result = result <>
+                       "if (is_finite) {\n" <>
+                       IndentText[body] <>
+                       If[substitutions === {}, "",
+                          IndentText[WrapLines[SetModelParametersFromEWSB[parametersFixedByEWSB, substitutions, struct]]]
+                         ] <>
+                       IndentText["model.calculate_DRbar_masses();\nmodel.get_problems().unflag_no_ewsb();\n"] <>
+                       "} else {\n" <>
+                       IndentText["error = EWSB_solver::FAIL;\nmodel.get_problems().flag_no_ewsb();\n"] <>
+                       "}";
+             ];
+           result
+          ];
 End[];
 
 EndPackage[];

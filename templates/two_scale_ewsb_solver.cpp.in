@@ -192,7 +192,12 @@ int CLASSNAME::solve(@ModelName@_mass_eigenstates& model_to_solve)
    if (loop_order == 0) {
       return solve_tree_level(model_to_solve);
    }
-   return solve_iteratively_at(model_to_solve, loop_order);
+   if (solve_consistently == true) {
+      return solve_consistently_at(model_to_solve, loop_order);
+   }
+   else {
+      return solve_iteratively_at(model_to_solve, loop_order);
+   }
 }
 
 int CLASSNAME::solve_tree_level(@ModelName@_mass_eigenstates& model)
@@ -201,6 +206,18 @@ int CLASSNAME::solve_tree_level(@ModelName@_mass_eigenstates& model)
 
 @solveEwsbTreeLevel@
 @setTreeLevelSolution@
+   return error;
+}
+
+int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
+{
+   int error = EWSB_solver::SUCCESS;
+
+   EWSB_vector_t loopTadpoles=tadpole_equations_loop(model);
+
+@solveEwsbConsistent@
+@setConsistentSolution@
+
    return error;
 }
 
@@ -218,6 +235,11 @@ CLASSNAME::EWSB_vector_t CLASSNAME::tadpole_equations(const @ModelName@_mass_eig
    return model.tadpole_equations();
 }
 
+
+CLASSNAME::EWSB_vector_t CLASSNAME::tadpole_equations_loop(const @ModelName@_mass_eigenstates& model) const
+{
+   return model.tadpole_equations_loop();
+}
 /**
  * Calculates EWSB output parameters including loop-corrections.
  *
