@@ -105,6 +105,7 @@ public:
    int solve_ewsb_one_loop();
    int solve_ewsb();            ///< solve EWSB at ewsb_loop_order level
 
+   void enter_gaugeless_limit();
    void calculate_spectrum();
    void clear_problems();
    std::string name() const;
@@ -171,6 +172,52 @@ private:
    double H0(double, double, double) const noexcept;
    double F0(double, double, double) const noexcept;
    double G0(double, double, double) const noexcept;
+
+   // Fortran 2 loop functions
+   double TfSS(double x,double y,double z) const noexcept;
+   double TfSSS(double x,double y,double z) const noexcept;
+   double TfSSSS(double x,double y,double z,double u) const noexcept;
+   double TfSSFF(double x,double y,double z,double u) const noexcept;
+   double TfSSFbFb(double x,double y,double z,double u) const noexcept;
+   double TfFFFbS(double x,double y,double z,double u) const noexcept;
+   double TfFFbFS(double x,double y,double z,double u) const noexcept;
+   double TfFbFbFbS(double x,double y,double z,double u) const noexcept;
+   double TfSV(double x) const noexcept;
+   double TfFV(double x) const noexcept;
+   double WfSSSS(double p2, double x_in,double y_in,double z_in,double u_in) const noexcept;
+   double XfSSS(double p2, double x,double y,double z) const noexcept;
+   double YfSSSS(double p2, double x,double y,double z,double u) const noexcept;
+   double ZfSSSS(double p2, double x,double y,double z,double u) const noexcept;
+   double SfSSS(double p2, double x,double y,double z) const noexcept;
+   double UfSSSS(double p2, double x,double y,double z,double u) const noexcept;
+   double VfSSSSS(double p2, double x_in,double y_in,double z_in,double u_in,double v_in) const noexcept;
+   double MfSSSSS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double WfSSSV(double p2, double x) const noexcept;
+   double MfSSSSV(double p2, double x_in,double y_in) const noexcept;
+   double WfSSFF(double p2, double x,double y,double z,double u) const noexcept;
+   double WfSSFbFb(double p2, double x,double y,double z,double u) const noexcept;
+   double MfFbFbFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfFFbFbFS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfFFbFFbS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfFFFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfFFFFS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfSFbSFbFb(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfSFSFbF(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double MfSFSFFb(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfSSSFbFb(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfSSSFF(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfFbFbFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfFbFFbFS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfFbFFFbS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfFFbFbFS(double p2, double x_in,double y_in,double z_in,double u_in,double v_in) const noexcept;
+   double VfFFFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double VfFFFFS(double p2, double x,double y,double z,double u,double v) const noexcept;
+   double GfFFV(double p2, double x_in,double y_in) const noexcept;
+   double GfFbFbV(double p2, double x_in,double y_in) const noexcept;
+
+	std::complex<double> BB(double x, double y) const noexcept;
+	std::complex<double> CC(double x, double y, double z) const noexcept;
+	std::complex<double> CCtilde(double x, double y, double z) const noexcept;
 
    // DR-bar masses
 @physicalMassesDef@

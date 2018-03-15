@@ -81,6 +81,10 @@ THREADLIBS         := @THREADLIBS@
 TSILFLAGS          := @TSILFLAGS@
 TSILLIBS           := @TSILLIBS@
 
+# custom suffix rule for fortran90 files
+.SUFFIXES: .f90
+.f90.o:
+	$(FC) $(FFLAGS) -c -o $@ $<
 
 # the modules add their dependency files to this variable
 ALLDEP   :=
@@ -229,6 +233,9 @@ depend:  $(ALLDEP)
 	$(DEPGEN) $(CPPFLAGS) -MM -MI -o '$@' -MT '$*.o' $^
 
 %.d: %.F | $(DEPGEN)
+	$(DEPGEN) $(CPPFLAGS) -MM -MI -o '$@' -MT '$*.o' $^
+
+%.d: %.f90 | $(DEPGEN)
 	$(DEPGEN) $(CPPFLAGS) -MM -MI -o '$@' -MT '$*.o' $^
 
 %.o: %.cpp

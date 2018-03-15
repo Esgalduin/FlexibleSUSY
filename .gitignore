@@ -4,6 +4,7 @@
 *.so
 *.d
 *.x
+*.mod
 
 config/config.h
 config/version

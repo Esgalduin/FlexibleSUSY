@@ -228,6 +228,13 @@ void CLASSNAME::set_ewsb_solver(const std::shared_ptr<@ModelName@_ewsb_solver_in
    ewsb_solver = solver;
 }
 
+void CLASSNAME::enter_gaugeless_limit(){
+
+@WriteEnterGauglessLimit@
+
+}
+
+
 /**
  * Method which calculates the tadpoles at the current loop order.
  *

@@ -273,7 +273,7 @@ FPIRelative; (* Fixed point iteration, convergence crit. relative step size *)
 FPIAbsolute; (* Fixed point iteration, convergence crit. absolute step size *)
 FPITadpole;  (* Fixed point iteration, convergence crit. relative step size + tadpoles *)
 ConsistentSolver;  (* Consistent solution using 1L2L shifts *)
-FSEWSBSolvers = { FPIRelative, GSLHybridS, GSLBroyden, ConsistentSolver };
+FSEWSBSolvers = { FPIRelative, GSLHybridS, GSLBroyden };
 
 (* BVP solvers *)
 TwoScaleSolver;      (* two-scale algorithm *)

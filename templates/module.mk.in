@@ -40,6 +40,8 @@ MOD@CLASSNAME@_LIB := $(foreach M,$(MOD@CLASSNAME@_MOD),model_specific/$M/libmod
 		$(MODNAME).tar.gz
 
 LIB@CLASSNAME@_SRC := \
+		$(DIR)/@CLASSNAME@_2LPoleFunctions.cpp \
+		$(DIR)/@CLASSNAME@_2LPoleFunctions_fortran.f90 \
 		$(DIR)/@CLASSNAME@_a_muon.cpp \
 		$(DIR)/@CLASSNAME@_edm.cpp \
 		$(DIR)/@CLASSNAME@_effective_couplings.cpp \
@@ -68,6 +70,7 @@ LL@CLASSNAME@_MMA  := \
 		$(DIR)/run_@CLASSNAME@.m
 
 LIB@CLASSNAME@_HDR := \
+		$(DIR)/@CLASSNAME@_2LPoleFunctions_fotran.h \
 		$(DIR)/@CLASSNAME@_cxx_diagrams.hpp \
 		$(DIR)/@CLASSNAME@_a_muon.hpp \
 		$(DIR)/@CLASSNAME@_convergence_tester.hpp \
@@ -140,7 +143,8 @@ EXE@CLASSNAME@_SRC := $(sort $(EXE@CLASSNAME@_SRC))
 
 LIB@CLASSNAME@_OBJ := \
 		$(patsubst %.cpp, %.o, $(filter %.cpp, $(LIB@CLASSNAME@_SRC))) \
-		$(patsubst %.f, %.o, $(filter %.f, $(LIB@CLASSNAME@_SRC)))
+		$(patsubst %.f, %.o, $(filter %.f, $(LIB@CLASSNAME@_SRC))) \
+		$(patsubst %.f90, %.o, $(filter %.f90, $(LIB@CLASSNAME@_SRC)))
 
 EXE@CLASSNAME@_OBJ := \
 		$(patsubst %.cpp, %.o, $(filter %.cpp, $(EXE@CLASSNAME@_SRC))) \
