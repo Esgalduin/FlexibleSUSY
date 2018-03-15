@@ -1119,7 +1119,7 @@ CreateConsistentEwsbSolver[solution_List] :=
           (* write solution *)
           For[i = 1, i <= Length[reducedSolution], i++,
               par  = reducedSolution[[i,1]];
-              expr = reducedSolution[[i,2]] /. {Symbol["tadpole"][d_]->HoldForm[loopTadpoles[[d-1]]]};
+              expr = reducedSolution[[i,2]] /. {Symbol["tadpole"][d_]->Symbol["loopTadpoles"][d-1]} /. {x_[nm_]/;SameQ[x,Symbol["loopTadpoles"]]->HoldForm[x[[nm]]]};
               type = CConversion`GetScalarElementType[Parameters`GetType[par]];
               result = result <> CConversion`ToValidCSymbolString[par] <> " = " <>
                        CConversion`CastTo[CConversion`RValueToCFormString[expr], type] <> ";\n";
