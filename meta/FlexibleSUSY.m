@@ -1317,7 +1317,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
            solveEwsbConsistent          = EWSB`CreateConsistentEwsbSolver[ewsbSolution];
            setTreeLevelSolution         = EWSB`SetTreeLevelSolution[ewsbSolution, ewsbSubstitutions];
            setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
-           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers, Except[FlexibleSUSY`ConsistentSolver]];
+           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers, Except[FlexibleSUSY`ConsistentSolver]]];
            setEWSBSolution              = EWSB`SetEWSBSolution[parametersFixedByEWSB, freePhases, "solution", "model."];
            If[ewsbSolution =!= {},
               fillArrayWithEWSBParameters  = EWSB`FillArrayWithParameters["ewsb_parameters", parametersFixedByEWSB];
