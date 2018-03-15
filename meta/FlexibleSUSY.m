@@ -1317,7 +1317,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
            solveEwsbConsistent          = EWSB`CreateConsistentEwsbSolver[ewsbSolution];
            setTreeLevelSolution         = EWSB`SetTreeLevelSolution[ewsbSolution, ewsbSubstitutions];
            setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
-           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers],Except[FlexibleSUSY`ConsistentSolver]];
+           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers, Except[FlexibleSUSY`ConsistentSolver]];
            setEWSBSolution              = EWSB`SetEWSBSolution[parametersFixedByEWSB, freePhases, "solution", "model."];
            If[ewsbSolution =!= {},
               fillArrayWithEWSBParameters  = EWSB`FillArrayWithParameters["ewsb_parameters", parametersFixedByEWSB];
@@ -2894,11 +2894,6 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                solution = Last[solverSolutions[[i]]];
                validSolvers = ewsbSolvers;
                If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
-                  Print["Error: ConsistentSolver has to be used when using the 2-loop results"];
-                  Print["   of SARAH. Please enable it and re-run Flexible SUSY."];
-                  Quit[1];
-                 ];
-               If[FlexibleSUSY`IncludeSARAH2L === True && MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
                   Print["Warning: For SARAH 2-loop results, the ConsistenSolver has to be used"];
                   Print["   as EWSB solver to get correct results, but it is not active. "];
                   Print["   Proceed with caution. "];
