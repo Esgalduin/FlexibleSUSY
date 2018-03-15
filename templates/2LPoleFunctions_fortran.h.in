@@ -1,0 +1,56 @@
+#ifndef TWOLPOLEFUNCTIONS_FORTRAN_H
+#define TWOLPOLEFUNCTIONS_FORTRAN_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+double TfSS_f(const double *,const double *,const double *,const double *);
+double TfSSS_f(const double *,const double *,const double *,const double *);
+double TfSSSS_f(const double *,const double *,const double *,const double *,const double *);
+double TfSSFF_f(const double *,const double *,const double *,const double *,const double *);
+double TfSSFbFb_f(const double *,const double *,const double *,const double *,const double *);
+double TfFFFbS_f(const double *,const double *,const double *,const double *,const double *);
+double TfFFbFS_f(const double *,const double *,const double *,const double *,const double *);
+double TfFbFbFbS_f(const double *,const double *,const double *,const double *,const double *);
+double TfSV_f(const double *,const double *);
+double TfFV_f(const double *,const double *);
+double WfSSSS_f(const double *,const double *,const double *,const double *,const double *,const double *);
+double XfSSS_f(const double *,const double *,const double *,const double *,const double *);
+double YfSSSS_f(const double *,const double *,const double *,const double *,const double *,const double *);
+double ZfSSSS_f(const double *,const double *,const double *,const double *,const double *,const double *);
+double SfSSS_f(const double *,const double *,const double *,const double *,const double *);
+double UfSSSS_f(const double *,const double *,const double *,const double *,const double *,const double *);
+double VfSSSSS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfSSSSS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double WfSSSV_f(const double *,const double *,const double *);
+double MfSSSSV_f(const double *,const double *,const double *,const double *);
+double WfSSFF_f(const double *,const double *,const double *,const double *,const double *,const double *);
+double WfSSFbFb_f(const double *,const double *,const double *,const double *,const double *,const double *);
+double MfFbFbFbFbS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfFFbFbFS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfFFbFFbS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfFFFbFbS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfFFFFS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfSFbSFbFb_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfSFSFbF_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double MfSFSFFb_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfSSSFbFb_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfSSSFF_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfFbFbFbFbS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfFbFFbFS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfFbFFFbS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfFFbFbFS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfFFFbFbS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double VfFFFFS_f(const double *,const double *,const double *,const double *,const double *,const double *,const double *);
+double GfFFV_f(const double *,const double *,const double *,const double *);
+double GfFbFbV_f(const double *,const double *,const double *,const double *);
+std::complex<double> BB_f(const double*, const double *, const double *);
+std::complex<double> CC_f(const double *, const double *, const double *, const double *);
+std::complex<double> CCtilde_f(const double *, const double *, const double *, const double *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

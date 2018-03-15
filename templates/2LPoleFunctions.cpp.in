@@ -1,0 +1,518 @@
+#include "@ModelName@_mass_eigenstates.hpp"
+#include "@ModelName@_2LPoleFunctions_fortran.h"
+#include <cmath>
+#include <complex>
+
+namespace flexiblesusy {
+#define CLASSNAME @ModelName@_mass_eigenstates
+
+template<class T> T sqr(T x) noexcept { return x*x; }
+
+double epsfmass=1E-9;
+/** Fortran wrappers **/
+
+double CLASSNAME::TfSS(double x,double y,double z) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double Q2_const=sqr(get_scale());
+        return TfSS_f(&x_const,&y_const,&z_const,&Q2_const);
+}
+
+double CLASSNAME::TfSSS(double x,double y,double z) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double Q2_const=sqr(get_scale());
+        return TfSSS_f(&x_const,&y_const,&z_const,&Q2_const);
+}
+
+double CLASSNAME::TfSSSS(double x,double y,double z,double u) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        return TfSSSS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
+}
+
+double CLASSNAME::TfSSFF(double x,double y,double z,double u) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        return TfSSFF_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
+}
+
+double CLASSNAME::TfSSFbFb(double x,double y,double z,double u) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        if((z > epsfmass) && (u > epsfmass)) {
+                return TfSSFbFb_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::TfFFFbS(double x,double y,double z,double u) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        if((z > epsfmass)) {
+                return TfFFFbS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::TfFFbFS(double x,double y,double z,double u) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        if((y > epsfmass)) {
+                return TfFFbFS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::TfFbFbFbS(double x,double y,double z,double u) const noexcept{
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        if((x > epsfmass) && (y > epsfmass) && (z > epsfmass)) {
+                return TfFbFbFbS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::TfSV(double x) const noexcept{
+        const double x_const=x;
+        const double Q2_const=sqr(get_scale());
+        return TfSV_f(&x_const,&Q2_const);
+}
+
+double CLASSNAME::TfFV(double x) const noexcept{
+        const double x_const=x;
+        const double Q2_const=sqr(get_scale());
+        return TfFV_f(&x_const,&Q2_const);
+}
+
+double CLASSNAME::WfSSSS(double p2, double x_in,double y_in,double z_in,double u_in) const noexcept{
+        const double p2_const=p2;
+        const double x_in_const=x_in;
+        const double y_in_const=y_in;
+        const double z_in_const=z_in;
+        const double u_in_const=u_in;
+        const double Q2_const=sqr(get_scale());
+        return WfSSSS_f(&p2_const,&x_in_const,&y_in_const,&z_in_const,&u_in_const,&Q2_const);
+}
+
+double CLASSNAME::XfSSS(double p2, double x,double y,double z) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double Q2_const=sqr(get_scale());
+        return XfSSS_f(&p2_const,&x_const,&y_const,&z_const,&Q2_const);
+}
+
+double CLASSNAME::YfSSSS(double p2, double x,double y,double z,double u) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        return YfSSSS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
+}
+
+double CLASSNAME::ZfSSSS(double p2, double x,double y,double z,double u) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        return ZfSSSS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
+}
+
+double CLASSNAME::SfSSS(double p2, double x,double y,double z) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double Q2_const=sqr(get_scale());
+        return SfSSS_f(&p2_const,&x_const,&y_const,&z_const,&Q2_const);
+}
+
+double CLASSNAME::UfSSSS(double p2, double x,double y,double z,double u) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        return UfSSSS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
+}
+
+double CLASSNAME::VfSSSSS(double p2, double x_in,double y_in,double z_in,double u_in,double v_in) const noexcept{
+        const double p2_const=p2;
+        const double x_in_const=x_in;
+        const double y_in_const=y_in;
+        const double z_in_const=z_in;
+        const double u_in_const=u_in;
+        const double v_in_const=v_in;
+        const double Q2_const=sqr(get_scale());
+        return VfSSSSS_f(&p2_const,&x_in_const,&y_in_const,&z_in_const,&u_in_const,&v_in_const,&Q2_const);
+}
+
+double CLASSNAME::MfSSSSS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        return MfSSSSS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+}
+
+double CLASSNAME::WfSSSV(double p2, double x) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double Q2_const=sqr(get_scale());
+        return WfSSSV_f(&p2_const,&x_const,&Q2_const);
+}
+
+double CLASSNAME::MfSSSSV(double p2, double x_in,double y_in) const noexcept{
+        const double p2_const=p2;
+        const double x_in_const=x_in;
+        const double y_in_const=y_in;
+        const double Q2_const=sqr(get_scale());
+        return MfSSSSV_f(&p2_const,&x_in_const,&y_in_const,&Q2_const);
+}
+
+double CLASSNAME::WfSSFF(double p2, double x,double y,double z,double u) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        return WfSSFF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
+}
+
+double CLASSNAME::WfSSFbFb(double p2, double x,double y,double z,double u) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double Q2_const=sqr(get_scale());
+        if((z > epsfmass) && (u > epsfmass)) {
+                return WfSSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfFbFbFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((x > epsfmass) && (y > epsfmass) && (z > epsfmass) && (u > epsfmass)) {
+                return MfFbFbFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfFFbFbFS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((y > epsfmass) && (z > epsfmass)) {
+                return MfFFbFbFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfFFbFFbS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((y > epsfmass) && (u > epsfmass)) {
+                return MfFFbFFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfFFFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((z > epsfmass) && (u > epsfmass)) {
+                return MfFFFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfFFFFS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        return MfFFFFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+}
+
+double CLASSNAME::MfSFbSFbFb(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((y > epsfmass) && (u > epsfmass) && (v > epsfmass)) {
+                return MfSFbSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfSFSFbF(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((u > epsfmass)) {
+                return MfSFSFbF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::MfSFSFFb(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((v > epsfmass)) {
+                return MfSFSFFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfSSSFbFb(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((u > epsfmass) && (v > epsfmass)) {
+                return VfSSSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfSSSFF(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        return VfSSSFF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+}
+
+double CLASSNAME::VfFbFbFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((x > epsfmass) && (y > epsfmass) && (z > epsfmass) && (u > epsfmass)) {
+                return VfFbFbFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfFbFFbFS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((x > epsfmass) && (z > epsfmass)) {
+                return VfFbFFbFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfFbFFFbS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((x > epsfmass) && (u > epsfmass)) {
+                return VfFbFFFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfFFbFbFS(double p2, double x_in,double y_in,double z_in,double u_in,double v_in) const noexcept{
+        const double p2_const=p2;
+        const double x_in_const=x_in;
+        const double y_in_const=y_in;
+        const double z_in_const=z_in;
+        const double u_in_const=u_in;
+        const double v_in_const=v_in;
+        const double Q2_const=sqr(get_scale());
+        if((y_in > epsfmass) && (z_in > epsfmass)) {
+                return VfFFbFbFS_f(&p2_const,&x_in_const,&y_in_const,&z_in_const,&u_in_const,&v_in_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfFFFbFbS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        if((z > epsfmass) && (u > epsfmass)) {
+                return VfFFFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+double CLASSNAME::VfFFFFS(double p2, double x,double y,double z,double u,double v) const noexcept{
+        const double p2_const=p2;
+        const double x_const=x;
+        const double y_const=y;
+        const double z_const=z;
+        const double u_const=u;
+        const double v_const=v;
+        const double Q2_const=sqr(get_scale());
+        return VfFFFFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
+}
+
+double CLASSNAME::GfFFV(double p2, double x_in,double y_in) const noexcept{
+        const double p2_const=p2;
+        const double x_in_const=x_in;
+        const double y_in_const=y_in;
+        const double Q2_const=sqr(get_scale());
+        return GfFFV_f(&p2_const,&x_in_const,&y_in_const,&Q2_const);
+}
+
+double CLASSNAME::GfFbFbV(double p2, double x_in,double y_in) const noexcept{
+        const double p2_const=p2;
+        const double x_in_const=x_in;
+        const double y_in_const=y_in;
+        const double Q2_const=sqr(get_scale());
+        if((x_in > epsfmass) && (y_in > epsfmass)) {
+                return GfFbFbV_f(&p2_const,&x_in_const,&y_in_const,&Q2_const);
+        }
+        else {
+                return 0;
+        }
+}
+
+std::complex<double> CLASSNAME::BB(double x, double y) const noexcept {
+	const double x_const=x;
+	const double y_const=y;
+	const double Q2_const=sqr(get_scale());
+	return BB_f(&x_const,&y_const,&Q2_const);
+}
+std::complex<double> CLASSNAME::CC(double x, double y, double z) const noexcept {
+	const double x_const=x;
+	const double y_const=y;
+	const double z_const=z;
+	const double Q2_const=sqr(get_scale());
+	return CC_f(&x_const,&y_const,&z_const,&Q2_const);
+}
+std::complex<double> CLASSNAME::CCtilde(double x, double y, double z) const noexcept {
+	const double x_const=x;
+	const double y_const=y;
+	const double z_const=z;
+	const double Q2_const=sqr(get_scale());
+	return CCtilde_f(&x_const,&y_const,&z_const,&Q2_const);
+}
+}
