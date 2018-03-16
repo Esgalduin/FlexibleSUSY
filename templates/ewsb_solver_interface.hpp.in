@@ -45,10 +45,12 @@ public:
    virtual void set_loop_order(int) = 0;
    virtual void set_number_of_iterations(int) = 0;
    virtual void set_precision(double) = 0;
+   virtual void set_solve_consistently(bool) = false;
 
    virtual int get_loop_order() const = 0;
    virtual int get_number_of_iterations() const = 0;
    virtual double get_precision() const = 0;
+   virtual bool get_solve_consistently() const = false;
 
    virtual int solve(@ModelName@_mass_eigenstates&) = 0;
 };
