@@ -213,6 +213,8 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
 {
    int error = EWSB_solver::SUCCESS;
 
+   model.solve_ewsb_tree_level(); // need to make sure our parameters are at tree-level
+
    // this is set while model creation, so that consitent solution cannot be attempted
    // if no shifts were calculated, since then it is nonsensical
    if(!@ewsbSolveConsistently@) {
@@ -221,7 +223,9 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
       return error;
    };
 
-   EWSB_vector_t loopTadpoles=tadpole_equations_loop(model);
+   // we multiply with (-1) to get the correct sign,
+   // since in mass_eigenstates we set tadpole -= foo already
+   EWSB_vector_t loopTadpoles = tadpole_equations_loop(model) * (-1.0);
 
 @solveEwsbConsistent@
 @setConsistentSolution@

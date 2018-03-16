@@ -195,8 +195,8 @@ Do1DimScalar[particle_, particleName_String, massName_String, massMatrixName_Str
        IndentText["auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n" <>
                   "self_energy += Re(model_gl.self_energy_" <> particleName <> "_2loop(p));\n"<>
                   If[FlexibleSUSY`IncludeSARAH2L === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
-                     "if(ewsb_solve_consistently) {" <>
-                     "  self_energy += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
+                     "if(ewsb_solve_consistently) {\n" <>
+                     "  self_energy += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
                      "}\n",
                      ""
                   ]] <> "}\n", ""] <>
@@ -764,10 +764,10 @@ if (pole_mass_loop_order > 1) {
 " <> IndentText["\
 " <> If[FlexibleSUSY`IncludeSARAH2L === True, "auto model_gl = this;\nmodel_gl.enter_gaugeless_limit();\n",""] <> "
 self_energy_2l = " <> If[FlexibleSUSY`IncludeSARAH2L === True, "model_gl.",""] <>
-"self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
+"self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p);\n" <>
 If[FlexibleSUSY`IncludeSARAH2L === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
    "if(ewsb_solve_consistently) {" <>
-   "  self_energy_2l += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
+   "  self_energy_2l += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p);\n" <>
    "}\n",
    ""
 ] <>
