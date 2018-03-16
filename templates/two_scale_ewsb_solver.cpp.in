@@ -213,6 +213,14 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
 {
    int error = EWSB_solver::SUCCESS;
 
+   // this is set while model creation, so that consitent solution cannot be attempted
+   // if no shifts were calculated, since then it is nonsensical
+   if(!@ewsbSolveConsistently@) {
+      error = EWSB_solver::FAIL;
+      model.get_problems().flag_no_ewsb();
+      return error;
+   };
+
    EWSB_vector_t loopTadpoles=tadpole_equations_loop(model);
 
 @solveEwsbConsistent@

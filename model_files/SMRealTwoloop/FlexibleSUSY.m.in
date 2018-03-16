@@ -51,6 +51,8 @@ UseHiggs2LoopSM = False;
 UseHiggs3LoopSM = False;
 UseSMAlphaS3Loop = False;
 
+UseConsistentEWSBSolution = True;
+
 DefaultPoleMassPrecision = MediumPrecision;
 HighPoleMassPrecision    = {hh};
 MediumPoleMassPrecision  = {};

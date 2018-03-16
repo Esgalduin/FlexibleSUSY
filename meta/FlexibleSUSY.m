@@ -673,6 +673,7 @@ GeneralReplacementRules[] :=
             ],
       "@RenScheme@"           -> ToString[FlexibleSUSY`FSRenormalizationScheme],
       "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
+      "@ewsbSolveConsistently@"-> If[FlexibleSUSY`UseConsistentEWSBSolution === True, "true", "false"],
       "@ModelTypes@"          -> FlexibleTower`GetModelTypes[],
       "@DateAndTime@"         -> DateString[],
       "@SARAHVersion@"        -> SA`Version,
@@ -1733,7 +1734,6 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@dependenceFunctions@"          -> WrapLines[dependenceFunctions],
                             "@saveEWSBOutputParameters@"     -> IndentText[saveEWSBOutputParameters],
                             "@solveTreeLevelEWSBviaSoftHiggsMasses@" -> IndentText[WrapLines[solveTreeLevelEWSBviaSoftHiggsMasses]],
-                            "@ewsbSolveConsistently@"      -> If[FlexibleSUSY`UseConsistentEWSBSolution === True, "true", "false"],
                             "@solveEWSBTemporarily@"         -> solveEWSBTemporarily,
                             "@convertMixingsToSLHAConvention@" -> IndentText[convertMixingsToSLHAConvention],
                             "@convertMixingsToHKConvention@"   -> IndentText[convertMixingsToHKConvention],
@@ -2685,8 +2685,8 @@ FSCheckFlags[] :=
              ];
           ];
 
-Get2LExpressionOutputFileName[type_String,field_String]:=FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_"
-                                       <> type <> "_" <> field <> "_2loop_expr.m"}];
+Get2LExpressionOutputFileName[type_String,field_String]:=FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_2loop_expr_"
+                                       <> type <> "_" <> field <> ".m"}];
 
 Get2LSelfEnergy[eigenstates_] :=
     Module[{files,result={}},

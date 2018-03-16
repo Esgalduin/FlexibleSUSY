@@ -384,7 +384,7 @@ int CLASSNAME::solve_ewsb_one_loop()
    const bool old_solve_consistently = ewsb_solver->get_solve_consistently();
    const auto save_solve_consistently = make_raii_guard(
       [this, old_solve_consistently] () {
-         this->ewsb_solver->solve_consistently(old_solve_consistently);
+         this->ewsb_solver->set_solve_consistently(old_solve_consistently);
       });
 
    ewsb_solver->set_loop_order(1);
@@ -425,7 +425,7 @@ int CLASSNAME::solve_ewsb()
    const bool old_solve_consistently = ewsb_solver->get_solve_consistently();
    const auto save_solve_consistently = make_raii_guard(
       [this, old_solve_consistently] () {
-         this->ewsb_solver->solve_consistently(old_solve_consistently);
+         this->ewsb_solver->set_solve_consistently(old_solve_consistently);
       });
 
    ewsb_solver->set_loop_order(ewsb_loop_order);
