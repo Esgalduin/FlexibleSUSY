@@ -194,7 +194,12 @@ Do1DimScalar[particle_, particleName_String, massName_String, massMatrixName_Str
        "if (pole_mass_loop_order > 1) {\n" <>
        IndentText["auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n" <>
                   "self_energy += Re(model_gl.self_energy_" <> particleName <> "_2loop(p));\n"<>
-                  If[FlexibleSUSY`UseConsistentEWSBSolution === True, "self_energy += Re(model_gl.self_energy_shift1L_" <> particleName <> "_2loop(p));\n",""]] <> "}\n", ""] <>
+                  If[FlexibleSUSY`IncludeSARAH2L === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
+                     "if(ewsb_solve_consistently) {" <>
+                     "  self_energy += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
+                     "}\n",
+                     ""
+                  ]] <> "}\n", ""] <>
     If[FlexibleSUSY`UseHiggs3LoopSM === True && particle === SARAH`HiggsBoson,
        "if (pole_mass_loop_order > 2)\n" <>
        IndentText["self_energy += self_energy_" <> particleName <> "_3loop();\n"], ""] <>
@@ -758,8 +763,14 @@ CalcEffPot2L[particle_] :=
 if (pole_mass_loop_order > 1) {
 " <> IndentText["\
 " <> If[FlexibleSUSY`IncludeSARAH2L === True, "auto model_gl = this;\nmodel_gl.enter_gaugeless_limit();\n",""] <> "
-self_energy_2l = " <> If[FlexibleSUSY`IncludeSARAH2L === True, "model_gl.",""] <> "self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
-If[FlexibleSUSY`IncludeSARAH2L === True && FlexibleSUSY`UseConsistentEWSBSolution === True, "self_energy_2l += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n",""] <>
+self_energy_2l = " <> If[FlexibleSUSY`IncludeSARAH2L === True, "model_gl.",""] <>
+"self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
+If[FlexibleSUSY`IncludeSARAH2L === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
+   "if(ewsb_solve_consistently) {" <>
+   "  self_energy_2l += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop();\n" <>
+   "}\n",
+   ""
+] <>
 "for (int i = 0; i < " <> dimStr <> "; i++) {
    for (int k = 0; k < " <> dimStr <> "; k++) {
       if (!std::isfinite(self_energy_2l(i,k))) {
