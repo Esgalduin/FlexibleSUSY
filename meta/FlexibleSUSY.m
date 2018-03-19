@@ -506,17 +506,7 @@ CheckModelFileSettings[] :=
            If[Head[FlexibleSUSY`EWSBSubstitutions] =!= List,
               FlexibleSUSY`EWSBSubstitutions = {};
              ];
-           If[FlexibleSUSY`IncludeSARAH2L === False,
-              FlexibleSUSY`Exclude1L2LShifts = True;
-             ];
-           If[FlexibleSUSY`UseConsistentEWSBSolution === True &&
-               FlexibleSUSY`Exclude1L2LShifts === True && FlexibleSUSY`IncludeSARAH2L === True,
-               Print["Error: Consistent solution of EWSB equations including"];
-               Print["   the SARAH 2-loop expressions cannot be used"];
-               Print["   without 1L2L shifts."];
-               Quit[1];
-             ];
-           If[FlexibleSUSY`IncludeSARAH2L === True && (SARAH`UseHiggs2LoopMSSM === True ||
+           If[FlexibleSUSY`UseSARAH2Loop === True && (SARAH`UseHiggs2LoopMSSM === True ||
               FlexibleSUSY`UseHiggs2LoopNMSSM === True || FlexibleSUSY`UseHiggs2LoopSM === True ),
               Print["Error: Both SARAH 2-loop routines and fixed expressions for",
                     "    SM, MSSM or NMSSM are active. Please disable one of them."];
@@ -672,8 +662,6 @@ GeneralReplacementRules[] :=
              ]]
             ],
       "@RenScheme@"           -> ToString[FlexibleSUSY`FSRenormalizationScheme],
-      "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
-      "@ewsbSolveConsistently@"-> If[FlexibleSUSY`UseConsistentEWSBSolution === True, "true", "false"],
       "@ModelTypes@"          -> FlexibleTower`GetModelTypes[],
       "@DateAndTime@"         -> DateString[],
       "@SARAHVersion@"        -> SA`Version,
@@ -1345,6 +1333,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
                             "@setEWSBSolution@"              -> IndentText[setEWSBSolution],
                             "@applyEWSBSubstitutions@"       -> IndentText[IndentText[WrapLines[applyEWSBSubstitutions]]],
                             "@setModelParametersFromEWSB@"   -> IndentText[WrapLines[setModelParametersFromEWSB]],
+                            "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver]], "true", "false"],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
           ];
@@ -1515,12 +1504,10 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            higgsToEWSBEqAssociation     = CreateHiggsToEWSBEqAssociation[];
            calculateTreeLevelTadpoles   = EWSB`FillArrayWithEWSBEqs[SARAH`HiggsBoson, "tadpole"];
            calculateOneLoopTadpoles     = SelfEnergies`FillArrayWithLoopTadpoles[1, higgsToEWSBEqAssociation, "tadpole", "-"];
-           If[FlexibleSUSY`IncludeSARAH2L === True,
-               calculateTwoLoopTadpoles = calculateTwoLoopTadpoles <> "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n";
+           If[FlexibleSUSY`UseSARAH2Loop === True,
+               calculateTwoLoopTadpoles     = calculateTwoLoopTadpoles <> "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n";
                calculateTwoLoopTadpoles     = calculateTwoLoopTadpoles <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "-"];
-               If[UseConsistentEWSBSolution === True,
-                  calculateTwoLoopTadpoles     = calculateTwoLoopTadpoles <> SelfEnergies`FillArrayWithLoopTadpolesShifts1L[2, higgsToEWSBEqAssociation, "tadpole", "-"];
-                 ];
+               calculateTwoLoopTadpoles     = calculateTwoLoopTadpoles <> SelfEnergies`FillArrayWithLoopTadpolesShifts1L[2, higgsToEWSBEqAssociation, "tadpole", "-"];
            ];
            divideTadpoleByVEV           = SelfEnergies`DivideTadpoleByVEV[Parameters`DecreaseIndexLiterals @ CreateVEVToTadpoleAssociation[], "tadpole"];
            If[SARAH`UseHiggs2LoopMSSM === True || FlexibleSUSY`UseHiggs2LoopNMSSM === True,

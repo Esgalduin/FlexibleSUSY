@@ -631,7 +631,7 @@ FillArrayWithLoopTadpoles[loopLevel_, higgsAndIdx_List, arrayName_String, sign_S
                field = higgsAndIdx[[v,1]];
                idx = higgsAndIdx[[v,2]];
                head = CConversion`ToValidCSymbolString[higgsAndIdx[[v,3]]];
-               functionName = If[loopLevel === 2 && FlexibleSUSY`IncludeSARAH2L === True, "model_gl." ,""] <> CreateTadpoleFunctionName[field, loopLevel];
+               functionName = If[loopLevel === 2 && FlexibleSUSY`UseSARAH2Loop === True, "model_gl." ,""] <> CreateTadpoleFunctionName[field, loopLevel];
                If[TreeMasses`GetDimension[field] == 1,
                   body = body <> arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
                          head <> "(" <> struct <> functionName <> "());\n";
@@ -651,14 +651,16 @@ FillArrayWithLoopTadpolesShifts1L[loopLevel_, higgsAndIdx_List, arrayName_String
              idx = higgsAndIdx[[v,2]];
              head = CConversion`ToValidCSymbolString[higgsAndIdx[[v,3]]];
              functionName = "model_gl." <> CreateTadpoleShift1LFunctionName[field, loopLevel];
+             body = body <> "if(get_ewsb_solve_consistently) {"
              If[TreeMasses`GetDimension[field] == 1,
-                body = body <> arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
-                       head <> "(" <> struct <> functionName <> "());\n";
+                body = body <> IndentText[arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
+                       head <> "(" <> struct <> functionName <> "());\n"];
                 ,
-                body = body <> arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
+                body = body <> IndentText[arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
                        head <> "(" <> struct <> functionName <>
-                       "(" <> ToString[idx - 1] <> "));\n";
+                       "(" <> ToString[idx - 1] <> "));\n"];
                ];
+            body = body <> "}\n"
             ];
          body
         ];
