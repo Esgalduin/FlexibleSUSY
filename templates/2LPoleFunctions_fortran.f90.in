@@ -1217,7 +1217,7 @@ RSS=res
 end function RSS
 
 
-Complex(dpC) function BBs(p2,m1_in,m2_in,q2)
+Complex(dpC) function BBs(p2,m1_in,m2_in,q2) bind(C,name='BBs_f')
 implicit none
 real(dp), intent(in) :: p2,m1_in,m2_in,q2
 Complex(dpC) ::res

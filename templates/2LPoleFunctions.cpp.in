@@ -501,6 +501,15 @@ std::complex<double> CLASSNAME::BB(double x, double y) const noexcept {
 	const double Q2_const=sqr(get_scale());
 	return BB_f(&x_const,&y_const,&Q2_const);
 }
+
+std::complex<double> CLASSNAME::BBs(double p2, double x, double y) const noexcept {
+   const double p2_const=p2;
+   const double x_const=x;
+	const double y_const=y;
+	const double Q2_const=sqr(get_scale());
+	return BBs_f(&p2_const,&x_const,&y_const,&Q2_const);
+}
+
 std::complex<double> CLASSNAME::CC(double x, double y, double z) const noexcept {
 	const double x_const=x;
 	const double y_const=y;

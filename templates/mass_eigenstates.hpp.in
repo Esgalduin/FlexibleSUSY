@@ -144,6 +144,12 @@ public:
 @runningDRbarMassesPrototypes@
 @dependencePrototypes@
 
+std::complex<double> BB(double x, double y) const noexcept;
+std::complex<double> BBs(double p2, double x, double y) const noexcept;
+
+double A0(double) const noexcept;
+double B0(double, double, double) const noexcept;
+
 private:
    int ewsb_loop_order{2};           ///< loop order for EWSB
    int pole_mass_loop_order{2};      ///< loop order for pole masses
@@ -167,8 +173,7 @@ private:
    void copy_DRbar_masses_to_pole_masses();
 
    // Passarino-Veltman loop functions
-   double A0(double) const noexcept;
-   double B0(double, double, double) const noexcept;
+
    double B1(double, double, double) const noexcept;
    double B00(double, double, double) const noexcept;
    double B22(double, double, double) const noexcept;
@@ -218,7 +223,7 @@ private:
    double GfFFV(double p2, double x_in,double y_in) const noexcept;
    double GfFbFbV(double p2, double x_in,double y_in) const noexcept;
 
-	std::complex<double> BB(double x, double y) const noexcept;
+
 	std::complex<double> CC(double x, double y, double z) const noexcept;
 	std::complex<double> CCtilde(double x, double y, double z) const noexcept;
 

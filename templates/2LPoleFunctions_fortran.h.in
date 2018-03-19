@@ -46,6 +46,7 @@ double VfFFFFS_f(const double *,const double *,const double *,const double *,con
 double GfFFV_f(const double *,const double *,const double *,const double *);
 double GfFbFbV_f(const double *,const double *,const double *,const double *);
 std::complex<double> BB_f(const double*, const double *, const double *);
+std::complex<double> BBs_f(const double*, const double*, const double *, const double *);
 std::complex<double> CC_f(const double *, const double *, const double *, const double *);
 std::complex<double> CCtilde_f(const double *, const double *, const double *, const double *);
 

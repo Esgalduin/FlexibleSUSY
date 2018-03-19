@@ -8,7 +8,7 @@ ClearAll["SelfEnergies2L`Private`*"];
 ConvertSarah2LDiagramList::usage = "Converts SARAH's list with 2-loop
  self-energy and tadpole diagrams."
 
-GetTadpoleField::usage = "Returns the field to which the tadpole diagram expression belongs to."
+(* GetTadpoleField::usage = "Returns the field to which the tadpole diagram expression belongs to." *)
 
 Make1L2LShifts::usage = "takes in list of SARAH tadpoles and eigenstates, and gives all 1L2L Tadpole shifts"
 
@@ -83,12 +83,12 @@ CreateTadpoleDiag[{particles_List, loopFuncs_List, couplings_List}] :=
 SumTadpoleType[{type_, diags_List}] := Total[CreateTadpoleDiag /@ diags];
 
 (*returns the field the tadpole diagram corresponds to*)
-GetTadpoleField[expr_] := Module[{fields, prep1, prep2},
+(* GetTadpoleField[expr_] := Module[{fields, prep1, prep2},
    If[Head[expr] === Plus, prep1 = (List @@ expr)[[1]],prep1 = expr];
 	 prep2 = prep1 //. {Conj[a_] -> a, conj[a_] -> a, bar[b_] -> b, c_[{b__}] /; c =!= Cp -> c, Cp[x___][a_] -> Cp[x]};
    fields = Tally[Cases[List[prep2], Cp[a___] -> a, Infinity]];
    DeleteCases[fields, {a_, _?EvenQ}][[1, 1]]
-   ];
+   ]; *)
 
 (* if there is more than one generation of HiggsBosons or Pseudoscalars, respectively attach a "U" to their name,*)
 (* plus exchange the index of form gE1 with gO1 *)
@@ -135,13 +135,16 @@ ConvertSarah2LDiagramList[tad_List, head_:Total] :=
 
 
 
-(* given a 1-loop nPoint list of diagrams, determines the field that these disgrams corresponds to *)
+(* given a 1-loop nPoint list of diagrams, determines the field that these diagrams correspond to *)
 GetnPointField[tempdiags_List]:=Module[{testdiag=tempdiags[[1]],coupfields,loopfields,tempnPointField},
   loopfields={testdiag[[1]],testdiag[[2]]}/. {Conj[a_] -> a, conj[a_] -> a, bar[b_] -> b}/.{x_[b_]->x};
   coupfields=testdiag[[3]]/.{Cp[tempfields__]->List[tempfields]}/. {Conj[a_] -> a, conj[a_] -> a, bar[b_] -> b}/.{x_[b_]->x};
   For[i = 1, i <= Length[loopfields], i++, coupfields = Delete[coupfields, FirstPosition[coupfields, loopfields[[i]]]];];
   coupfields=DeleteDuplicates[coupfields];
-  If[Length[coupfields]!=1,Print["Problem while determining the field which the diagram "];Print[testdiag];Print["corresponds to."]];
+  If[Length[coupfields] != 1,Print["Problem while determining to which field the diagram "];
+                           Print[testdiag];
+                           Print["corresponds to."]
+    ];
   coupfields[[1]]
   ];
 
@@ -166,9 +169,9 @@ Cp[a___, Symbol["Uhh"][{SARAH`gI3}] , b___][c___]*Symbol["tadpole"][i_Integer] :
 (* gI3 is always going to be the index of the Higgs tadpole we are attaching *)
 
 
-(* IMPORTANT: the A0=-x(log(x)-1) function used by FlexibleSUSY is the same as in SPheno (though they both differ from the paper, where A=x(log(x)-1))*)
-Calc1L2LTadShiftExpr[diags_,massshifts_List]:=Module[{result={}},
-  For[n=1,n<=Length[diags],n++,
+(* Note: the A0=-x(log(x)-1) function used by FlexibleSUSY is the same as in SPheno (though they both differ from the paper, where A=x(log(x)-1))*)
+Calc1L2LTadShiftExpr[diags_,massshifts_List] := Module[{result={}},
+  For[n=1,n <= Length[diags],n++,
     Switch[diags[[n,4]],
       Symbol["SSS"],
         result=Append[result,Calc1L2LTadShiftSSS[diags[[n]],massshifts[[n]]]];,
@@ -306,45 +309,50 @@ GetHiggsSelfEnergy[energies_List]:=Select[energies,MemberQ[RelevantFieldsSelfEne
    the values given by CalculatePi2S in SPheno, since there they multiply
    their result with a -1 later on. The signs used here should be consistent
    with both the rest of FlexibleSUSY, as well as the general expressions
-   from the papers, e.g. [1609.06977] *)
-Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,eigenstates_]:=Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgstoewsb,nHiggs,tadpoleSeriesParameters,tadpolefields,massshiftsintadpole,shifts,tadsnPointform={},SEnPointform={},nPointform={}},
-  gaugelesssub=sub/.{Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
-  tad1Lexpr=GetTadpolesfromNPointFunctions[nPointFuncs]//.{SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
-  tad1Lexpr=tad1Lexpr//.gaugelessVertexRules[gaugelesssub];
-  If[Length[tad1Lexpr]==1,
+   from [1609.06977] *)
+Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,eigenstates_] :=
+Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgstoewsb,
+     nHiggs,tadpoleSeriesParameters,tadpolefields,massshiftsintadpole,shifts,
+     tadsnPointform={},SEnPointform={},nPointform={}},
 
-    relevantTadpoles=GetShiftedExpressions[SarahTads,EWSBpars,eigenstates];
-    relevantSelfEnergies=GetShiftedExpressions[GetHiggsSelfEnergy[SarahSelfenergies],EWSBpars,eigenstates];
+     gaugelesssub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
+     tad1Lexpr = GetTadpolesfromNPointFunctions[nPointFuncs] //. {SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
+     tad1Lexpr = tad1Lexpr //. gaugelessVertexRules[gaugelesssub];
+     If[Length[tad1Lexpr] == 1,
 
-    (*We don't have to worry about ignoring Goldstones, since those contributions will
-    be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
-    given that their masses have been properly set to zero *)
-    treelevelsolution=treeEWSBsol//.gaugelesssub;
-    nHiggs=Length[tadHiggsassoc];
+       relevantTadpoles = GetShiftedExpressions[SarahTads,EWSBpars,eigenstates];
+       relevantSelfEnergies = GetShiftedExpressions[GetHiggsSelfEnergy[SarahSelfenergies],EWSBpars,eigenstates];
 
-    tadpoleSeriesParametersFirstOrder=Sequence @@ Table[{Symbol["tadpole"][i], 0, 1}, {i, 1, nHiggs}];
-    tadpoleSeriesParametersZeroOrder=Sequence @@ Table[{Symbol["tadpole"][i], 0, 0}, {i, 1, nHiggs}];
-    tadpolefields = (GetnPointField[#] & /@ relevantTadpoles)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
-    selfenergyfields = (GetnPointField[#] & /@ relevantSelfEnergies)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
+       (*We don't have to worry about ignoring Goldstones, since those contributions will
+         be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
+         given that their masses have been properly set to zero *)
 
-    massshiftsintadpole=Map[TreeMass[#[[2]], eigenstates] &, relevantTadpoles, {2}] //.gaugelesssub //.treelevelsolution;
-    massshiftsintadpole=TreeMasses`StripGenerators[massshiftsintadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
-    massshiftsintadpole=Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsintadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
+       treelevelsolution = treeEWSBsol//.gaugelesssub;
+       nHiggs = Length[tadHiggsassoc];
 
-    massshiftsinSE=Map[{TreeMass[#[[1]], eigenstates],TreeMass[#[[2]], eigenstates]} &, relevantSelfEnergies, {2}] //.gaugelesssub //.treelevelsolution;
-    massshiftsinSE=TreeMasses`StripGenerators[massshiftsinSE,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
-    massshiftsinSE=Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsinSE, {3}];
+       tadpoleSeriesParametersFirstOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 1}, {i, 1, nHiggs}];
+       tadpoleSeriesParametersZeroOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 0}, {i, 1, nHiggs}];
+       tadpolefields = (GetnPointField[#] & /@ relevantTadpoles)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
+       selfenergyfields = (GetnPointField[#] & /@ relevantSelfEnergies)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
 
-    tadpoleshifts=Plus @@@ (Thread[noEvalfunc[relevantTadpoles,massshiftsintadpole]]//.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}); (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
-    SEshifts=Plus @@@ (Thread[noEvalfunc[relevantSelfEnergies,massshiftsinSE]]//.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]});
+       massshiftsintadpole = Map[TreeMass[#[[2]], eigenstates] &, relevantTadpoles, {2}] //.gaugelesssub //.treelevelsolution;
+       massshiftsintadpole = TreeMasses`StripGenerators[massshiftsintadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
+       massshiftsintadpole = Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsintadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
 
-    tadsnPointform=Thread[SelfEnergies`TadpoleShift1L[tadpolefields,0,tadpoleshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M;
-    SEnPointform=Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyfields,0,SEshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M;
+       massshiftsinSE = Map[{TreeMass[#[[1]], eigenstates],TreeMass[#[[2]], eigenstates]} &, relevantSelfEnergies, {2}] //.gaugelesssub //.treelevelsolution;
+       massshiftsinSE = TreeMasses`StripGenerators[massshiftsinSE,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
+       massshiftsinSE = Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsinSE, {3}];
 
-    nPointform=Join[nPointform,AppendShiftFieldIndices[tadsnPointform,SARAH`gO1],AppendShiftFieldIndices[SEnPointform,SARAH`gO1,SARAH`gO2]];,
-    Print["More than one tadpole present, throwing the towel, no tadpole shifts were calculated. Fix SelfEnergies2L to handle this case."];
-  ];
-  nPointform
+       tadpoleshifts = Plus @@@ (Thread[noEvalfunc[relevantTadpoles,massshiftsintadpole]]//.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}); (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
+       SEshifts = Plus @@@ (Thread[noEvalfunc[relevantSelfEnergies,massshiftsinSE]]//.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]});
+
+       tadsnPointform = Thread[SelfEnergies`TadpoleShift1L[tadpolefields,0,tadpoleshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M;
+       SEnPointform = Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyfields,0,SEshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M;
+
+       nPointform=Join[nPointform,AppendShiftFieldIndices[tadsnPointform,SARAH`gO1],AppendShiftFieldIndices[SEnPointform,SARAH`gO1,SARAH`gO2]];,
+       Print["More than one tadpole present, throwing the towel, no tadpole shifts were calculated. Fix SelfEnergies2L to handle this case."];
+     ];
+     nPointform
 ];
 
 CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",goldstones=SARAH`GoldstoneGhost,goldstonemasses,
