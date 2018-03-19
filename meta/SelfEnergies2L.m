@@ -105,12 +105,6 @@ UnrotateRules[]:=Module[{rules={}},
 simpleUnrotateRules[]:={Symbol["U"<>ToString[SARAH`HiggsBoson]][x_]->SARAH`HiggsBoson[x],Symbol["U"<>ToString[SARAH`PseudoScalar]][x_]->SARAH`PseudoScalar[x]};
 
 
-RemoveNonAt2AtAs[] := If[FlexibleSUSY`OnlyAtAtAndAtAs2L===True,{Symbol["TfSS"][___] -> 0, Symbol["TfSSS"][___] -> 0, Symbol["TfSSSS"][___] -> 0, Symbol["TfSSFF"][___] -> 0, Symbol["TfSSFbFb"][___] -> 0, Symbol["TfSV"][___] -> 0,
-          Symbol["WfSSSS"][___] -> 0, Symbol["XfSSS"][___] -> 0, Symbol["YfSSSS"][___] -> 0, Symbol["ZfSSSS"][___] -> 0, Symbol["SfSSS"][___] -> 0, Symbol["UfSSSS"][___] -> 0,
-          Symbol["VfSSSSS"][___] -> 0, Symbol["MfSSSSS"][___] -> 0, Symbol["WfSSSV"][___] -> 0, Symbol["MfSSSSV"][___] -> 0, Symbol["WfSSFF"][___] -> 0,
-          Symbol["WfSSFbFb"][___] -> 0, Symbol["MfSFbSFbFb"][___] -> 0, Symbol["MfSFSFbF"][___] -> 0,  Symbol["MfSFSFFb"][___] -> 0, Symbol["VfSSSFbFb"][___] -> 0, Symbol["VfSSSFF"][___] -> 0,x_[a___,SARAH`Mass2[SARAH`HiggsBoson],b___]:>x[a,0,b],
-          x_[a___,SARAH`Mass2[SARAH`HiggsBoson[__]],b___]:>x[a,0,b]},{}];
-
 AddSEMomDep[] := {Symbol["WfSSSS"][masses___] -> Symbol["WfSSSS"][p^2,masses],  Symbol["XfSSS"][masses___] -> Symbol["XfSSS"][p^2,masses],  Symbol["YfSSSS"][masses___] -> Symbol["YfSSSS"][p^2,masses],
                   Symbol["SfSSS"][masses___] -> Symbol["SfSSS"][p^2,masses],  Symbol["UfSSSS"][masses___] -> Symbol["UfSSSS"][p^2,masses],  Symbol["VfSSSSS"][masses___] -> Symbol["VfSSSSS"][p^2,masses],
                   Symbol["WfSSSV"][masses___] -> Symbol["WfSSSV"][p^2,masses],  Symbol["MfSSSSV"][masses___] -> Symbol["MfSSSSV"][p^2,masses], Symbol["WfSSFF"][masses___] -> Symbol["WfSSFF"][p^2,masses],
@@ -130,7 +124,7 @@ ConvertSarah2LDiagramList[tad_List, head_:Total] :=
         (m : (SARAH`Mass | SARAH`Mass2))[(SARAH`bar | Susyno`LieGroups`conj)[p_], idx___] :> m[p, idx],
         (m : (SARAH`Mass | SARAH`Mass2))[p_, idx__] :> m[p[{idx}]],
         C[p__] :> Cp[p]} //. {Symbol["i1"]->SARAH`gI1, Symbol["i2"]->SARAH`gI2, Symbol["i3"]->SARAH`gI3,
-        Symbol["i4"]->SARAH`gI4,Symbol["i5"]->SARAH`gI5,Symbol["i6"]->SARAH`gI6} //. UnrotateRules[] //.RemoveNonAt2AtAs[] /. AddSEMomDep[];
+        Symbol["i4"]->SARAH`gI4,Symbol["i5"]->SARAH`gI5,Symbol["i6"]->SARAH`gI6} //. UnrotateRules[] /. AddSEMomDep[];
 
 
 

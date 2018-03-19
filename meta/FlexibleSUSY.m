@@ -203,7 +203,7 @@ Exclude1L2LShifts = False;
 Exclude1L2LAhSelfEnergySSSSshifts = False;
 Exclude1L2LFermionShifts = False;
 Exclude1L2LAhShiftSSSS = False;
-OnlyAtAtAndAtAs2L = False;
+
 UseConsistentEWSBSolution = False;
 
 (* Standard Model input parameters (SLHA input parameters) *)
