@@ -198,13 +198,11 @@ IMMINPAR = {};
 IMEXTPAR = {};
 
 (* 2L flags*)
-IncludeSARAH2L = True;
-Exclude1L2LShifts = False;
-Exclude1L2LAhSelfEnergySSSSshifts = False;
-Exclude1L2LFermionShifts = False;
+UseSARAH2Loop = True;
+Exclude1L2LFermionShifts = True;
 Exclude1L2LAhShiftSSSS = False;
 
-UseConsistentEWSBSolution = False;
+UseConsistentEWSBSolution = True;
 
 (* Standard Model input parameters (SLHA input parameters) *)
 (* {parameter, {"block", entry}, type}                     *)
@@ -1333,7 +1331,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
                             "@setEWSBSolution@"              -> IndentText[setEWSBSolution],
                             "@applyEWSBSubstitutions@"       -> IndentText[IndentText[WrapLines[applyEWSBSubstitutions]]],
                             "@setModelParametersFromEWSB@"   -> IndentText[WrapLines[setModelParametersFromEWSB]],
-                            "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver]], "true", "false"],
+                            "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
           ];
@@ -1645,7 +1643,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            saveEWSBOutputParameters = Parameters`SaveParameterLocally[parametersToSave];
            (ewsbSolverHeaders = ewsbSolverHeaders
                                 <> EnableForBVPSolver[#, ("#include \"" <> FlexibleSUSY`FSModelName
-                                                          <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")& (* <> If[FlexibleSUSY`UseConsistentEWSBSolution === True,"_consistent",""] <> *)
+                                                          <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")&
                                 /@ FlexibleSUSY`FSBVPSolvers;
            defaultEWSBSolverCctor = CreateDefaultEWSBSolverConstructor[FlexibleSUSY`FSBVPSolvers];
            reorderDRbarMasses           = TreeMasses`ReorderGoldstoneBosons[""];
@@ -1726,6 +1724,8 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@convertMixingsToHKConvention@"   -> IndentText[convertMixingsToHKConvention],
                             "@ewsbSolverHeaders@"            -> ewsbSolverHeaders,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
+                            "@ewsbSolveConsistently@"-> If[FlexibleSUSY`UseConsistentEWSBSolution === True, "true", "false"],
+                            "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
           ];
@@ -2743,7 +2743,7 @@ PrepareSelfEnergies[eigenstates_] :=
              ];
            Print["Reading 1-loop self-energies from file ", selfEnergiesFile, " ..."];
            selfEnergies = Get[selfEnergiesFile];
-           selfEnergies2L = If[FlexibleSUSY`IncludeSARAH2L===False,{},Get2LSelfEnergy[eigenstates]];
+           selfEnergies2L = If[FlexibleSUSY`UseSARAH2Loop===False,{},Get2LSelfEnergy[eigenstates]];
            Print["Converting self-energies ..."];
            ConvertSarahSelfEnergies[MergeNPointFunctions[selfEnergies, selfEnergies2L]]
           ];
@@ -2757,7 +2757,7 @@ PrepareTadpoles[eigenstates_] :=
              ];
            Print["Reading 1-loop tadpoles from file ", tadpolesFile, " ..."];
            tadpoles = Get[tadpolesFile];
-           tadpoles2L = If[FlexibleSUSY`IncludeSARAH2L===False,{},Get2LTadpole[eigenstates]];
+           tadpoles2L = If[FlexibleSUSY`UseSARAH2Loop===False,{},Get2LTadpole[eigenstates]];
            Print["Converting tadpoles ..."];
            ConvertSarahTadpoles[MergeNPointFunctions[tadpoles, tadpoles2L]]
           ];
@@ -2881,7 +2881,7 @@ SelectValidEWSBSolvers[solverSolutions_, ewsbSolvers_] :=
                solver = First[solverSolutions[[i]]];
                solution = Last[solverSolutions[[i]]];
                validSolvers = ewsbSolvers;
-               If[FlexibleSUSY`IncludeSARAH2L === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
+               If[FlexibleSUSY`UseSARAH2Loop === True && !MemberQ[validSolvers,FlexibleSUSY`ConsistentSolver],
                   Print["Warning: For SARAH 2-loop results, the ConsistenSolver has to be used"];
                   Print["   as EWSB solver to get correct results, but it is not active. "];
                   Print["   Proceed with caution. "];
@@ -3673,7 +3673,7 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
               ];
              ];
            solverEwsbSolvers = SelectValidEWSBSolvers[solverEwsbSolutions, FlexibleSUSY`FSEWSBSolvers];
-           If[FlexibleSUSY`Exclude1L2LShifts=!=True && FlexibleSUSY`IncludeSARAH2L=!=False,
+           If[FlexibleSUSY`UseConsistentEWSBSolution === True && FlexibleSUSY`UseSARAH2Loop === True,
                Print["\nGenerating shifts for consistent EWSB solution ...\n"];
                nPointFunctions=Join[nPointFunctions,EnforceCpColorStructures @ SortCps @ MakeShifts[nPointFunctions,treeLevelEwsbSolutionOutputFiles]];
            ];
