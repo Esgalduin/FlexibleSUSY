@@ -2112,7 +2112,6 @@ WriteMathLink[inputParameters_List, extraSLHAOutputBlocks_List, files_List] :=
             setInputParameterArguments,
             numberOfSpectrumEntries, putSpectrum, setInputParameters,
             numberOfObservables, putObservables,
-            listOfInputParameters, listOfModelParameters, listOfOutputParameters,
             inputPars, outPars, requestedObservables, defaultSolverType,
             solverIncludes = "", runEnabledSolvers = ""},
            inputPars = {#[[1]], #[[3]]}& /@ inputParameters;
@@ -2125,9 +2124,6 @@ WriteMathLink[inputParameters_List, extraSLHAOutputBlocks_List, files_List] :=
            outPars = Parameters`GetOutputParameters[] /. FlexibleSUSY`M[p_List] :> Sequence @@ (FlexibleSUSY`M /@ p);
            outPars = Join[outPars, FlexibleSUSY`Pole /@ outPars, Parameters`GetModelParameters[],
                           Parameters`GetExtraParameters[], {FlexibleSUSY`SCALE}];
-           listOfInputParameters = ToString[First /@ inputParameters];
-           listOfOutputParameters = ToString[outPars];
-           listOfModelParameters = ToString[Parameters`GetModelParameters[]];
            numberOfSpectrumEntries = FSMathLink`GetNumberOfSpectrumEntries[outPars];
            putSpectrum = FSMathLink`PutSpectrum[outPars, "link"];
            (* get observables *)
@@ -2152,9 +2148,6 @@ WriteMathLink[inputParameters_List, extraSLHAOutputBlocks_List, files_List] :=
                             "@putSpectrum@" -> IndentText[putSpectrum],
                             "@numberOfObservables@" -> ToString[numberOfObservables],
                             "@putObservables@" -> IndentText[putObservables],
-                            "@listOfInputParameters@" -> listOfInputParameters,
-                            "@listOfModelParameters@" -> listOfModelParameters,
-                            "@listOfOutputParameters@" -> listOfOutputParameters,
                             "@solverIncludes@" -> solverIncludes,
                             "@runEnabledSolvers@" -> runEnabledSolvers,
                             "@defaultSolverType@" -> defaultSolverType,
