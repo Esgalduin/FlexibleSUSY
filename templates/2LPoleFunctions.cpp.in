@@ -8,7 +8,7 @@ namespace flexiblesusy {
 
 template<class T> T sqr(T x) noexcept { return x*x; }
 
-double epsfmass=1E-9;
+double epsfmass=1E-30;
 /** Fortran wrappers **/
 
 double CLASSNAME::TfSS(double x,double y,double z) const noexcept{
@@ -51,8 +51,8 @@ double CLASSNAME::TfSSFF(double x,double y,double z,double u) const noexcept{
 				#endif
         const double x_const=x;
         const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+				const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double Q2_const=sqr(get_scale());
         return TfSSFF_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
 }
@@ -63,8 +63,8 @@ double CLASSNAME::TfSSFbFb(double x,double y,double z,double u) const noexcept{
 				#endif
         const double x_const=x;
         const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double Q2_const=sqr(get_scale());
         if((z > epsfmass) && (u > epsfmass)) {
                 return TfSSFbFb_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
@@ -78,9 +78,9 @@ double CLASSNAME::TfFFFbS(double x,double y,double z,double u) const noexcept{
 				#if defined(ENABLE_DEBUG)
 					std::cout << "Evaluating function TfFFFbS\n";
 				#endif
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const=u;
         const double Q2_const=sqr(get_scale());
         if((z > epsfmass)) {
@@ -95,9 +95,9 @@ double CLASSNAME::TfFFbFS(double x,double y,double z,double u) const noexcept{
 				#if defined(ENABLE_DEBUG)
 					std::cout << "Evaluating function TfFFbFS\n";
 				#endif
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const=u;
         const double Q2_const=sqr(get_scale());
         if((y > epsfmass)) {
@@ -112,9 +112,9 @@ double CLASSNAME::TfFbFbFbS(double x,double y,double z,double u) const noexcept{
 				#if defined(ENABLE_DEBUG)
 					std::cout << "Evaluating function TfFbFbFbS\n";
 				#endif
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const=u;
         const double Q2_const=sqr(get_scale());
         if((x > epsfmass) && (y > epsfmass) && (z > epsfmass)) {
@@ -275,8 +275,8 @@ double CLASSNAME::WfSSFF(double p2, double x,double y,double z,double u) const n
         const double p2_const=p2;
         const double x_const=x;
         const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double Q2_const=sqr(get_scale());
         return WfSSFF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
 }
@@ -288,8 +288,8 @@ double CLASSNAME::WfSSFbFb(double p2, double x,double y,double z,double u) const
         const double p2_const=p2;
         const double x_const=x;
         const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double Q2_const=sqr(get_scale());
         if((z > epsfmass) && (u > epsfmass)) {
                 return WfSSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
@@ -304,10 +304,10 @@ double CLASSNAME::MfFbFbFbFbS(double p2, double x,double y,double z,double u,dou
 					std::cout << "Evaluating function MfFbFbFbFbS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((x > epsfmass) && (y > epsfmass) && (z > epsfmass) && (u > epsfmass)) {
@@ -323,10 +323,10 @@ double CLASSNAME::MfFFbFbFS(double p2, double x,double y,double z,double u,doubl
 					std::cout << "Evaluating function MfFFbFbFS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((y > epsfmass) && (z > epsfmass)) {
@@ -342,10 +342,10 @@ double CLASSNAME::MfFFbFFbS(double p2, double x,double y,double z,double u,doubl
 					std::cout << "Evaluating function MfFFbFFbS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((y > epsfmass) && (u > epsfmass)) {
@@ -361,10 +361,10 @@ double CLASSNAME::MfFFFbFbS(double p2, double x,double y,double z,double u,doubl
 					std::cout << "Evaluating function MfFFFbFbS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((z > epsfmass) && (u > epsfmass)) {
@@ -380,10 +380,10 @@ double CLASSNAME::MfFFFFS(double p2, double x,double y,double z,double u,double 
 					std::cout << "Evaluating function MfFFFFS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         return MfFFFFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
@@ -395,10 +395,10 @@ double CLASSNAME::MfSFbSFbFb(double p2, double x,double y,double z,double u,doub
 				#endif
         const double p2_const=p2;
         const double x_const=x;
-        const double y_const=y;
+        const double y_const = (y == 0.0) ? epsfmass : y;
         const double z_const=z;
-        const double u_const=u;
-        const double v_const=v;
+        const double u_const = (u == 0.0) ? epsfmass : u;
+        const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
         if((y > epsfmass) && (u > epsfmass) && (v > epsfmass)) {
                 return MfSFbSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
@@ -414,10 +414,10 @@ double CLASSNAME::MfSFSFbF(double p2, double x,double y,double z,double u,double
 				#endif
         const double p2_const=p2;
         const double x_const=x;
-        const double y_const=y;
+        const double y_const = (y == 0.0) ? epsfmass : y;
         const double z_const=z;
-        const double u_const=u;
-        const double v_const=v;
+        const double u_const = (u == 0.0) ? epsfmass : u;
+        const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
         if((u > epsfmass)) {
                 return MfSFSFbF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
@@ -433,10 +433,10 @@ double CLASSNAME::MfSFSFFb(double p2, double x,double y,double z,double u,double
 				#endif
         const double p2_const=p2;
         const double x_const=x;
-        const double y_const=y;
+        const double y_const = (y == 0.0) ? epsfmass : y;
         const double z_const=z;
-        const double u_const=u;
-        const double v_const=v;
+        const double u_const = (u == 0.0) ? epsfmass : u;
+        const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
         if((v > epsfmass)) {
                 return MfSFSFFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
@@ -454,8 +454,8 @@ double CLASSNAME::VfSSSFbFb(double p2, double x,double y,double z,double u,doubl
         const double x_const=x;
         const double y_const=y;
         const double z_const=z;
-        const double u_const=u;
-        const double v_const=v;
+        const double u_const = (u == 0.0) ? epsfmass : u;
+        const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
         if((u > epsfmass) && (v > epsfmass)) {
                 return VfSSSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
@@ -473,8 +473,8 @@ double CLASSNAME::VfSSSFF(double p2, double x,double y,double z,double u,double 
         const double x_const=x;
         const double y_const=y;
         const double z_const=z;
-        const double u_const=u;
-        const double v_const=v;
+        const double u_const = (u == 0.0) ? epsfmass : u;
+        const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
         return VfSSSFF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
 }
@@ -503,10 +503,10 @@ double CLASSNAME::VfFbFFbFS(double p2, double x,double y,double z,double u,doubl
 					std::cout << "Evaluating function VfFbFFbFS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((x > epsfmass) && (z > epsfmass)) {
@@ -522,10 +522,10 @@ double CLASSNAME::VfFbFFFbS(double p2, double x,double y,double z,double u,doubl
 					std::cout << "Evaluating function VfFbFFFbS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((x > epsfmass) && (u > epsfmass)) {
@@ -541,10 +541,10 @@ double CLASSNAME::VfFFbFbFS(double p2, double x_in,double y_in,double z_in,doubl
 					std::cout << "Evaluating function VfFFbFbFS\n";
 				#endif
         const double p2_const=p2;
-        const double x_in_const=x_in;
-        const double y_in_const=y_in;
-        const double z_in_const=z_in;
-        const double u_in_const=u_in;
+        const double x_in_const = (x_in == 0.0) ? epsfmass : x_in;
+        const double y_in_const = (y_in == 0.0) ? epsfmass : y_in;
+        const double z_in_const = (z_in == 0.0) ? epsfmass : z_in;
+        const double u_in_const = (u_in == 0.0) ? epsfmass : u_in;
         const double v_in_const=v_in;
         const double Q2_const=sqr(get_scale());
         if((y_in > epsfmass) && (z_in > epsfmass)) {
@@ -560,10 +560,10 @@ double CLASSNAME::VfFFFbFbS(double p2, double x,double y,double z,double u,doubl
 					std::cout << "Evaluating function VfFFFbFbS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         if((z > epsfmass) && (u > epsfmass)) {
@@ -579,10 +579,10 @@ double CLASSNAME::VfFFFFS(double p2, double x,double y,double z,double u,double 
 					std::cout << "Evaluating function VfFFFFS\n";
 				#endif
         const double p2_const=p2;
-        const double x_const=x;
-        const double y_const=y;
-        const double z_const=z;
-        const double u_const=u;
+        const double x_const = (x == 0.0) ? epsfmass : x;
+        const double y_const = (y == 0.0) ? epsfmass : y;
+        const double z_const = (z == 0.0) ? epsfmass : z;
+        const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
         return VfFFFFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
@@ -593,8 +593,8 @@ double CLASSNAME::GfFFV(double p2, double x_in,double y_in) const noexcept{
 					std::cout << "Evaluating function GfFFV\n";
 				#endif
         const double p2_const=p2;
-        const double x_in_const=x_in;
-        const double y_in_const=y_in;
+        const double x_in_const = (x_in == 0.0) ? epsfmass : x_in;
+        const double y_in_const = (y_in == 0.0) ? epsfmass : y_in;
         const double Q2_const=sqr(get_scale());
         return GfFFV_f(&p2_const,&x_in_const,&y_in_const,&Q2_const);
 }
@@ -604,8 +604,8 @@ double CLASSNAME::GfFbFbV(double p2, double x_in,double y_in) const noexcept{
 					std::cout << "Evaluating function GfFbFbV\n";
 				#endif
         const double p2_const=p2;
-        const double x_in_const=x_in;
-        const double y_in_const=y_in;
+        const double x_in_const = (x_in == 0.0) ? epsfmass : x_in;
+        const double y_in_const = (y_in == 0.0) ? epsfmass : y_in;
         const double Q2_const=sqr(get_scale());
         if((x_in > epsfmass) && (y_in > epsfmass)) {
                 return GfFbFbV_f(&p2_const,&x_in_const,&y_in_const,&Q2_const);
