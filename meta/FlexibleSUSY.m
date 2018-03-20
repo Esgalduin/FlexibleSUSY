@@ -177,6 +177,7 @@ UseSMAlphaS3Loop = False;
 UseMSSM3LoopRGEs = False;
 UseMSSMYukawa2Loop = False;
 UseMSSMAlphaS2Loop = False;
+UseHiggs2LoopSM = False;
 UseHiggs3LoopSM = False;
 UseHiggs4LoopSM = False;
 UseHiggs3LoopSplit = False;
@@ -504,7 +505,7 @@ CheckModelFileSettings[] :=
               FlexibleSUSY`EWSBSubstitutions = {};
              ];
            If[FlexibleSUSY`UseSARAH2Loop === True && (SARAH`UseHiggs2LoopMSSM === True ||
-              FlexibleSUSY`UseHiggs2LoopNMSSM === True),
+              FlexibleSUSY`UseHiggs2LoopNMSSM === True || FlexibleSUSY`UseHiggs2LoopSM === True ),
               Print["Error: Both SARAH 2-loop routines and fixed expressions for",
                     "    SM, MSSM or NMSSM are active. Please disable one of them."];
               Quit[1];
@@ -1509,6 +1510,10 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            divideTadpoleByVEV           = SelfEnergies`DivideTadpoleByVEV[Parameters`DecreaseIndexLiterals @ CreateVEVToTadpoleAssociation[], "tadpole"];
            If[SARAH`UseHiggs2LoopMSSM === True || FlexibleSUSY`UseHiggs2LoopNMSSM === True,
               calculateTwoLoopTadpoles  = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "-"];
+             ];
+           If[FlexibleSUSY`UseHiggs2LoopSM === True,
+              {twoLoopSelfEnergyPrototypes, twoLoopSelfEnergyFunctions} = SelfEnergies`CreateTwoLoopSelfEnergiesSM[{SARAH`HiggsBoson}];
+              twoLoopHiggsHeaders = "#include \"sm_twoloophiggs.hpp\"\n";
              ];
            If[FlexibleSUSY`UseHiggs3LoopSM === True,
               {threeLoopSelfEnergyPrototypes, threeLoopSelfEnergyFunctions} = SelfEnergies`CreateThreeLoopSelfEnergiesSM[{SARAH`HiggsBoson}];
@@ -2536,12 +2541,14 @@ FSCheckFlags[] :=
              ];
 
            If[FlexibleSUSY`UseHiggs3LoopSM === True,
+              FlexibleSUSY`UseHiggs2LoopSM = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
               FlexibleSUSY`UseYukawa3LoopQCD = True;
               FlexibleSUSY`UseSM3LoopRGEs = True;
              ];
 
            If[FlexibleSUSY`UseHiggs4LoopSM === True,
+              FlexibleSUSY`UseHiggs2LoopSM = True;
               FlexibleSUSY`UseHiggs3LoopSM = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
               FlexibleSUSY`UseYukawa3LoopQCD = True;
@@ -2580,6 +2587,13 @@ FSCheckFlags[] :=
               References`AddReference["Harlander:2005wm"];
               References`AddReference["Bauer:2008bj"];
               References`AddReference["Bednyakov:2010ni"];
+             ];
+
+           If[FlexibleSUSY`UseHiggs2LoopSM || FlexibleSUSY`FlexibleEFTHiggs,
+              Print["Adding 2-loop SM Higgs mass contributions from ",
+                    "[arxiv:1205.6497, arxiv:1407.4336]"];
+              References`AddReference["Degrassi:2012ry"];
+              References`AddReference["Martin:2014cxa"];
              ];
 
            If[SARAH`UseHiggs2LoopMSSM,

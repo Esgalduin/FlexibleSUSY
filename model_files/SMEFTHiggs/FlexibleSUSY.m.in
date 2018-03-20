@@ -43,7 +43,7 @@ MatchingScaleInput = {
 };
 
 UseSM3LoopRGEs = True;
-UseSARAH2Loop = True;
+UseHiggs2LoopSM = True;
 UseHiggs3LoopSM = False;
 
 DefaultPoleMassPrecision = HighPrecision;
