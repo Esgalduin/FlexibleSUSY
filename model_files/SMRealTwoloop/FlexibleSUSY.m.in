@@ -47,7 +47,7 @@ InitialGuessAtLowScale = {
 };
 
 UseSM3LoopRGEs = False;
-UseHiggs2LoopSM = False;
+UseSARAH2Loop = False;
 UseHiggs3LoopSM = False;
 UseSMAlphaS3Loop = False;
 

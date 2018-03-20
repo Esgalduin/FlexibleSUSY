@@ -101,7 +101,7 @@ MediumPoleMassPrecision  = {};
 LowPoleMassPrecision     = {};
 
 OnlyLowEnergyFlexibleSUSY = False;
-UseHiggs2LoopSM = True;
+UseSARAH2Loop = True;
 UseHiggs3LoopSplit = True;
 
 SARAH`ParameterDefinitions = Append[
