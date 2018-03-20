@@ -651,7 +651,7 @@ FillArrayWithLoopTadpolesShifts1L[loopLevel_, higgsAndIdx_List, arrayName_String
              idx = higgsAndIdx[[v,2]];
              head = CConversion`ToValidCSymbolString[higgsAndIdx[[v,3]]];
              functionName = "model_gl." <> CreateTadpoleShift1LFunctionName[field, loopLevel];
-             body = body <> "if(ewsb_solve_consistently {";
+             body = body <> "if(ewsb_solve_consistently) {";
              If[TreeMasses`GetDimension[field] == 1,
                 body = body <> IndentText[arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
                        head <> "(" <> struct <> functionName <> "());\n"];

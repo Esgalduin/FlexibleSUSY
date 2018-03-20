@@ -206,7 +206,7 @@ EnforceCpColorStructures[nPointFunction_] := nPointFunction;
 EnforceCpColorStructures[externalField_, exprs_List] := Fold[
     EnforceCpColorStructure[externalField, #1, #2] &,
     exprs,
-    Select[Cases[exprs, _SARAH`Cp|_SARAH`Cp[_], Infinity],
+    Select[DeleteDuplicates[Cases[exprs, _SARAH`Cp|_SARAH`Cp[_], Infinity]],
 	   !UnresolvedColorFactorFreeQ[#, exprs] &]
 ];
 
