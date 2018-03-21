@@ -66,7 +66,7 @@ double CLASSNAME::TfSSFbFb(double x,double y,double z,double u) const noexcept{
         const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double Q2_const=sqr(get_scale());
-        if((z > epsfmass) && (u > epsfmass)) {
+        if((z > epsfmass * 10) && (u > epsfmass * 10)) {
                 return TfSSFbFb_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
         }
         else {
@@ -83,7 +83,7 @@ double CLASSNAME::TfFFFbS(double x,double y,double z,double u) const noexcept{
         const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const=u;
         const double Q2_const=sqr(get_scale());
-        if((z > epsfmass)) {
+        if((z > epsfmass * 10)) {
                 return TfFFFbS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
         }
         else {
@@ -100,7 +100,7 @@ double CLASSNAME::TfFFbFS(double x,double y,double z,double u) const noexcept{
         const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const=u;
         const double Q2_const=sqr(get_scale());
-        if((y > epsfmass)) {
+        if((y > epsfmass * 10)) {
                 return TfFFbFS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
         }
         else {
@@ -117,7 +117,7 @@ double CLASSNAME::TfFbFbFbS(double x,double y,double z,double u) const noexcept{
         const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const=u;
         const double Q2_const=sqr(get_scale());
-        if((x > epsfmass) && (y > epsfmass) && (z > epsfmass)) {
+        if((x > epsfmass * 10) && (y > epsfmass * 10) && (z > epsfmass * 10)) {
                 return TfFbFbFbS_f(&x_const,&y_const,&z_const,&u_const,&Q2_const);
         }
         else {
@@ -138,7 +138,7 @@ double CLASSNAME::TfFV(double x) const noexcept{
 				#if defined(ENABLE_DEBUG)
 					std::cout << "Evaluating function TfFV\n";
 				#endif
-        const double x_const=x;
+        const double x_const = (x == 0.0) ? epsfmass : x;
         const double Q2_const=sqr(get_scale());
         return TfFV_f(&x_const,&Q2_const);
 }
@@ -291,7 +291,7 @@ double CLASSNAME::WfSSFbFb(double p2, double x,double y,double z,double u) const
         const double z_const = (z == 0.0) ? epsfmass : z;
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double Q2_const=sqr(get_scale());
-        if((z > epsfmass) && (u > epsfmass)) {
+        if((z > epsfmass * 10) && (u > epsfmass * 10)) {
                 return WfSSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&Q2_const);
         }
         else {
@@ -310,7 +310,7 @@ double CLASSNAME::MfFbFbFbFbS(double p2, double x,double y,double z,double u,dou
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((x > epsfmass) && (y > epsfmass) && (z > epsfmass) && (u > epsfmass)) {
+        if((x > epsfmass * 10) && (y > epsfmass * 10) && (z > epsfmass * 10) && (u > epsfmass * 10)) {
                 return MfFbFbFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -329,7 +329,7 @@ double CLASSNAME::MfFFbFbFS(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((y > epsfmass) && (z > epsfmass)) {
+        if((y > epsfmass * 10) && (z > epsfmass * 10)) {
                 return MfFFbFbFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -348,7 +348,7 @@ double CLASSNAME::MfFFbFFbS(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((y > epsfmass) && (u > epsfmass)) {
+        if((y > epsfmass * 10) && (u > epsfmass * 10)) {
                 return MfFFbFFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -367,7 +367,7 @@ double CLASSNAME::MfFFFbFbS(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((z > epsfmass) && (u > epsfmass)) {
+        if((z > epsfmass * 10) && (u > epsfmass * 10)) {
                 return MfFFFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -400,7 +400,7 @@ double CLASSNAME::MfSFbSFbFb(double p2, double x,double y,double z,double u,doub
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
-        if((y > epsfmass) && (u > epsfmass) && (v > epsfmass)) {
+        if((y > epsfmass * 10) && (u > epsfmass * 10) && (v > epsfmass * 10)) {
                 return MfSFbSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -419,7 +419,7 @@ double CLASSNAME::MfSFSFbF(double p2, double x,double y,double z,double u,double
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
-        if((u > epsfmass)) {
+        if((u > epsfmass * 10)) {
                 return MfSFSFbF_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -438,7 +438,7 @@ double CLASSNAME::MfSFSFFb(double p2, double x,double y,double z,double u,double
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
-        if((v > epsfmass)) {
+        if((v > epsfmass * 10)) {
                 return MfSFSFFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -457,7 +457,7 @@ double CLASSNAME::VfSSSFbFb(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const = (v == 0.0) ? epsfmass : v;
         const double Q2_const=sqr(get_scale());
-        if((u > epsfmass) && (v > epsfmass)) {
+        if((u > epsfmass * 10) && (v > epsfmass * 10)) {
                 return VfSSSFbFb_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -490,7 +490,7 @@ double CLASSNAME::VfFbFbFbFbS(double p2, double x,double y,double z,double u,dou
         const double u_const=u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((x > epsfmass) && (y > epsfmass) && (z > epsfmass) && (u > epsfmass)) {
+        if((x > epsfmass * 10) && (y > epsfmass * 10) && (z > epsfmass * 10) && (u > epsfmass * 10)) {
                 return VfFbFbFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -509,7 +509,7 @@ double CLASSNAME::VfFbFFbFS(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((x > epsfmass) && (z > epsfmass)) {
+        if((x > epsfmass * 10) && (z > epsfmass * 10)) {
                 return VfFbFFbFS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -528,7 +528,7 @@ double CLASSNAME::VfFbFFFbS(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((x > epsfmass) && (u > epsfmass)) {
+        if((x > epsfmass * 10) && (u > epsfmass * 10)) {
                 return VfFbFFFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -547,7 +547,7 @@ double CLASSNAME::VfFFbFbFS(double p2, double x_in,double y_in,double z_in,doubl
         const double u_in_const = (u_in == 0.0) ? epsfmass : u_in;
         const double v_in_const=v_in;
         const double Q2_const=sqr(get_scale());
-        if((y_in > epsfmass) && (z_in > epsfmass)) {
+        if((y_in > epsfmass * 10) && (z_in > epsfmass * 10)) {
                 return VfFFbFbFS_f(&p2_const,&x_in_const,&y_in_const,&z_in_const,&u_in_const,&v_in_const,&Q2_const);
         }
         else {
@@ -566,7 +566,7 @@ double CLASSNAME::VfFFFbFbS(double p2, double x,double y,double z,double u,doubl
         const double u_const = (u == 0.0) ? epsfmass : u;
         const double v_const=v;
         const double Q2_const=sqr(get_scale());
-        if((z > epsfmass) && (u > epsfmass)) {
+        if((z > epsfmass * 10) && (u > epsfmass * 10)) {
                 return VfFFFbFbS_f(&p2_const,&x_const,&y_const,&z_const,&u_const,&v_const,&Q2_const);
         }
         else {
@@ -607,7 +607,7 @@ double CLASSNAME::GfFbFbV(double p2, double x_in,double y_in) const noexcept{
         const double x_in_const = (x_in == 0.0) ? epsfmass : x_in;
         const double y_in_const = (y_in == 0.0) ? epsfmass : y_in;
         const double Q2_const=sqr(get_scale());
-        if((x_in > epsfmass) && (y_in > epsfmass)) {
+        if((x_in > epsfmass * 10) && (y_in > epsfmass * 10)) {
                 return GfFbFbV_f(&p2_const,&x_in_const,&y_in_const,&Q2_const);
         }
         else {
