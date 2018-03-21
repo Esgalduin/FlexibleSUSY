@@ -2534,14 +2534,14 @@ FSCheckFlags[] :=
              ];
 
            If[FlexibleSUSY`UseHiggs3LoopSM === True,
-              FlexibleSUSY`UseSARAH2Loop = True;
+              (* FlexibleSUSY`UseSARAH2Loop = True; *)
               FlexibleSUSY`UseSMAlphaS3Loop = True;
               FlexibleSUSY`UseYukawa3LoopQCD = True;
               FlexibleSUSY`UseSM3LoopRGEs = True;
              ];
 
            If[FlexibleSUSY`UseHiggs4LoopSM === True,
-              FlexibleSUSY`UseSARAH2Loop = True;
+              (* FlexibleSUSY`UseSARAH2Loop = True; *)
               FlexibleSUSY`UseHiggs3LoopSM = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
               FlexibleSUSY`UseYukawa3LoopQCD = True;
