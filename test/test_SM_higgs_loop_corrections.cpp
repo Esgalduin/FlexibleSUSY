@@ -175,6 +175,112 @@ BOOST_AUTO_TEST_CASE( test_SM_nloop_literature )
    compare_Mh(4);
 }
 
+BOOST_AUTO_TEST_CASE( test_SM_2loop_literature )
+{
+   const double eps = 1e-13;
+
+   SM_mass_eigenstates m;
+
+   const double Q = 173.34;
+   const double vev = 246.;
+   const double g1 = 0.0;
+   const double g2 = 0.0;
+   const double g3 = 1.1;
+   const double Yu22 = 165.0   * Sqrt(2.) / vev;
+   const double Yd22 = 2.9     * Sqrt(2.) / vev;
+   const double Ye22 = 1.77699 * Sqrt(2.) / vev;
+   const double lambda = 0.2;
+
+   m.set_scale(Q);
+   m.set_v(vev);
+   m.set_g1(g1);
+   m.set_g2(g2);
+   m.set_g3(g3);
+   m.set_Yu(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Yd(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Ye(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Lambdax(lambda);
+   m.solve_ewsb_tree_level();
+   m.set_Lambdax(0.0);
+
+   //check (at+ab)^2
+   m.set_Yu(2,2, Yu22);
+   m.set_Yd(2,2, Yd22);
+   m.set_g3(0.);
+   m.calculate_DRbar_masses();
+
+   BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
+   BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.tadpole_hh_2loop().real(), m.get_v()*tadpole_higgs_2loop_at_at_sm(m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_MFd(2)),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.self_energy_hh_2loop(125.).real(), self_energy_higgs_2loop_at_at_sm(0., m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_MFd(2)),eps);
+
+   m.set_Yu(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Yd(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Ye(Eigen::Matrix<double,3,3>::Zero());
+
+   //check at^2
+   m.set_Yu(2,2, Yu22);
+   m.set_g3(0.);
+   m.calculate_DRbar_masses();
+
+   BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
+   BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
+   const double save_atat_tad = m.tadpole_hh_2loop().real();
+   const double save_atat_SE = m.self_energy_hh_2loop(125.).real();
+   BOOST_CHECK_CLOSE_FRACTION(save_atat_tad, m.get_v()*tadpole_higgs_2loop_at_at_sm(m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), 0.0),eps);
+   BOOST_CHECK_CLOSE_FRACTION(save_atat_SE, self_energy_higgs_2loop_at_at_sm(0., m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), 0.0),eps);
+
+   m.set_Yu(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Yd(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Ye(Eigen::Matrix<double,3,3>::Zero());
+
+   //check atas
+   m.set_Yu(2,2, Yu22);
+   m.set_g3(g3);
+   m.calculate_DRbar_masses();
+
+   BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
+   BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.tadpole_hh_2loop().real() - save_atat_tad, m.get_v()*(tadpole_higgs_2loop_at_as_sm(m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_g3())),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.self_energy_hh_2loop(125.).real() - save_atat_SE, self_energy_higgs_2loop_at_as_sm(0.0, m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_g3()),eps);
+
+   m.set_Yu(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Yd(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Ye(Eigen::Matrix<double,3,3>::Zero());
+
+   //check atau atau
+   m.set_Ye(2,2, Ye22);
+   m.set_g3(0);
+   m.calculate_DRbar_masses();
+
+   BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
+   BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.tadpole_hh_2loop().real(), m.get_v()*tadpole_higgs_2loop_atau_atau_sm(m.get_scale(), m.get_MFe(2), m.get_Ye(2,2)),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.self_energy_hh_2loop(125.).real(), self_energy_higgs_2loop_atau_atau_sm(0., m.get_scale(), m.get_MFe(2), m.get_Ye(2,2)),eps);
+
+   m.set_Yu(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Yd(Eigen::Matrix<double,3,3>::Zero());
+   m.set_Ye(Eigen::Matrix<double,3,3>::Zero());
+
+   //check atauatau+atas+abas+(at+ab)^2
+   m.set_Yu(2,2, Yu22);
+   m.set_Yd(2,2, Yd22);
+   m.set_Ye(2,2, Ye22);
+   m.set_g3(g3);
+   m.calculate_DRbar_masses();
+
+   BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
+   BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.tadpole_hh_2loop().real(), m.get_v()*(tadpole_higgs_2loop_atau_atau_sm(m.get_scale(), m.get_MFe(2), m.get_Ye(2,2))+
+                                                                tadpole_higgs_2loop_at_at_sm(m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_MFd(2))+
+                                                                tadpole_higgs_2loop_at_as_sm(m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_g3())+
+                                                                tadpole_higgs_2loop_ab_as_sm(m.get_scale(), m.get_MFd(2), m.get_Yd(2,2), m.get_g3())),eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.self_energy_hh_2loop(125.).real(), (self_energy_higgs_2loop_atau_atau_sm(0., m.get_scale(), m.get_MFe(2), m.get_Ye(2,2))+
+                                                             self_energy_higgs_2loop_at_at_sm(0., m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_MFd(2))+
+                                                             self_energy_higgs_2loop_at_as_sm(0,  m.get_scale(), m.get_MFu(2), m.get_Yu(2,2), m.get_g3())+
+                                                             self_energy_higgs_2loop_ab_as_sm(0,  m.get_scale(), m.get_MFd(2), m.get_Yd(2,2), m.get_g3())),eps);
+   }
+
 namespace {
 
 template <class T>
