@@ -70,7 +70,9 @@ else
 end if
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfSS"
+#endif
    end if
 
 
@@ -86,7 +88,9 @@ real(dp) :: res
 res=-real(II(x,y,z,q2),dp)
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfSSS"
+#endif
    end if
 
 
@@ -125,7 +129,9 @@ Else
 End if
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfSSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfSSSS"
+#endif
    end if
 
 TfSSSS=res
@@ -149,7 +155,9 @@ Else
 End If
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfSSFF"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfSSFF"
+#endif
    end if
 
 TfSSFF=res
@@ -171,7 +179,9 @@ Else
 End if
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfSSFbFb"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfSSFbFb"
+#endif
    end if
 
 
@@ -186,7 +196,9 @@ real(dp) :: res
 RES=real(II(x,z,u,q2)-(x+y)/2._dp*UU(x,y,z,u,q2),dp)
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfFFFbS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfFFFbS"
+#endif
    end if
 
 
@@ -202,7 +214,9 @@ real(dp) :: res
 RES=Fffs100(x,y,z,u,q2)
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfFFbFS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfFFbFS"
+#endif
    end if
 
 
@@ -219,7 +233,9 @@ RES=real(UU(x,y,z,u,q2),dp)!!!! opposite sign definition to paper!
 
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfFbFbFbS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfFbFbFbS"
+#endif
    end if
 
 TfFbFbFbS=res
@@ -238,7 +254,9 @@ end if
 
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfSV"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfSV"
+#endif
    end if
 
 TfSV=res
@@ -263,7 +281,9 @@ if(rMS.ne.0._dp) then
 end if
 
 if(res .ne. res) then
-      write(*,*) "Problem in TfFV"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in TfFV"
+#endif
    end if
 
 
@@ -303,7 +323,9 @@ Else
 End if
 
 if(res .ne. res) then
-      write(*,*) "Problem in WfSSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in WfSSSS"
+#endif
    end if
 WfSSSS=res
 
@@ -331,7 +353,9 @@ else
 end if
 
 if(res .ne. res) then
-      write(*,*) "Problem in XfSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in XfSSS"
+#endif
    end if
 
 XfSSS = res
@@ -359,7 +383,9 @@ else
 end if
 
 if(res .ne. res) then
-      write(*,*) "Problem in YfSSSS", p2,x,y,z,u,q2
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in YfSSSS", p2,x,y,z,u,q2
+#endif
    end if
 
 YfSSSS=res
@@ -391,7 +417,9 @@ real(dp) :: res
 res = -real(II(x,y,z,q2),dp)
 
 if(res .ne. res) then
-      write(*,*) "Problem in SfSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in SfSSS"
+#endif
    end if
 
 SfSSS=res
@@ -409,7 +437,9 @@ Else
 End if
 
 if(res .ne. res) then
-      write(*,*) "Problem in UfSSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in UfSSSS"
+#endif
    end if
 
 UfSSSS=res
@@ -479,7 +509,9 @@ if(allsmall(q2,y,z)) then
 
 
  if(res .ne. res) then
-      write(*,*) "Problem in special VfSSSSS",x,y,z,u,v,p2
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in special VfSSSSS",x,y,z,u,v,p2
+#endif
    end if
 
 else
@@ -494,7 +526,9 @@ else
    end if
 
    if(res .ne. res) then
-      write(*,*) "Problem in regular VfSSSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in regular VfSSSSS"
+#endif
    end if
 
 end if
@@ -556,7 +590,9 @@ Else
  res=-real(MM(x,y,z,u,v,q2),dp)
 End if
 if(res .ne. res) then
-      write(*,*) "Problem in MfSSSSS"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in MfSSSSS"
+#endif
    end if
 
 MfSSSSS=res
@@ -674,7 +710,9 @@ end if
 res=BM+rAM*clog(-p2/q2)
 
 if(res.ne.res) then
-   write(*,*) "Problem in MM00!",p2,q2,y,u,v,rAM,BM
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in MM00!",p2,q2,y,u,v,rAM,BM
+#endif
    end if
 
 MM00=res
@@ -699,7 +737,9 @@ end if
 
 
 if(res .ne. res) then
-      write(*,*) "Problem in WfSSSV"
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "Problem in WfSSSV"
+#endif
    end if
 
 WfSSSV=res
@@ -723,7 +763,9 @@ if(smalldp(x,y)) then
    ! call saveme(q2,y) !!!! y > x so just maybe ..
    if(smallc(x/q2)) then
       res=0._dp
-      write(*,*) "MfSSSSV called with small input: ",p2,x_in,y_in,q2
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "MfSSSSV called with small input: ",p2,x_in,y_in,q2
+#endif
    else
       res = real( -1 + 5*log(y/q2) -3 *log(y/q2)**2,dp)
    end if
@@ -766,7 +808,9 @@ res = real( &
 End if
 
 if(res.ne.res) then
-   write(*,*) "Problem in WfSSFF!!"
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in WfSSFF!!"
+#endif
 end if
 
 WfSSFF=res
@@ -782,7 +826,9 @@ real(dp) :: res
 res=real(-2._dp*WfSSSS(p2,x,y,z,u,Q2),dp)
 
 if(res.ne.res) then
-   write(*,*) "Problem in WfSSFbFb!!"
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in WfSSFbFb!!"
+#endif
    end if
 
 WfSSFbFb=res
@@ -873,7 +919,9 @@ Else
 End if
 
 if(res.ne.res) then
-   write(*,*) "Problem in MfSFbSFbFb!!",p2,x,y,z,u,v,Q2
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in MfSFbSFbFb!!",p2,x,y,z,u,v,Q2
+#endif
 end if
 
 MfSFbSFbFb=res
@@ -896,7 +944,9 @@ res=real((v-x+y)*MM(x,y,z,u,v,q2)+UU(y,u,z,v,q2)-UU(x,z,u,v,q2)-BB(x,z,q2)*BB(y,
 End if
 
 if(res.ne.res) then
-   write(*,*) "Problem in MfSFSFbF!!",p2,x,y,z,u,v,Q2,MM00(p2,y,u,v,q2),UUs(p2,x,z,u,v,q2)
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in MfSFSFbF!!",p2,x,y,z,u,v,Q2,MM00(p2,y,u,v,q2),UUs(p2,x,z,u,v,q2)
+#endif
    end if
 
 MfSFSFbF=res
@@ -918,7 +968,9 @@ res=real((y+u)*MM(x,y,z,u,v,q2)-UU(x,z,u,v,q2)-UU(z,x,y,v,q2),dp)
 End if
 
 if(res.ne.res) then
-   write(*,*) "Problem in MfSFSFFb!!",p2,x,y,z,u,v,Q2
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in MfSFSFFb!!",p2,x,y,z,u,v,Q2
+#endif
    end if
 
 MfSFSFFb=res
@@ -1210,7 +1262,9 @@ else
 end if
 
 if(res .ne. res) then
-   write(*,*) "Problem in RSS"
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in RSS"
+#endif
    end if
 
 RSS=res
@@ -1328,7 +1382,9 @@ end if
 End if
 
 if(res.ne.res) then
-   write(*,*) "Problem in CC: ",x,y,z,q2
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in CC: ",x,y,z,q2
+#endif
    end if
 CC = res
 
@@ -1364,7 +1420,9 @@ y=y_in
 If(smalldp(x,y)) then
    !   call saveme(q2,y)
    if(smallc(y/q2)) then
-      write(*,*) "BBp called with small inputs: ",x,y_in,q2
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "BBp called with small inputs: ",x,y_in,q2
+#endif
       res = 0._dp !!!!!! Something wrong in this case but set to zero
    else
 
@@ -1435,7 +1493,9 @@ x=x_in
 !call saveme(q2,x)
 
 if(smallc(x/q2)) then
-   write(*,*) "IIp called with small input: ",x,y_in,z_in,q2
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "IIp called with small input: ",x,y_in,z_in,q2
+#endif
    IIp=0._dp
    return
 end if
@@ -1486,7 +1546,9 @@ res = -real(IIp(x,z,u,q2),dp)
 else
 res = real((II(x,z,u,q2) - II(y,z,u,q2))/(y-x),dp)
 if(res.ne.res) then
-   write(*,*) "Problem in UU: ",x,y,z,u,II(x,z,u,q2),II(y,z,u,q2)
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in UU: ",x,y,z,u,II(x,z,u,q2),II(y,z,u,q2)
+#endif
    end if
 end if
 
@@ -1514,7 +1576,9 @@ if(allsmall(q2,x,y)) then
       res=1._dp+0.25_dp*((clog(-p2/q2)-3._dp)**2)
 
       if(res.ne.res) then
-         write(*,*) "Problem in UUs(0,0,0,0): ",x,y,z,u,q2,p2
+#if defined(ENABLE_DEBUG)
+         	write(*,*) "Problem in UUs(0,0,0,0): ",x,y,z,u,q2,p2
+#endif
       end if
 
    else
@@ -1532,7 +1596,9 @@ if(allsmall(q2,x,y)) then
       end if
    end if
    if(res.ne.res) then
-         write(*,*) "Problem in special UUs: ",x,y,z,u,q2,p2
+#if defined(ENABLE_DEBUG)
+         	write(*,*) "Problem in special UUs: ",x,y,z,u,q2,p2
+#endif
       end if
 
 
@@ -1547,7 +1613,9 @@ else
    end if
 end if
 if(res.ne.res) then
-         write(*,*) "Problem in UUs: ",x,y,z,u,q2,p2
+#if defined(ENABLE_DEBUG)
+         	write(*,*) "Problem in UUs: ",x,y,z,u,q2,p2
+#endif
       end if
 !write(*,*) "uus: ",res
 UUs=res
@@ -1576,7 +1644,9 @@ if(smalldp(x,y)) then
 
 !!!!! 1/2d^2/dx^2 I(x,u,v)
    if(smallc(x/q2)) then ! always singular if x=0
-      write(*,*) "VV0 called with small inputs: ",x_in,y_in,u_in,v_in,Q2
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "VV0 called with small inputs: ",x_in,y_in,u_in,v_in,Q2
+#endif
       res=0._dp
    else
       if(smallc(u/q2)) then
@@ -1604,7 +1674,9 @@ if(smalldp(x,y)) then
 else
    res = real((IIp(y,u,v,q2) + UU(x,y,u,v,q2))/(y-x),dp)
    if(res.ne.res) then
-         write(*,*) "problem VV0: ",x,y,u,v,IIp(y,u,v,q2),UU(x,y,u,v,q2)
+#if defined(ENABLE_DEBUG)
+         	write(*,*) "problem VV0: ",x,y,u,v,IIp(y,u,v,q2),UU(x,y,u,v,q2)
+#endif
          end if
 
 end if
@@ -1634,7 +1706,9 @@ end if
 if(smalldp(u,y)) then
    !   call saveme(q2,x,y) -> we shouldn't get here, the new routines should take over
    if(smallc(y/q2)) then
-      write(*,*) "MM somehow called with small inputs: ",x_in,y_in,z_in,u_in,v_in,q2
+#if defined(ENABLE_DEBUG)
+      	write(*,*) "MM somehow called with small inputs: ",x_in,y_in,z_in,u_in,v_in,q2
+#endif
       MM=0._dp
       return
    end if
@@ -1642,7 +1716,9 @@ if(smalldp(u,y)) then
    if(smalldp(x,z)) then
       ! result is I(x',y',v)
       if(smallc(x/q2)) then
-         write(*,*) "MM somehow called with small inputs: ",x_in,y_in,z_in,u_in,v_in,q2
+#if defined(ENABLE_DEBUG)
+         	write(*,*) "MM somehow called with small inputs: ",x_in,y_in,z_in,u_in,v_in,q2
+#endif
          MM=0._dp
          return
       end if
@@ -1705,7 +1781,9 @@ end function MM
 
 
   if(phimod.ne.phimod) then
-     write(*,*) "wtf is up with phimod? ",x,y,z
+#if defined(ENABLE_DEBUG)
+     	write(*,*) "wtf is up with phimod? ",x,y,z
+#endif
      end if
 
  Contains
@@ -1786,7 +1864,9 @@ x = x_in
 y = y_in
 z = z_in
 If (Q2.le.0._dp) Then
-  write(*,*) 'invalid renormalization scale!'
+#if defined(ENABLE_DEBUG)
+  	write(*,*) 'invalid renormalization scale!'
+#endif
   return
 end if
 Call SortArguments3C(x,y,z) ! sort x<=y<=z
@@ -1826,7 +1906,9 @@ res=res - 2.5_dp*(x+y+z)
 res=res - 0.5*XiFunction(x,y,z)
 II = res
 if(res.ne. res) then
-   write(*,*) "Problem in general II: ",x,y,z,xifunction(x,y,z)
+#if defined(ENABLE_DEBUG)
+   	write(*,*) "Problem in general II: ",x,y,z,xifunction(x,y,z)
+#endif
 end if
 
 End If
