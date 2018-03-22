@@ -761,14 +761,15 @@ CalcEffPot2L[particle_] :=
 
 if (pole_mass_loop_order > 1) {
 " <> IndentText["\
-" <> If[FlexibleSUSY`UseSARAH2Loop === True, "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n",""] <> "
-self_energy_2l = " <> If[FlexibleSUSY`UseSARAH2Loop === True, "model_gl.",""] <>
-"self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p);\n" <>
-If[FlexibleSUSY`UseSARAH2Loop === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
-   "if(ewsb_solve_consistently) {" <>
-   "  self_energy_2l += model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p);\n" <>
-   "}\n",
-   ""
+" <> If[FlexibleSUSY`UseSARAH2Loop === True,
+   "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit()\n;" <>
+   "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
+   If[FlexibleSUSY`UseConsistentEWSBSolution === True,
+      "if(ewsb_solve_consistently) {" <>
+      "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
+      "}\n",""]
+   ,
+   "self_energy_2l = self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p);\n"
 ] <>
 "for (int i = 0; i < " <> dimStr <> "; i++) {
    for (int k = 0; k < " <> dimStr <> "; k++) {
