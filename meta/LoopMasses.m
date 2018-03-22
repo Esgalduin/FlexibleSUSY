@@ -526,8 +526,7 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
                 ];
              If[FlexibleSUSY`UseSARAH2Loop === True &&
                MemberQ[{SARAH`HiggsBoson, SARAH`PseudoScalar}, particle],
-               addHigherLoopHiggsContributions = "self_energy += self_energy_2l;\n";
-               calcHigherLoopHiggsContributions = CalcEffPot2L[particle];
+               addHigherLoopHiggsContributions = CalcEffPot2L[particle] <>"\nself_energy += self_energy_2l;\n";
               ];
               If[FlexibleSUSY`UseHiggs3LoopMSSM === True && MemberQ[{SARAH`HiggsBoson}, particle],
                  addHigherLoopHiggsContributions = addHigherLoopHiggsContributions <> "self_energy += self_energy_3l;\n";
