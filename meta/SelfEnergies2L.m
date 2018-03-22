@@ -262,23 +262,33 @@ Calc1L2LSEShiftSSSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunc
 
 Calc1L2LSEShiftFFS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
    If[FlexibleSUSY`Exclude1L2LFermionShifts === False,
-     loopfields={diag[[1]],diag[[2]]}//.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+     loopfields = {diag[[1]],diag[[2]]}//.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
      nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
-     couplings= diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
-     prefactors= 2*diag[[5]]*diag[[6]]*couplings*{-Sqrt[massshifts[[1]]]//.{Symbol["generation"]->SARAH`gI4}*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]],
-                                                  -SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*Sqrt[massshifts[[2]]]//.{Symbol["generation"]->SARAH`gI5},
-                                                  -SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},
-                                                  -SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[2]]//.{Symbol["generation"]->SARAH`gI5},
-                                               };
-     loopfunctions={Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                    Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                    Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                    Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+     couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
+     prefactors = diag[[5]]*diag[[6]]*couplings*{-2*Sqrt[massshifts[[1]]]//.{Symbol["generation"]->SARAH`gI4}*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]], (* the first 4 parts correspond to the -2*m1*m2*B(p2,m12,m22) part of the SE *)
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*Sqrt[massshifts[[2]]]//.{Symbol["generation"]->SARAH`gI5},
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[2]]//.{Symbol["generation"]->SARAH`gI5},
+                                                +massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},  (* these last parts correspond to the +G0(p2,m12,m22) part of the SE *)
+                                                +massshift[[2]]//.{Symbol["generation"]->SARAH`gI5},
+                                                -((massshift[[1]]//.{Symbol["generation"]->SARAH`gI4})+(massshift[[2]]//.{Symbol["generation"]->SARAH`gI5})),
+                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-p2)*(massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},
+                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-p2)*(massshift[[2]]//.{Symbol["generation"]->SARAH`gI5}};
 
-     If[nFields[[1]]==1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
-     If[nFields[[2]]==1, loopfunctions=loopfunctions//.{x_[{SARAH`gI5}]->x}];
-     tempexpr=Plus @@ (prefactors*loopfunctions);
+     loopfunctions = {+Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      +Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      +Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                      +Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      -Symbol["BB"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                      -Symbol["BB"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      +Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      +Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                      +Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+
+     If[nFields[[1]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
+     If[nFields[[2]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI5}]->x}];
+     tempexpr = Plus @@ (prefactors*loopfunctions);
      If[nFields[[1]] > 1,tempexpr=SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];];
      If[nFields[[2]] > 1,tempexpr=SARAH`sum[SARAH`gI5,1,nFields[[2]],tempexpr];];
      tempexpr
