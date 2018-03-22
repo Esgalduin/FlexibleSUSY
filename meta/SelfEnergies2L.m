@@ -302,8 +302,7 @@ GetHiggsSelfEnergy[energies_List]:=Select[energies,MemberQ[RelevantFieldsSelfEne
    1L corrections to the EWSB parameters. The sign is opposite to that of
    the values given by CalculatePi2S in SPheno, since there they multiply
    their result with a -1 later on. The signs used here should be consistent
-   with both the rest of FlexibleSUSY, as well as the general expressions
-   from [1609.06977] *)
+   with both the rest of FlexibleSUSY *)
 Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,eigenstates_] :=
 Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgstoewsb,
      nHiggs,tadpoleSeriesParameters,tadpolefields,massshiftsintadpole,shifts,
@@ -329,11 +328,11 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
        tadpolefields = (GetnPointField[#] & /@ relevantTadpoles)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
        selfenergyfields = (GetnPointField[#] & /@ relevantSelfEnergies)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
 
-       massshiftsintadpole = Map[TreeMass[#[[2]], eigenstates] &, relevantTadpoles, {2}] //.gaugelesssub //.treelevelsolution;
+       massshiftsintadpole = Map[TreeMass[#[[2]], eigenstates] &, relevantTadpoles, {2}] //.gaugelesssub /.treelevelsolution;
        massshiftsintadpole = TreeMasses`StripGenerators[massshiftsintadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
        massshiftsintadpole = Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsintadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
 
-       massshiftsinSE = Map[{TreeMass[#[[1]], eigenstates],TreeMass[#[[2]], eigenstates]} &, relevantSelfEnergies, {2}] //.gaugelesssub //.treelevelsolution;
+       massshiftsinSE = Map[{TreeMass[#[[1]], eigenstates],TreeMass[#[[2]], eigenstates]} &, relevantSelfEnergies, {2}] //.gaugelesssub /.treelevelsolution;
        massshiftsinSE = TreeMasses`StripGenerators[massshiftsinSE,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
        massshiftsinSE = Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsinSE, {3}];
 
