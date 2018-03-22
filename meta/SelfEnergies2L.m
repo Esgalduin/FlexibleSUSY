@@ -145,8 +145,8 @@ GetnPointField[tempdiags_List]:=Module[{testdiag=tempdiags[[1]],coupfields,loopf
 GetUsedParameters[expr_] := Select[Transpose[parameters][[1]], ! FreeQ[expr, #] &];
 
 GetShiftedExpressions[SarahList_List,ewsbEqparameters_,eigenstates_]:=Select[#,
-   With[{unused = #},(!SARAH`FermionQ[#[[2]]]) && (!SARAH`FermionQ[#[[1]]]) &&
-     ContainsAny[Join[GetUsedParameters[TreeMass[#[[1]], eigenstates]],GetUsedParameters[TreeMass[#[[2]], eigenstates]]],ewsbEqparameters]] &] & /@ SarahList;
+   With[{unused = #},ContainsAny[Join[GetUsedParameters[TreeMass[#[[1]], eigenstates]],
+      GetUsedParameters[TreeMass[#[[2]], eigenstates]]],ewsbEqparameters]] &] & /@ SarahList;
     (* the 'unused = #'' is set, so that we can use a pure function inside another one *)
 
 
