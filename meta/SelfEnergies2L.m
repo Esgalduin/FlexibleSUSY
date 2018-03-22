@@ -266,15 +266,15 @@ Calc1L2LSEShiftFFS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunct
      nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
      couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
-     prefactors = diag[[5]]*diag[[6]]*couplings*{-2*Sqrt[massshifts[[1]]]//.{Symbol["generation"]->SARAH`gI4}*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]], (* the first 4 parts correspond to the -2*m1*m2*B(p2,m12,m22) part of the SE *)
-                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*Sqrt[massshifts[[2]]]//.{Symbol["generation"]->SARAH`gI5},
-                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},
-                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[2]]//.{Symbol["generation"]->SARAH`gI5},
-                                                +massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},  (* these last parts correspond to the +G0(p2,m12,m22) part of the SE *)
-                                                +massshift[[2]]//.{Symbol["generation"]->SARAH`gI5},
-                                                -((massshift[[1]]//.{Symbol["generation"]->SARAH`gI4})+(massshift[[2]]//.{Symbol["generation"]->SARAH`gI5})),
-                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-p2)*(massshift[[1]]//.{Symbol["generation"]->SARAH`gI4},
-                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-p2)*(massshift[[2]]//.{Symbol["generation"]->SARAH`gI5}};
+     prefactors = diag[[5]]*diag[[6]]*couplings*{-2*Sqrt[massshifts[[1]]]/.{Symbol["generation"]->SARAH`gI4}*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]], (* the first 4 parts correspond to the -2*m1*m2*B(p2,m12,m22) part of the SE *)
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*Sqrt[massshifts[[2]]]/.{Symbol["generation"]->SARAH`gI5},
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[1]]/.{Symbol["generation"]->SARAH`gI4},
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshift[[2]]/.{Symbol["generation"]->SARAH`gI5},
+                                                +massshift[[1]]/.{Symbol["generation"]->SARAH`gI4},  (* these last parts correspond to the +G0(p2,m12,m22) part of the SE *)
+                                                +massshift[[2]]/.{Symbol["generation"]->SARAH`gI5},
+                                                -((massshift[[1]]/.{Symbol["generation"]->SARAH`gI4})+(massshift[[2]]/.{Symbol["generation"]->SARAH`gI5})),
+                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p2"])*massshift[[1]]/.{Symbol["generation"]->SARAH`gI4},
+                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p2"])*massshift[[2]]/.{Symbol["generation"]->SARAH`gI5}};
 
      loopfunctions = {+Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
                       +Symbol["BBs"][Symbol["p2"], Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
@@ -351,7 +351,6 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
 
        relevantTadpoles = GetShiftedExpressions[SarahTads,EWSBpars,eigenstates];
        relevantSelfEnergies = GetShiftedExpressions[GetHiggsSelfEnergy[SarahSelfenergies],EWSBpars,eigenstates];
-
        (*We don't have to worry about ignoring Goldstones, since those contributions will
          be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
          given that their masses have been properly set to zero *)
