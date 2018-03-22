@@ -350,7 +350,7 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
 
 CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",goldstones=SARAH`GoldstoneGhost,goldstonemasses,
    couplingnames=Symbol[SymbolName[#]]& /@ brokencouplings},
-   goldstonemasses=FlexibleSUSY`M[#]& /@ (Transpose[goldstones][[2]] /. {field_[{Ind_}] -> field[Ind]}) ;
+   goldstonemasses=FlexibleSUSY`M[#]& /@ (Transpose[goldstones][[2]] /. {field_[{Ind_}] -> field[Ind-1]}) ;
 
    For[nm=1,nm <= Length[couplingnames], nm++,
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";
