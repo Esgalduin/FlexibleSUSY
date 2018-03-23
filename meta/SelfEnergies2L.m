@@ -198,8 +198,12 @@ Calc1L2LTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfuncti
     nField = TreeMasses`GetDimension[loopfield];
 
     couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI4};
-    prefactor = -4*diag[[5]]*diag[[6]]*couplings*{Sqrt[massshift],massshift*SARAH`Mass[loopfield[{SARAH`gI4}]]}//.{Symbol["generation"]->SARAH`gI4}; (* SARAH diag basefactor: 4*)
-    loopfunction = {-Symbol[A0][Mass2[loopfield[{SARAH`gI4}]]],-Symbol["BB"][Mass2[loopfield[{SARAH`gI4}]],Mass2[loopfield[{SARAH`gI4}]]]}; (* -BB is P_{SS}, the A0 implemented has opposite sign from the paper*)
+
+    prefactor = -4*diag[[5]]*diag[[6]]*couplings*{AbsSqrt[Re[massshift]],
+                                                  massshift*SARAH`Mass[loopfield[{SARAH`gI4}]]}/.{Symbol["generation"]->SARAH`gI4};
+
+    loopfunction = {-Symbol["A0"][Mass2[loopfield[{SARAH`gI4}]]],
+                    -Symbol["BB"][Mass2[loopfield[{SARAH`gI4}]],Mass2[loopfield[{SARAH`gI4}]]]};
 
     If[nField == 1, loopfunction = loopfunction //. {x_[{SARAH`gI4}]->x}];
     tempexpr = prefactor * loopfunction;
