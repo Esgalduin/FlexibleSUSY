@@ -231,15 +231,18 @@ Calc1L2LSEShiftSSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunct
   nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
   couplings= diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
-  prefactors= -2*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]//.{Symbol["generation"]->SARAH`gI4},massshifts[[2]]//.{Symbol["generation"]->SARAH`gI5}};
-  loopfunctions={Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                 Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]]}; (* C in Braathen paper is -CCtilde, sort of*)
 
-  If[nFields[[1]]==1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
-  If[nFields[[2]]==1, loopfunctions=loopfunctions//.{x_[{SARAH`gI5}]->x}];
-  tempexpr=Plus @@ (prefactors*loopfunctions);
-  If[nFields[[1]] > 1,tempexpr=SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];];
-  If[nFields[[2]] > 1,tempexpr=SARAH`sum[SARAH`gI5,1,nFields[[2]],tempexpr];];
+  prefactors= 2*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]/.{Symbol["generation"]->SARAH`gI4},
+                                                massshifts[[2]]/.{Symbol["generation"]->SARAH`gI5}};
+
+  loopfunctions={-Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                 -Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+
+  If[nFields[[1]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI4}]->x}];
+  If[nFields[[2]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI5}]->x}];
+  tempexpr = Plus @@ (prefactors * loopfunctions);
+  If[nFields[[1]] > 1,tempexpr = SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];];
+  If[nFields[[2]] > 1,tempexpr = SARAH`sum[SARAH`gI5,1,nFields[[2]],tempexpr];];
   tempexpr
 ];
 
