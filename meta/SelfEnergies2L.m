@@ -208,7 +208,7 @@ Calc1L2LTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfuncti
                     -Symbol["BB"][Mass2[loopfield[{SARAH`gI4}]],Mass2[loopfield[{SARAH`gI4}]]]};
 
     If[nField == 1, loopfunction = loopfunction //. {x_[{SARAH`gI4}]->x}];
-    tempexpr = prefactor * loopfunction;
+    tempexpr = Plus @@ (prefactors * loopfunctions);
     If[nField > 1,tempexpr = SARAH`sum[SARAH`gI4,1,nField,tempexpr];];
     tempexpr
   ,Nothing]
@@ -285,8 +285,8 @@ Calc1L2LSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfu
                                                 +massshifts[[1]],  (* these last parts correspond to the +G0(p2,m12,m22) part of the SE *)
                                                 +massshifts[[2]],
                                                 -(massshifts[[1]]+massshifts[[2]]),
-                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p"])^2*massshifts[[1]],
-                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p"])^2*massshifts[[2]]};
+                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p"]^2)*massshifts[[1]],
+                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p"]^2)*massshifts[[2]]};
 
      loopfunctions = {+Symbol["BBs"][Symbol["p"]^2, Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
                       +Symbol["BBs"][Symbol["p"]^2, Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
