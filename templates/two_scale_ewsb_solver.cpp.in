@@ -215,8 +215,8 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
 
    model.solve_ewsb_tree_level(); // need to make sure our parameters are at tree-level
 
-   // this is set while model creation, so that consitent solution cannot be attempted
-   // if no shifts were calculated, since then it is nonsensical
+   // this is set during model creation, so that consistent solution cannot be attempted,
+   // if we were unable to calculate shifts
    if(!@ewsbSolveConsistently@) {
       error = EWSB_solver::FAIL;
       model.get_problems().flag_no_ewsb();

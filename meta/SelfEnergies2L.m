@@ -1,4 +1,4 @@
-BeginPackage["SelfEnergies2L`", {"SARAH`","TreeMasses`","CConversion`"}];
+BeginPackage["SelfEnergies2L`", {"SARAH`","TreeMasses`","CConversion`","EWSB`"}];
 
 Unprotect["SelfEnergies2L`*"];
 ClearAll["SelfEnergies2L`*"];
@@ -345,12 +345,16 @@ RelevantFieldsSelfEnergies:={ToExpression["U"<>ToString[SARAH`HiggsBoson]],
 
 GetHiggsSelfEnergy[energies_List]:=Select[energies,MemberQ[RelevantFieldsSelfEnergies,GetnPointField[#]]&];
 
+ReduceExplicitGenIndices[] := Module[{generationMatrices = First /@ Select[SARAH`parameters, (SequenceCount[Flatten[#], {generation, generation}] === 1) &]},
+                                    {matx_[a_Symbol, b_Integer] /; MemberQ[generationMatrices, matx] -> matx[a, b - 1],
+                                     matx_[a_Integer, b_Symbol] /; MemberQ[generationMatrices, matx] -> matx[a - 1, b],
+                                     matx_[a_Integer, b_Integer] /; MemberQ[generationMatrices, matx] -> matx[a - 1, b - 1]}
+   ];
 
 (* creates expressions for shifts of 1L selfenergies and tadpoles through
    1L corrections to the EWSB parameters. The sign is opposite to that of
-   the values given by CalculatePi2S in SPheno, since there they multiply
-   their result with a -1 later on. The signs used here should be consistent
-   with both the rest of FlexibleSUSY *)
+   the values given by CalculatePi2S in SPheno. The signs used here should be
+   consistent with the rest of FlexibleSUSY *)
 Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,eigenstates_] :=
 Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgstoewsb,
      nHiggs,tadpoleSeriesParameters,tadpolefields,massshiftsintadpole,shifts,
@@ -367,7 +371,7 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
          be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
          given that their masses have been properly set to zero *)
 
-       treelevelsolution = treeEWSBsol//.gaugelesssub;
+       treelevelsolution = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. gaugelesssub];
        nHiggs = Length[tadHiggsassoc];
 
        tadpoleSeriesParametersFirstOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 1}, {i, 1, nHiggs}];
@@ -385,8 +389,12 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
 
        tadpoleshifts = Plus @@@ (Thread[noEvalfunc[relevantTadpoles,massshiftsintadpole]]//.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}); (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
        SEshifts = Plus @@@ (Thread[noEvalfunc[relevantSelfEnergies,massshiftsinSE]]//.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]});
+
        tadsnPointform = Thread[SelfEnergies`TadpoleShift1L[tadpolefields,0,tadpoleshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
        SEnPointform = Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyfields,0,SEshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+
+       tadsnPointform = tadsnPointform /. ReduceExplicitGenIndices[];
+       SEnPointform = SEnPointform /. ReduceExplicitGenIndices[];
 
        nPointform=Join[nPointform,AppendShiftFieldIndices[tadsnPointform,SARAH`gO1],AppendShiftFieldIndices[SEnPointform,SARAH`gO1,SARAH`gO2]];,
        Print["More than one tadpole present, throwing the towel, no tadpole shifts were calculated. Fix SelfEnergies2L to handle this case."];

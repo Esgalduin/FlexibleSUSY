@@ -67,6 +67,8 @@ tree-level solution";
 SetConsistentSolution::usage="sets the model parameters to the
 consistent solution";
 
+ReplaceFixedParametersBySymbolsInTarget::usage=""
+
 FillArrayWithParameters::usage="fill an array with parameters";
 
 DivideTadpolesByVEV::usage="Divides an array of tadpoles by their
