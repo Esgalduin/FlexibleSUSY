@@ -762,10 +762,10 @@ CalcEffPot2L[particle_] :=
 if (pole_mass_loop_order > 1) {
 " <> IndentText["\
 " <> If[FlexibleSUSY`UseSARAH2Loop === True,
-   "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit()\n;" <>
+   "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n" <>
    "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
    If[FlexibleSUSY`UseConsistentEWSBSolution === True,
-      "if(ewsb_solve_consistently) {" <>
+      "if(ewsb_solve_consistently) {\n" <>
       "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
       "}\n",""]
    ,
