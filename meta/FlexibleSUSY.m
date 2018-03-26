@@ -1532,6 +1532,9 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               {twoLoopSelfEnergyPrototypes, twoLoopSelfEnergyFunctions} = SelfEnergies`CreateTwoLoopSelfEnergiesMSSM[{SARAH`HiggsBoson, SARAH`PseudoScalar}];
               twoLoopHiggsHeaders = "#include \"sfermions.hpp\"\n#include \"mssm_twoloophiggs.hpp\"\n";
              ];
+           If[FlexibleSUSY`UseSARAH2Loop === True && (FlexibleSUSY`FSModelName === "MSSM" || FlexibleSUSY`FSModelName === "NMSSM"),
+             twoLoopHiggsHeaders = "#include \"sfermions.hpp\"\n";
+            ];
            If[FlexibleSUSY`UseHiggs3LoopMSSM === True,
               {threeLoopSelfEnergyPrototypes, threeLoopSelfEnergyFunctions} = SelfEnergies`CreateThreeLoopSelfEnergiesMSSM[{SARAH`HiggsBoson}];
               threeLoopHiggsHeaders = threeLoopHiggsHeaders <> "\
@@ -1546,7 +1549,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               twoLoopHiggsHeaders = "#include \"sfermions.hpp\"\n#include \"mssm_twoloophiggs.hpp\"\n#include \"nmssm_twoloophiggs.hpp\"\n";
              ];
            twoLoopThresholdHeaders = ThresholdCorrections`GetTwoLoopThresholdHeaders[];
-           If[SARAH`UseHiggs2LoopMSSM === True ||
+           If[(FlexibleSUSY`UseSARAH2Loop === True && (FlexibleSUSY`FSModelName === "MSSM" || FlexibleSUSY`FSModelName === "NMSSM")) || SARAH`UseHiggs2LoopMSSM === True ||
               FlexibleSUSY`UseHiggs2LoopNMSSM === True ||
               FlexibleSUSY`UseMSSMYukawa2Loop === True ||
               FlexibleSUSY`UseMSSMAlphaS2Loop === True ||
