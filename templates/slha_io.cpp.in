@@ -32,8 +32,8 @@
 #include <string>
 
 #define Pole(p) physical.p
-#define PHYSICAL(p) model.get_physical().p
-#define PHYSICAL_SLHA(p) model.get_physical_slha().p
+#define PHYSICAL(p) model.get_physical().get_##p
+#define PHYSICAL_SLHA(p) model.get_physical_slha().get_##p
 #define LOCALPHYSICAL(p) physical.p
 #define MODELPARAMETER(p) model.get_##p()
 #define INPUTPARAMETER(p) input.p
@@ -285,12 +285,12 @@ void @ModelName@_slha_io::set_mass(const standard_model::Standard_model_physical
    std::ostringstream mass;
 
    mass << "Block SMMASS\n"
-      << FORMAT_MASS(24, physical.MVWp, "VWp")
-      << FORMAT_MASS(21, physical.MVG, "VG")
+      << FORMAT_MASS(24, SignedAbsSqrt(physical.M2VWp), "VWp")
+      << FORMAT_MASS(21, SignedAbsSqrt(physical.M2VG), "VG")
       << FORMAT_MASS(12, physical.MFv(0), "Fv(1)")
       << FORMAT_MASS(14, physical.MFv(1), "Fv(2)")
       << FORMAT_MASS(16, physical.MFv(2), "Fv(3)")
-      << FORMAT_MASS(25, physical.Mhh, "hh")
+      << FORMAT_MASS(25, SignedAbsSqrt(physical.M2hh), "hh")
       << FORMAT_MASS(1, physical.MFd(0), "Fd(1)")
       << FORMAT_MASS(3, physical.MFd(1), "Fd(2)")
       << FORMAT_MASS(5, physical.MFd(2), "Fd(3)")
@@ -300,8 +300,8 @@ void @ModelName@_slha_io::set_mass(const standard_model::Standard_model_physical
       << FORMAT_MASS(11, physical.MFe(0), "Fe(1)")
       << FORMAT_MASS(13, physical.MFe(1), "Fe(2)")
       << FORMAT_MASS(15, physical.MFe(2), "Fe(3)")
-      << FORMAT_MASS(22, physical.MVP, "VP")
-      << FORMAT_MASS(23, physical.MVZ, "VZ")
+      << FORMAT_MASS(22, SignedAbsSqrt(physical.M2VP), "VP")
+      << FORMAT_MASS(23, SignedAbsSqrt(physical.M2VZ), "VZ")
       ;
 
    slha_io.set_block(mass);

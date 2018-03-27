@@ -197,9 +197,9 @@ BOOST_AUTO_TEST_CASE( test_delta_vb )
    const double fs_g3  = fs.get_g3();
    const double fs_hmu = fs.get_Ye(1,1);
 
-   const double pizztMZ = Re(fs.self_energy_VZ_1loop(mz_pole));
+   const double pizztMZ = Re(fs.self_energy_VZ_1loop(Sqr(mz_pole)));
    const double piwwt0  = Re(fs.self_energy_VWp_1loop(0.));
-   const double piwwtMW = Re(fs.self_energy_VWp_1loop(mw_pole));
+   const double piwwtMW = Re(fs.self_energy_VWp_1loop(Sqr(mw_pole)));
 
    Weinberg_angle::Self_energy_data se_data;
    se_data.scale    = scale;
@@ -270,9 +270,9 @@ BOOST_AUTO_TEST_CASE( test_delta_r )
    const double fs_g3  = fs.get_g3();
    const double fs_hmu = fs.get_Ye(1,1);
 
-   const double pizztMZ = Re(fs.self_energy_VZ_1loop(mz_pole));
+   const double pizztMZ = Re(fs.self_energy_VZ_1loop(Sqr(mz_pole)));
    const double piwwt0  = Re(fs.self_energy_VWp_1loop(0.));
-   const double piwwtMW = Re(fs.self_energy_VWp_1loop(mw_pole));
+   const double piwwtMW = Re(fs.self_energy_VWp_1loop(Sqr(mw_pole)));
 
    Weinberg_angle::Self_energy_data se_data;
    se_data.scale    = scale;
@@ -354,9 +354,9 @@ BOOST_AUTO_TEST_CASE( test_delta_rho )
    const double fs_g3  = fs.get_g3();
    const double fs_hmu = fs.get_Ye(1,1);
 
-   const double pizztMZ = Re(fs.self_energy_VZ_1loop(mz_pole));
+   const double pizztMZ = Re(fs.self_energy_VZ_1loop(Sqr(mz_pole)));
    const double piwwt0  = Re(fs.self_energy_VWp_1loop(0.));
-   const double piwwtMW = Re(fs.self_energy_VWp_1loop(mw_pole));
+   const double piwwtMW = Re(fs.self_energy_VWp_1loop(Sqr(mw_pole)));
 
    Weinberg_angle::Self_energy_data se_data;
    se_data.scale    = scale;
@@ -438,9 +438,9 @@ BOOST_AUTO_TEST_CASE( test_rho_sinTheta )
    const double fs_g3  = fs.get_g3();
    const double fs_hmu = fs.get_Ye(1,1);
 
-   const double pizztMZ = Re(fs.self_energy_VZ_1loop(mz_pole));
+   const double pizztMZ = Re(fs.self_energy_VZ_1loop(Sqr(mz_pole)));
    const double piwwt0  = Re(fs.self_energy_VWp_1loop(0.));
-   const double piwwtMW = Re(fs.self_energy_VWp_1loop(mw_pole));
+   const double piwwtMW = Re(fs.self_energy_VWp_1loop(Sqr(mw_pole)));
 
    Weinberg_angle::Self_energy_data se_data;
    se_data.scale    = scale;

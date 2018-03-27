@@ -1143,7 +1143,6 @@ WriteModelSLHAClass[massMatrices_List, files_List] :=
             convertSoftSquaredMassesToSLHA = "",
             slhaFerimonMixingMatricesDef = "",
             slhaFerimonMixingMatricesGetters = "",
-            slhaPoleMassGetters = "",
             slhaPoleMixingMatrixGetters = "",
             calculateCKMMatrix = "",
             calculatePMNSMatrix = ""
@@ -1162,7 +1161,6 @@ WriteModelSLHAClass[massMatrices_List, files_List] :=
            calculateCKMMatrix = WriteOut`CalculateCKMMatrix[];
            calculatePMNSMatrix = WriteOut`CalculatePMNSMatrix[];
            For[k = 1, k <= Length[massMatrices], k++,
-               slhaPoleMassGetters         = slhaPoleMassGetters <> TreeMasses`CreateSLHAPoleMassGetter[massMatrices[[k]]];
                slhaPoleMixingMatrixGetters = slhaPoleMixingMatrixGetters <> TreeMasses`CreateSLHAPoleMixingMatrixGetter[massMatrices[[k]]];
               ];
            WriteOut`ReplaceInFiles[files,
@@ -1177,7 +1175,6 @@ WriteModelSLHAClass[massMatrices_List, files_List] :=
                             "@slhaSoftSquaredMassesDef@"       -> IndentText[slhaSoftSquaredMassesDef],
                             "@slhaSoftSquaredMassesGetter@"    -> IndentText[slhaSoftSquaredMassesGetter],
                             "@convertSoftSquaredMassesToSLHA@" -> IndentText[convertSoftSquaredMassesToSLHA],
-                            "@slhaPoleMassGetters@"            -> IndentText[slhaPoleMassGetters],
                             "@slhaPoleMixingMatrixGetters@"    -> IndentText[slhaPoleMixingMatrixGetters],
                             "@calculateCKMMatrix@"             -> IndentText[calculateCKMMatrix],
                             "@calculatePMNSMatrix@"             -> IndentText[calculatePMNSMatrix],
@@ -1425,7 +1422,6 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             independentEwsbEquations,
             massGetters = "", k,
             mixingMatrixGetters = "",
-            slhaPoleMassGetters = "", slhaPoleMixingMatrixGetters = "",
             higgsMassGetters = "", higgsToEWSBEqAssociation,
             tadpoleEqPrototypes = "", tadpoleEqFunctions = "",
             numberOfEWSBEquations = Length[ewsbEquations],
@@ -1493,7 +1489,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                    TreeMasses`CreateHiggsMassGetters[SARAH`HiggsBoson,""],
                    TreeMasses`CreateHiggsMassGetters[SARAH`ChargedHiggs,""],
                    TreeMasses`CreateHiggsMassGetters[SARAH`PseudoScalar,""],
-                   "\n"
+                   ""
                ];
            clearPhases = Phases`ClearPhases[phases];
            calculateAllMasses = TreeMasses`CallMassCalculationFunctions[massMatrices];
@@ -1586,8 +1582,8 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            callAllLoopMassFunctions     = LoopMasses`CallAllPoleMassFunctions[FlexibleSUSY`FSEigenstates, enablePoleMassThreads];
            enablePoleMassThreads = True;
            callAllLoopMassFunctionsInThreads = LoopMasses`CallAllPoleMassFunctions[FlexibleSUSY`FSEigenstates, enablePoleMassThreads];
-           masses                       = Flatten[(FlexibleSUSY`M[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices) /.
-                                                  FlexibleSUSY`M[p_List] :> (FlexibleSUSY`M /@ p)];
+           masses                       = Flatten[(TreeMasses`GetMass[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices) /.
+                                                  FlexibleSUSY`M2[p_List] :> (FlexibleSUSY`M2 /@ p)];
            {lspGetters, lspFunctions}   = LoopMasses`CreateLSPFunctions[FlexibleSUSY`PotentialLSPParticles];
            printMasses                  = WriteOut`PrintParameters[masses, "ostr"];
            getMixings                   = TreeMasses`CreateMixingArrayGetter[massMatrices];
@@ -1657,8 +1653,6 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@lspFunctions@"         -> lspFunctions,
                             "@massGetters@"          -> IndentText[massGetters],
                             "@mixingMatrixGetters@"  -> IndentText[mixingMatrixGetters],
-                            "@slhaPoleMassGetters@"  -> IndentText[slhaPoleMassGetters],
-                            "@slhaPoleMixingMatrixGetters@" -> IndentText[slhaPoleMixingMatrixGetters],
                             "@higgsMassGetterPrototypes@"   -> IndentText[higgsMassGetters[[1]]],
                             "@higgsMassGetters@"     -> higgsMassGetters[[2]],
                             "@tadpoleEqPrototypes@"  -> IndentText[tadpoleEqPrototypes],
@@ -2124,7 +2118,9 @@ WriteMathLink[inputParameters_List, extraSLHAOutputBlocks_List, files_List] :=
            setInputParameters = FSMathLink`SetInputParametersFromArguments[inputPars];
            setInputParameterDefaultArguments = FSMathLink`SetInputParameterDefaultArguments[inputPars];
            setInputParameterArguments = FSMathLink`SetInputParameterArguments[inputPars];
-           outPars = Parameters`GetOutputParameters[] /. FlexibleSUSY`M[p_List] :> Sequence @@ (FlexibleSUSY`M /@ p);
+           outPars = Parameters`GetOutputParameters[] /.
+                     FlexibleSUSY`M2[p_List] :> Sequence @@ (FlexibleSUSY`M2 /@ p) /.
+                     FlexibleSUSY`M2 -> FlexibleSUSY`M;
            outPars = Join[outPars, FlexibleSUSY`Pole /@ outPars, Parameters`GetModelParameters[],
                           Parameters`GetExtraParameters[], {FlexibleSUSY`SCALE}];
            numberOfSpectrumEntries = FSMathLink`GetNumberOfSpectrumEntries[outPars];
@@ -2275,7 +2271,9 @@ WriteUtilitiesClass[massMatrices_List, betaFun_List, inputParameters_List, extra
            writeSLHAImMinparBlock = WriteOut`WriteSLHAImMinparBlock[imminpar];
            writeSLHAImExtparBlock = WriteOut`WriteSLHAImExtparBlock[imextpar];
            writeSLHAInputParameterBlocks = WriteSLHAInputParameterBlocks[extraSLHAInputParameters];
-           writeExtraSLHAOutputBlock = WriteOut`WriteExtraSLHAOutputBlock[extraSLHAOutputBlocks];
+           writeExtraSLHAOutputBlock = WriteOut`WriteExtraSLHAOutputBlock[extraSLHAOutputBlocks /. {
+               Pole[M[p_]] /; !TreeMasses`IsFermion[p] :> FlexibleSUSY`SignedAbsSqrt[Pole[M2[p]]]
+           }];
            numberOfDRbarBlocks  = WriteOut`GetNumberOfDRbarBlocks[lesHouchesParameters];
            drBarBlockNames      = WriteOut`GetDRbarBlockNames[lesHouchesParameters];
            gaugeCouplingNormalizationDecls = WriteOut`GetGaugeCouplingNormalizationsDecls[SARAH`Gauge];
@@ -3507,7 +3505,8 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
 
            massMatrices = massMatrices /. allIntermediateOutputParameterIndexReplacementRules;
 
-           allParticles = FlexibleSUSY`M[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices;
+           allParticles = TreeMasses`GetMass[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices;
+
            allOutputParameters = DeleteCases[DeleteDuplicates[
                Join[allParticles,
                     Flatten[TreeMasses`GetMixingMatrixSymbol[#]& /@ massMatrices]]], Null];
@@ -3686,7 +3685,7 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
 
            extraSLHAOutputBlocks = Parameters`DecreaseIndexLiterals[
                FlexibleSUSY`ExtraSLHAOutputBlocks,
-               Join[Parameters`GetOutputParameters[], Parameters`GetModelParameters[], Parameters`GetExtraParameters[]]
+               Join[Parameters`GetAllMassOutputParameters[], Parameters`GetModelParameters[], Parameters`GetExtraParameters[]]
            ];
 
            (* determine diagonalization precision for each particle *)

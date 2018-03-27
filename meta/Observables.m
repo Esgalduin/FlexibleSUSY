@@ -407,7 +407,7 @@ FillGM2CalcInterfaceData[struct_String] :=
            yu            = Parameters`GetParameterFromDescription["Up-Yukawa-Coupling"];
            yd            = Parameters`GetParameterFromDescription["Down-Yukawa-Coupling"];
            ye            = Parameters`GetParameterFromDescription["Lepton-Yukawa-Coupling"];
-           mwStr         = "MODEL.get_physical()." <> CConversion`RValueToCFormString[FlexibleSUSY`M[w]];
+           mwStr         = "MODEL.get_physical().get_" <> CConversion`RValueToCFormString[FlexibleSUSY`M[w]] <> "()";
            filling = \
            struct <> ".alpha_s_MZ = ALPHA_S_MZ;\n" <>
            struct <> ".MZ    = MZPole;\n" <>
@@ -419,12 +419,12 @@ FillGM2CalcInterfaceData[struct_String] :=
            struct <> ".MT    = MTPole;\n" <>
            struct <> ".MTau  = MTauPole;\n" <>
            struct <> ".MM    = MMPole;\n" <>
-           struct <> ".MA0   = MODEL.get_physical()." <>
+           struct <> ".MA0   = MODEL.get_physical().get_" <>
            CConversion`RValueToCFormString[FlexibleSUSY`M[pseudoscalar][1]] <> ";\n" <>
-           struct <> ".MSvm  = MODEL.get_physical()." <>
-           CConversion`RValueToCFormString[FlexibleSUSY`M[muonsneutrino]] <> ";\n" <>
-           struct <> ".MSm   = MODEL.get_physical()." <>
-           CConversion`RValueToCFormString[FlexibleSUSY`M[smuon]] <> ";\n" <>
+           struct <> ".MSvm  = MODEL.get_physical().get_" <>
+           CConversion`RValueToCFormString[FlexibleSUSY`M[muonsneutrino]] <> "();\n" <>
+           struct <> ".MSm   = MODEL.get_physical().get_" <>
+           CConversion`RValueToCFormString[FlexibleSUSY`M[smuon]] <> "();\n" <>
            struct <> ".MCha  = MODEL.get_physical()." <>
            CConversion`RValueToCFormString[FlexibleSUSY`M[chargino]] <> ";\n" <>
            struct <> ".MChi  = MODEL.get_physical()." <>

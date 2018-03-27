@@ -266,23 +266,10 @@ CastTo[expr_String, toType_] :=
            ""
           ];
 
-CreateGetterReturnType[type_] :=
-    Print["Error: CreateGetterReturnType: unknown type: " <> ToString[type]];
+CreateGetterReturnType[type_CConversion`ScalarType] := CreateCType[type];
+CreateGetterReturnType[type_] := "const " <> CreateCType[type] <> "&";
 
-CreateGetterReturnType[CConversion`ScalarType[type_]] :=
-    CreateCType[CConversion`ScalarType[type]];
-
-CreateGetterReturnType[CConversion`ArrayType[type_, entries_]] :=
-    "const " <> CreateCType[CConversion`ArrayType[type, entries]] <> "&";
-
-CreateGetterReturnType[CConversion`VectorType[type_, entries_]] :=
-    "const " <> CreateCType[CConversion`VectorType[type, entries]] <> "&";
-
-CreateGetterReturnType[CConversion`MatrixType[type_, dim1_, dim2_]] :=
-    "const " <> CreateCType[CConversion`MatrixType[type, dim1, dim2]] <> "&";
-
-CreateGetterReturnType[CConversion`TensorType[type_, dims__]] :=
-    "const " <> CreateCType[CConversion`TensorType[type, dims]] <> "&";
+CreateGetterReturnTypeCopy[type_] := CreateCType[type];
 
 CreateSetterInputType[type_] :=
     CreateGetterReturnType[type];
@@ -368,8 +355,11 @@ CreateInlineGetter[parameter_String, expr_String, type_String, postFix_String:""
     type <> " get_" <> parameter <> postFix <>
     "() const { return " <> If[wrapper != "", wrapper <> "(", ""] <> expr <> If[wrapper != "", ")", ""] <> "; }\n";
 
+CreateInlineGetter[parameter_String, expr_String, type_, postFix_String:"", wrapper_String:""] :=
+    CreateInlineGetter[parameter, expr, CreateGetterReturnType[type], postFix, wrapper];
+
 CreateInlineGetter[parameter_String, expr_, type_, postFix_String:"", wrapper_String:""] :=
-    CreateInlineGetter[ToValidCSymbolString[parameter], RValueToCFormString[expr], CreateGetterReturnType[type], postFix, wrapper];
+    CreateInlineGetter[parameter, RValueToCFormString[expr], CreateGetterReturnTypeCopy[type], postFix, wrapper];
 
 CreateInlineGetters[parameter_String, expr_, type_, postFix_String:"", wrapper_String:""] :=
     If[MatchQ[type, ScalarType[_]],
@@ -880,6 +870,7 @@ RValueToCFormString[expr_] :=
            result = Block[{Which, If}, expr /. greekSymbolsRules] /.
                     SARAH`sum -> FlexibleSUSY`SUM /.
                     SARAH`Mass -> FlexibleSUSY`M /.
+                    SARAH`Mass2 -> FlexibleSUSY`M2 /.
                     SARAH`A0[0]              -> 0 /.
                     SARAH`B0[0,0,0]          -> 0 /.
                     SARAH`B1[0,0,0]          -> 0 /.
@@ -889,12 +880,13 @@ RValueToCFormString[expr_] :=
                     SARAH`B00[0,0,0]         -> 0 /.
                     SARAH`B11[0,0,0]         -> 0 /.
                     SARAH`B22[0,0,0]         -> 0 /.
-                    SARAH`Mass2[a_?NumberQ]  :> Sqr[a] /.
-                    SARAH`Mass2[a_]          :> Sqr[FlexibleSUSY`M[a]] /.
                     FlexibleSUSY`M[a_?NumberQ]   :> a /.
+                    FlexibleSUSY`M2[a_?NumberQ]  :> Sqr[a] /.
                     FlexibleSUSY`M[SARAH`bar[a_]] :> FlexibleSUSY`M[a] /.
                     FlexibleSUSY`M[a_[idx_]]     :> ToValidCSymbol[FlexibleSUSY`M[a]][idx] /.
                     FlexibleSUSY`M[a_]           :> ToValidCSymbol[FlexibleSUSY`M[a]] /.
+                    FlexibleSUSY`M2[a_[idx_]]    :> ToValidCSymbol[FlexibleSUSY`M2[a]][idx] /.
+                    FlexibleSUSY`M2[a_]          :> ToValidCSymbol[FlexibleSUSY`M2[a]] /.
                     FlexibleSUSY`BETA[l_,p_]     :> FlexibleSUSY`BETA1[l,p] /.
                     SARAH`Adj[0]                 -> 0 /.
                     SARAH`Conj[0]                -> 0 /.

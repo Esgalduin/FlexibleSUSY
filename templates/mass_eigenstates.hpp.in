@@ -38,6 +38,7 @@
 #include "loop_corrections.hpp"
 #include "threshold_corrections.hpp"
 #include "problems.hpp"
+#include "wrappers.hpp"
 
 #include <iosfwd>
 #include <memory>

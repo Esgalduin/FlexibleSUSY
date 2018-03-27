@@ -52,8 +52,8 @@ BOOST_AUTO_TEST_CASE( test_SM_one_loop_Higgs_masses )
    BOOST_CHECK(m.get_mu2() != mu2);
 
    // check Higgs pole mass
-   const double Mhh_1l(m.get_physical().Mhh);
-   const double hh_1l = Sqrt(-m.get_mu2() + 1.5*lambda*Sqr(v) - Re(m.self_energy_hh_1loop(Mhh_1l)));
+   const double Mhh_1l(m.get_physical().get_Mhh());
+   const double hh_1l = Sqrt(-m.get_mu2() + 1.5*lambda*Sqr(v) - Re(m.self_energy_hh_1loop(Sqr(Mhh_1l))));
 
    BOOST_CHECK_CLOSE(Mhh_1l, hh_1l, 2.0e-4);
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( test_SM_heavy_top_self_energy )
       BOOST_FAIL(ostr.str());
    }
 
-   const double p = 100.;
+   const double p = 100., p2 = Sqr(p);
 
    const Eigen::Array<double,3,1> MFu(m.get_MFu());
    const double g3 = m.get_g3();
@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE( test_SM_heavy_top_self_energy )
    // top self-energies with and without gluon
    for (int i = 0; i < 3; i++) {
       for (int k = 0; k < 3; k++) {
-         se_t(i,k) = m.self_energy_Fu_1loop_1(p,i,k);
-         se_t_no_gluon(i,k) = m.self_energy_Fu_1loop_1_heavy_rotated(p,i,k);
+         se_t(i,k) = m.self_energy_Fu_1loop_1(p2,i,k);
+         se_t_no_gluon(i,k) = m.self_energy_Fu_1loop_1_heavy_rotated(p2,i,k);
       }
    }
 
@@ -153,39 +153,41 @@ BOOST_AUTO_TEST_CASE( test_SM_one_loop_masses )
    m.calculate_pole_masses();
    sm.calculate_pole_masses();
 
-   const double eps = 1e-13;
+   const double eps = 1e-11;
 
-   CHECK_CLOSE_1(MVP, eps);
-   CHECK_CLOSE_1(MVG, eps);
-   CHECK_CLOSE_1(MVZ, eps);
-   CHECK_CLOSE_1(MVWp, eps);
-   CHECK_CLOSE_1(MAh, eps);
-   CHECK_CLOSE_1(MHp, eps);
-   CHECK_CLOSE_1(Mhh, eps);
+   CHECK_CLOSE_1(M2VP, eps);
+   CHECK_CLOSE_1(M2VG, eps);
+   CHECK_CLOSE_1(M2VZ, eps);
+   CHECK_CLOSE_1(M2VWp, eps);
+   CHECK_CLOSE_1(M2Ah, eps);
+   CHECK_CLOSE_1(M2Hp, eps);
+   CHECK_CLOSE_1(M2hh, eps);
    CHECK_CLOSE_N(MFv, eps, 3);
    CHECK_CLOSE_N(MFu, eps, 3);
    CHECK_CLOSE_N(MFd, eps, 3);
    CHECK_CLOSE_N(MFe, eps, 3);
 
-   const double MW = m.get_physical().MVWp;
-   const double MZ = m.get_physical().MVZ;
+   const double MW2 = m.get_physical().M2VWp;
+   const double MZ2 = m.get_physical().M2VZ;
+   const double MW = AbsSqrt(MW2);
+   const double MZ = AbsSqrt(MZ2);
 
    // specific pole mass functions for gauge bosons
-   BOOST_CHECK_CLOSE(m.calculate_MVWp_pole(MW), sm.calculate_MVWp_pole(MW), eps);
-   BOOST_CHECK_CLOSE(m.calculate_MVWp_pole(MW), MW, 0.02);
+   BOOST_CHECK_CLOSE(m.calculate_M2VWp_pole(MW2), sm.calculate_M2VWp_pole(MW2), eps);
+   BOOST_CHECK_CLOSE(AbsSqrt(m.calculate_M2VWp_pole(MW2)), MW, 0.02);
 
-   BOOST_CHECK_CLOSE(m.calculate_MVZ_pole(MZ) , sm.calculate_MVZ_pole(MZ) , eps);
-   BOOST_CHECK_CLOSE(m.calculate_MVZ_pole(MZ) , MZ, 0.02);
+   BOOST_CHECK_CLOSE(m.calculate_M2VZ_pole(MZ2) , sm.calculate_M2VZ_pole(MZ2) , eps);
+   BOOST_CHECK_CLOSE(AbsSqrt(m.calculate_M2VZ_pole(MZ2)) , MZ, 0.02);
 
    // specific DR-bar mass functions
-   BOOST_CHECK_CLOSE(m.calculate_MVP_DRbar(0), sm.calculate_MVP_DRbar(0), eps);
-   BOOST_CHECK_CLOSE(m.calculate_MVP_DRbar(0), 0., eps);
+   BOOST_CHECK_CLOSE(m.calculate_M2VP_DRbar(0), sm.calculate_M2VP_DRbar(0), eps);
+   BOOST_CHECK_CLOSE(m.calculate_M2VP_DRbar(0), 0., eps);
 
-   BOOST_CHECK_CLOSE(m.calculate_MVZ_DRbar(MZ), sm.calculate_MVZ_DRbar(MZ), eps);
-   BOOST_CHECK_CLOSE(m.calculate_MVZ_DRbar(MZ), m.get_MVZ(), 0.01);
+   BOOST_CHECK_CLOSE(m.calculate_M2VZ_DRbar(MZ2), sm.calculate_M2VZ_DRbar(MZ2), eps);
+   BOOST_CHECK_CLOSE(AbsSqrt(m.calculate_M2VZ_DRbar(MZ2)), m.get_MVZ(), 0.01);
 
-   BOOST_CHECK_CLOSE(m.calculate_MVWp_DRbar(MW), sm.calculate_MVWp_DRbar(MW), eps);
-   BOOST_CHECK_CLOSE(m.calculate_MVWp_DRbar(MW), m.get_MVWp(), 0.02);
+   BOOST_CHECK_CLOSE(m.calculate_M2VWp_DRbar(MW2), sm.calculate_M2VWp_DRbar(MW2), eps);
+   BOOST_CHECK_CLOSE(AbsSqrt(m.calculate_M2VWp_DRbar(MW2)), m.get_MVWp(), 0.02);
 
    for (int i = 0; i < 3; i++) {
       const double eps = 1e-5, eps2 = 0.0002;

@@ -22,7 +22,7 @@
 #include "logger.hpp"
 #include "numerics2.hpp"
 #include "config.h"
-#include "numerics.h"
+#include "pv2.hpp"
 
 #include <limits>
 #include <cmath>
@@ -40,8 +40,6 @@
 namespace flexiblesusy {
 
 namespace weinberg_angle {
-
-using namespace softsusy;
 
 Weinberg_angle::Data::Data()
    : scale(0.)
@@ -235,6 +233,40 @@ int Weinberg_angle::calculate(double rho_start, double sin_start)
 
    return no_convergence_error;
 }
+
+namespace {
+
+double B0(double p, double m1, double m2, double q) noexcept
+{
+   return b0(p*p, m1*m1, m2*m2, q*q);
+}
+
+double B1(double p, double m1, double m2, double q) noexcept
+{
+   return b1(p*p, m1*m1, m2*m2, q*q);
+}
+
+double H0(double p, double m1, double m2, double q) noexcept
+{
+   return h0(p*p, m1*m1, m2*m2, q*q);
+}
+
+double C0(double m1, double m2, double m3) noexcept
+{
+   return c0(m1*m1, m2*m2, m3*m3);
+}
+
+double D0(double m1, double m2, double m3, double m4) noexcept
+{
+   return d0(m1*m1, m2*m2, m3*m3, m4*m4);
+}
+
+double D27(double m1, double m2, double m3, double m4) noexcept
+{
+   return d27(m1*m1, m2*m2, m3*m3, m4*m4);
+}
+
+} // anonymous namespace
 
 /**
  * Calculates the \f$\Delta\hat{\rho}\f$ corrections as defined in
@@ -546,12 +578,12 @@ double Weinberg_angle::calculate_delta_vb_susy(
 
   double deltaZnue = 0.0, deltaZe = 0.0;
   for (int i = 0; i < dimN; i++) {
-     deltaZnue += - Sqr(Abs(bChi0NuNul(i))) * b1(0.0, mneut(i), msnue, q);
-     deltaZe   += - Sqr(Abs(bChi0ESell(i))) * b1(0.0, mneut(i), mselL, q);
+     deltaZnue += - Sqr(Abs(bChi0NuNul(i))) * B1(0.0, mneut(i), msnue, q);
+     deltaZe   += - Sqr(Abs(bChi0ESell(i))) * B1(0.0, mneut(i), mselL, q);
   }
   for (int i = 0; i < dimC; i++) {
-     deltaZnue += - Sqr(Abs(bChicNuSell(i))) * b1(0.0, mch(i), mselL, q);
-     deltaZe   += - Sqr(Abs(aChicESnul(i))) * b1(0.0, mch(i), msnue, q);
+     deltaZnue += - Sqr(Abs(bChicNuSell(i))) * B1(0.0, mch(i), mselL, q);
+     deltaZe   += - Sqr(Abs(aChicESnul(i))) * B1(0.0, mch(i), msnue, q);
   }
 
   Eigen::VectorXd bPsicNuSmul(Eigen::VectorXd::Zero(dimC));
@@ -571,12 +603,12 @@ double Weinberg_angle::calculate_delta_vb_susy(
 
   double deltaZnumu = 0.0, deltaZmu = 0.0;
   for (int i = 0; i < dimN; i++) {
-     deltaZnumu += - Sqr(Abs(bChi0NuNul(i))) * b1(0.0, mneut(i), msnumu, q);
-     deltaZmu   += - Sqr(Abs(bChi0MuSmul(i))) * b1(0.0, mneut(i), msmuL, q);
+     deltaZnumu += - Sqr(Abs(bChi0NuNul(i))) * B1(0.0, mneut(i), msnumu, q);
+     deltaZmu   += - Sqr(Abs(bChi0MuSmul(i))) * B1(0.0, mneut(i), msmuL, q);
   }
   for (int i = 0; i < dimC; i++) {
-     deltaZnumu += - Sqr(Abs(bChicNuSmul(i))) * b1(0.0, mch(i), msmuL, q);
-     deltaZmu   += - Sqr(Abs(aChicMuSnul(i))) * b1(0.0, mch(i), msnumu, q);
+     deltaZnumu += - Sqr(Abs(bChicNuSmul(i))) * B1(0.0, mch(i), msmuL, q);
+     deltaZmu   += - Sqr(Abs(aChicMuSnul(i))) * B1(0.0, mch(i), msnumu, q);
   }
 
   Eigen::MatrixXd aPsi0PsicW(Eigen::MatrixXd::Zero(dimN,dimC)),
@@ -593,15 +625,15 @@ double Weinberg_angle::calculate_delta_vb_susy(
   aChi0ChicW = n.conjugate() * aPsi0PsicW * v.transpose();
   bChi0ChicW = n * bPsi0PsicW * u.adjoint();
 
-  const double b0_0_mselL_msnue = b0(0.0, mselL, msnue, q);
-  const double b0_0_mnmuL_msnumu = b0(0.0, msmuL, msnumu, q);
+  const double b0_0_mselL_msnue = B0(0.0, mselL, msnue, q);
+  const double b0_0_mnmuL_msnumu = B0(0.0, msmuL, msnumu, q);
 
   std::complex<double> deltaVE;
   for (int i = 0; i < dimC; i++) {
      for (int j = 0; j < dimN; j++) {
-        const double c0_mselL_mch_mneut = c0(mselL, mch(i), mneut(j));
-        const double c0_msnue_mch_mneut = c0(msnue, mch(i), mneut(j));
-        const double b0_0_mch_mneut = b0(0.0, mch(i), mneut(j), q);
+        const double c0_mselL_mch_mneut = C0(mselL, mch(i), mneut(j));
+        const double c0_msnue_mch_mneut = C0(msnue, mch(i), mneut(j));
+        const double b0_0_mch_mneut = B0(0.0, mch(i), mneut(j), q);
 
         deltaVE += bChicNuSell(i) * Conj(bChi0ESell(j)) *
            (- ROOT2 / g * aChi0ChicW(j, i) * mch(i) * mneut(j) *
@@ -622,15 +654,15 @@ double Weinberg_angle::calculate_delta_vb_susy(
      deltaVE +=
         0.5 * Conj(bChi0ESell(j)) * bChi0NuNul(j) *
         (b0_0_mselL_msnue + Sqr(mneut(j)) *
-         c0(mneut(j), mselL, msnue) + 0.5);
+         C0(mneut(j), mselL, msnue) + 0.5);
   }
 
   std::complex<double> deltaVMu;
   for (int i = 0; i < dimC; i++) {
      for (int j = 0; j < dimN; j++) {
-        const double c0_msmuL_mch_mneut = c0(msmuL, mch(i), mneut(j));
-        const double c0_msnumu_mch_mneut = c0(msnumu, mch(i), mneut(j));
-        const double b0_0_mch_mneut = b0(0.0, mch(i), mneut(j), q);
+        const double c0_msmuL_mch_mneut = C0(msmuL, mch(i), mneut(j));
+        const double c0_msnumu_mch_mneut = C0(msnumu, mch(i), mneut(j));
+        const double b0_0_mch_mneut = B0(0.0, mch(i), mneut(j), q);
 
         deltaVMu += bChicNuSmul(i) * Conj(bChi0MuSmul(j)) *
            (- ROOT2 / g * aChi0ChicW(j, i) * mch(i) * mneut(j) *
@@ -651,7 +683,7 @@ double Weinberg_angle::calculate_delta_vb_susy(
      deltaVMu +=
         0.5 * Conj(bChi0MuSmul(j)) * bChi0NuNul(j) *
         (b0_0_mnmuL_msnumu + Sqr(mneut(j)) *
-         c0(mneut(j), msmuL, msnumu) + 0.5);
+         C0(mneut(j), msmuL, msnumu) + 0.5);
   }
 
   std::complex<double> a1;
@@ -659,16 +691,16 @@ double Weinberg_angle::calculate_delta_vb_susy(
      for(int j = 0; j < dimN; j++) {
         a1 += 0.5 * aChicMuSnul(i) * Conj(bChicNuSell(i)) *
            bChi0NuNul(j) * bChi0ESell(j) * mch(i) * mneut(j) *
-           d0(mselL, msnumu, mch(i), mneut(j));
+           D0(mselL, msnumu, mch(i), mneut(j));
         a1 += 0.5 * Conj(aChicESnul(i)) * bChicNuSmul(i) *
            Conj(bChi0NuNul(j)) * Conj(bChi0MuSmul(j)) * mch(i) * mneut(j) *
-           d0(msmuL, msnue, mch(i), mneut(j));
+           D0(msmuL, msnue, mch(i), mneut(j));
         a1 += bChicNuSmul(i) * Conj(bChicNuSell(i)) *
            Conj(bChi0MuSmul(j)) * bChi0ESell(j) *
-           d27(msmuL, mselL, mch(i), mneut(j));
+           D27(msmuL, mselL, mch(i), mneut(j));
         a1 += Conj(aChicMuSnul(i)) * aChicESnul(i) *
            bChi0NuNul(j) * Conj(bChi0NuNul(j)) *
-           d27(msnumu, msnue, mch(i), mneut(j));
+           D27(msnumu, msnue, mch(i), mneut(j));
      }
   }
 
@@ -738,7 +770,7 @@ double Weinberg_angle::calculate_self_energy_w_top(
    const double g2 = data.g2;
 
    const double self_energy_w =
-      0.5 * Nc * hfn(p, mt, mb, q) * Sqr(g2) * oneOver16PiSqr;
+      0.5 * Nc * H0(p, mt, mb, q) * Sqr(g2) * oneOver16PiSqr;
 
    return self_energy_w;
 }
@@ -767,8 +799,8 @@ double Weinberg_angle::calculate_self_energy_z_top(
    const double guR = 2.0 * sw2 / 3.0;
 
    const double self_energy_z =
-      Nc * (hfn(p, mt, mt, q) * (Sqr(guL) + Sqr(guR))
-             - 4.0 * guL * guR * Sqr(mt) * b0(p, mt, mt, q))
+      Nc * (H0(p, mt, mt, q) * (Sqr(guL) + Sqr(guR))
+             - 4.0 * guL * guR * Sqr(mt) * B0(p, mt, mt, q))
       * Sqr(g2) / cw2 * oneOver16PiSqr;
 
    return self_energy_z;

@@ -47,18 +47,25 @@ BOOST_AUTO_TEST_CASE( test_delta_alpha )
    BOOST_CHECK_CLOSE_FRACTION(delta_alpha_s_fs , delta_alpha_s_ss , 1.0e-12);
 }
 
+NMSSM_input_parameters make_input()
+{
+   NMSSM_input_parameters input;
+   input.m0 = 200.;
+   input.m12 = 200.;
+   input.TanBeta = 2.;
+   input.Azero = 10.;
+   input.LambdaInput = 0.1;
+   input.SignvS = 1;
+
+   return input;
+}
+
 BOOST_AUTO_TEST_CASE( test_low_energy_constraint )
 {
    NMSSM<Two_scale> m;
    m.set_thresholds(2);
    NmssmSoftsusy s;
-   NMSSM_input_parameters input;
-   input.m0 = 250.; // avoids tree-level tachyons
-   input.m12 = 200.;
-   input.TanBeta = 10.;
-   input.Azero = -500.;
-   input.LambdaInput = 0.1;
-   input.SignvS = 1;
+   const NMSSM_input_parameters input = make_input();
    QedQcd qedqcd;
    qedqcd.setPoleMt(175.);       // non-default
    qedqcd.setMass(mBottom, 4.3); // non-default
@@ -85,7 +92,7 @@ BOOST_AUTO_TEST_CASE( test_low_energy_constraint )
    const double fs_mt = m.calculate_MFu_DRbar(qedqcd.displayPoleMt(), 2);
    const double fs_mb = m.calculate_MFd_DRbar(qedqcd.displayMass(mBottom), 2);
    const double fs_me = m.calculate_MFe_DRbar(qedqcd.displayMass(mTau), 2);
-   const double fs_MZ = m.calculate_MVZ_DRbar(Electroweak_constants::MZ);
+   const double fs_MZ = AbsSqrt(m.calculate_M2VZ_DRbar(Sqr(Electroweak_constants::MZ)));
    const double fs_old_vd = m.get_vd();
    const double fs_old_vu = m.get_vu();
    // const double fs_old_vev = Sqrt(Sqr(fs_old_vu) + Sqr(fs_old_vd));
@@ -93,8 +100,8 @@ BOOST_AUTO_TEST_CASE( test_low_energy_constraint )
    const double fs_new_vu = (2*fs_MZ*TanBeta)/(Sqrt(0.6*Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(TanBeta)));
    const double fs_new_vev = Sqrt(Sqr(fs_new_vu) + Sqr(fs_new_vd));
 
-   BOOST_CHECK_CLOSE_FRACTION(fs_mt, ss_mt, 9.5e-05);
-   BOOST_CHECK_CLOSE_FRACTION(fs_mb, ss_mb, 2.6e-14);
+   BOOST_CHECK_CLOSE_FRACTION(fs_mt, ss_mt, 1.0e-04);
+   BOOST_CHECK_CLOSE_FRACTION(fs_mb, ss_mb, 1.0e-10);
    BOOST_CHECK_CLOSE_FRACTION(fs_me, ss_me, 2.1e-04);
    BOOST_CHECK_CLOSE_FRACTION(fs_MZ, ss_MZ, 5.0e-10);
    BOOST_CHECK_CLOSE_FRACTION(fs_new_vev, ss_new_vev, 5.0e-10);
@@ -128,18 +135,20 @@ BOOST_AUTO_TEST_CASE( test_low_energy_constraint )
    // Yukawa couplings.  We use the old vev (= combination of vu, vd
    // from the last run) to calculate the Yukawa couplings.
 
+   const double eps = 0.02;
+
    BOOST_TEST_MESSAGE("testing diagonal yukawa elements");
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Yu()(0,0), s.displayYukawaMatrix(YU)(1,1), 0.005);
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Yd()(0,0), s.displayYukawaMatrix(YD)(1,1), 0.005);
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Ye()(0,0), s.displayYukawaMatrix(YE)(1,1), 0.005);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Yu()(0,0), s.displayYukawaMatrix(YU)(1,1), eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Yd()(0,0), s.displayYukawaMatrix(YD)(1,1), eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Ye()(0,0), s.displayYukawaMatrix(YE)(1,1), eps);
 
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Yu()(1,1), s.displayYukawaMatrix(YU)(2,2), 0.005);
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Yd()(1,1), s.displayYukawaMatrix(YD)(2,2), 0.005);
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Ye()(1,1), s.displayYukawaMatrix(YE)(2,2), 0.005);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Yu()(1,1), s.displayYukawaMatrix(YU)(2,2), eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Yd()(1,1), s.displayYukawaMatrix(YD)(2,2), eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Ye()(1,1), s.displayYukawaMatrix(YE)(2,2), eps);
 
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Yu()(2,2), s.displayYukawaMatrix(YU)(3,3), 0.005);
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Yd()(2,2), s.displayYukawaMatrix(YD)(3,3), 0.005);
-   BOOST_CHECK_CLOSE_FRACTION(m.get_Ye()(2,2), s.displayYukawaMatrix(YE)(3,3), 0.005);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Yu()(2,2), s.displayYukawaMatrix(YU)(3,3), eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Yd()(2,2), s.displayYukawaMatrix(YD)(3,3), eps);
+   BOOST_CHECK_CLOSE_FRACTION(m.get_Ye()(2,2), s.displayYukawaMatrix(YE)(3,3), eps);
 
    BOOST_TEST_MESSAGE("testing running VEV");
    const double running_vev = Sqrt(Sqr(m.get_vu()) +  Sqr(m.get_vd()));

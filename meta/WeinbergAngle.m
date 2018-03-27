@@ -60,7 +60,7 @@ CheckMuonDecayInputRequirements[] :=
            availPars = Join[TreeMasses`GetParticles[],
                             Parameters`GetInputParameters[],
                             Parameters`GetModelParameters[],
-                            Parameters`GetOutputParameters[]];
+                            Parameters`GetAllMassOutputParameters[]];
            areDefined = MemberQ[availPars, #]& /@ requiredSymbols;
            DebugPrint["Error: Unknown symbol: ", #]& /@
               Cases[Utils`Zip[areDefined, requiredSymbols], {False, p_} :> p];
@@ -79,37 +79,39 @@ InitMuonDecay[eigenstates_:FlexibleSUSY`FSEigenstates] :=
           ];
 
 DefSMhyperCoupling[] :=
-    Module[{result},
+    Module[{result, coupStr = CConversion`ToValidCSymbolString[SARAH`hyperchargeCoupling]},
            result = "const double gY = ";
            If[!MuonDecayWorks,
               Return[result <> "1.;"]];
-           result = result <> ThresholdCorrections`GetParameter[SARAH`hyperchargeCoupling] <> " * ";
+           result = result <> "MODELPARAMETER(" <> coupStr <> ") * ";
            result = result <> FlexibleSUSY`FSModelName <> "_info::normalization_";
-           result = result <> CConversion`ToValidCSymbolString[SARAH`hyperchargeCoupling] <> ";";
+           result = result <> coupStr <> ";";
            result
           ];
 
 DefSMleftCoupling[] :=
-    Module[{result},
+    Module[{result, coupStr = CConversion`ToValidCSymbolString[SARAH`leftCoupling]},
            result = "const double g2 = ";
            If[!MuonDecayWorks,
               Return[result <> "1.;"]];
-           result = result <> ThresholdCorrections`GetParameter[SARAH`leftCoupling] <> " * ";
+           result = result <> "MODELPARAMETER(" <> coupStr <> ") * ";
            result = result <> FlexibleSUSY`FSModelName <> "_info::normalization_";
-           result = result <> CConversion`ToValidCSymbolString[SARAH`leftCoupling] <> ";";
+           result = result <> coupStr <> ";";
            result
           ];
 
-GetBottomMass[] := ThresholdCorrections`GetParameter[TreeMasses`GetMass[TreeMasses`GetDownQuark[3,True]]];
+GetBottomMass[] := "MODEL->get_" <> CConversion`RValueToCFormString[
+    TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMBottomQuarkMultiplet[], True, True]];
 
-GetTopMass[] := ThresholdCorrections`GetParameter[TreeMasses`GetMass[TreeMasses`GetUpQuark[3,True]]];
+GetTopMass[] := "MODEL->get_" <> CConversion`RValueToCFormString[
+    TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[], True, True]];
 
 DefVZSelfEnergy[] :=
     Module[{result},
            result = "const double pizzt   = ";
            If[!MuonDecayWorks,
               Return[result <> "0.;"]];
-           result <> "Re(model->" <> SelfEnergies`CreateSelfEnergyFunctionName[SARAH`VectorZ, 1] <> "(p));"
+           result <> "Re(model->" <> SelfEnergies`CreateSelfEnergyFunctionName[SARAH`VectorZ, 1] <> "(p2));"
           ];
 
 DefVWSelfEnergy[] :=
@@ -117,7 +119,7 @@ DefVWSelfEnergy[] :=
            result = "const double piwwt   = ";
            If[!MuonDecayWorks,
               Return[result <> "0.;"]];
-           result <> "Re(model->" <> SelfEnergies`CreateSelfEnergyFunctionName[SARAH`VectorW, 1] <> "(p));"
+           result <> "Re(model->" <> SelfEnergies`CreateSelfEnergyFunctionName[SARAH`VectorW, 1] <> "(p2));"
           ];
 
 FindMassZ2[masses_List] := FindMass2[masses, SARAH`VectorZ];
@@ -372,6 +374,7 @@ WaveResult[diagr_List, includeGoldstones_] :=
            intscalar = Select[intparticles, TreeMasses`IsScalar][[1]];
            result = -coupl Susyno`LieGroups`conj[coupl] *
                     SARAH`B1[0, SARAH`Mass2[intfermion], SARAH`Mass2[intscalar]];
+           result = result /. SARAH`Mass2[p_] /; TreeMasses`IsFermion[p] :> SARAH`Mass[p]^2;
            (*add sums over internal particles*)
            intpartwithindex = Reverse[Cases[intparticles, _[{_}]]];
            Do[result = FlexibleSUSY`SUM[
@@ -508,6 +511,7 @@ VertexResultFSS[diagr_List, includeGoldstones_] :=
                     (1/2 + SARAH`B0[0, SARAH`Mass2[intscalars[[1]]], SARAH`Mass2[intscalars[[2]]]] +
                      SARAH`Mass2[intfermion] SARAH`C0[SARAH`Mass2[intfermion], SARAH`Mass2[intscalars[[1]]],
                                                       SARAH`Mass2[intscalars[[2]]]]);
+           result = result /. SARAH`Mass2[p_] /; TreeMasses`IsFermion[p] :> SARAH`Mass[p]^2;
            (*add sums over internal particles*)
            intpartwithindex = Reverse[Cases[intparticles, _[{_}]]];
            Do[result = FlexibleSUSY`SUM[
@@ -558,7 +562,7 @@ VertexResultFFS[diagr_List, includeGoldstones_] :=
            intfermions = Select[intparticles, TreeMasses`IsFermion];
            intscalar = Select[intparticles, TreeMasses`IsScalar][[1]];
            result = couplFFSout couplFFSin *
-                    (-couplFFVPL FlexibleSUSY`M[intfermions[[1]]] FlexibleSUSY`M[intfermions[[2]]] *
+                    (-couplFFVPL TreeMasses`GetMass[intfermions[[1]]] TreeMasses`GetMass[intfermions[[2]]] *
                         SARAH`C0[SARAH`Mass2[intscalar], SARAH`Mass2[intfermions[[1]]],
                                  SARAH`Mass2[intfermions[[2]]]] +
                      1/2 couplFFVPR *
@@ -566,6 +570,7 @@ VertexResultFFS[diagr_List, includeGoldstones_] :=
                          SARAH`Mass2[intscalar] SARAH`C0[SARAH`Mass2[intscalar],
                                                          SARAH`Mass2[intfermions[[1]]],
                                                          SARAH`Mass2[intfermions[[2]]]]));
+           result = result /. SARAH`Mass2[p_] /; TreeMasses`IsFermion[p] :> SARAH`Mass[p]^2;
            (*add sums over internal particles*)
            intpartwithindex = Reverse[Cases[intparticles, _[{_}]]];
            Do[result = FlexibleSUSY`SUM[
@@ -725,13 +730,14 @@ BoxResult[diagr_List, includeGoldstones_] :=
            If[toponr == 2 && TreeMasses`IsFermion[intparticles[[1]]],
               result = result * (-1) * SARAH`D27[Sequence @@ SARAH`Mass2 /@ intparticles]];
            If[toponr == 2 && TreeMasses`IsScalar[intparticles[[1]]],
-              result = result * 1/2 * FlexibleSUSY`M[intfermions[[1]]] FlexibleSUSY`M[intfermions[[2]]] *
+              result = result * 1/2 * TreeMasses`GetMass[intfermions[[1]]] TreeMasses`GetMass[intfermions[[2]]] *
                        SARAH`D0[Sequence @@ SARAH`Mass2 /@ intparticles]];
            If[toponr == 3 && TreeMasses`IsFermion[intparticles[[1]]],
-              result = result * 1/2 * FlexibleSUSY`M[intfermions[[1]]] FlexibleSUSY`M[intfermions[[2]]] *
+              result = result * 1/2 * TreeMasses`GetMass[intfermions[[1]]] TreeMasses`GetMass[intfermions[[2]]] *
                        SARAH`D0[Sequence @@ SARAH`Mass2 /@ intparticles]];
            If[toponr == 3 && TreeMasses`IsScalar[intparticles[[1]]],
               result = result * (-1) * SARAH`D27[Sequence @@ SARAH`Mass2 /@ intparticles]];
+           result = result /. SARAH`Mass2[p_] /; TreeMasses`IsFermion[p] :> SARAH`Mass[p]^2;
            (*add sums over internal particles*)
            intpartwithindex = Reverse[Cases[intparticles, _[{_}]]];
            Do[result = FlexibleSUSY`SUM[

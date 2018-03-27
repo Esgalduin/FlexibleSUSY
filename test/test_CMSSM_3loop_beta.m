@@ -23,6 +23,8 @@
 Needs["TestSuite`", "TestSuite.m"];
 Needs["ThreeLoopMSSM`", "ThreeLoopMSSM.m"];
 
+MassWB = M2;
+
 FlexibleSUSY`$flexiblesusyMetaDir = FileNameJoin[{Directory[], "meta"}];
 
 Print["testing BetaMSSM[] ..."];

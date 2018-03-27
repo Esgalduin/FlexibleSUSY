@@ -62,7 +62,7 @@ Standard_model calculate_SM_tree_level(
 {
    auto sm_0l = sm;
    sm_0l.get_problems().clear();
-   sm_0l.set_Lambdax(Sqr(model_0l.get_M@HiggsBoson(idx)@/sm.get_v()));
+   sm_0l.set_Lambdax(model_0l.get_M2@HiggsBoson(idx)@/Sqr(sm.get_v()));
    sm_0l.set_pole_mass_loop_order(0);
    sm_0l.set_ewsb_loop_order(0);
    sm_0l.solve_ewsb_tree_level();
@@ -107,10 +107,10 @@ Standard_model calculate_SM_tree_level(
  */
 double calculate_Mh2_pole(const Standard_model& sm_0l)
 {
-   const double p = sm_0l.get_Mhh();
-   const double self_energy = Re(sm_0l.self_energy_hh_1loop(p));
+   const double p2 = sm_0l.get_M2hh();
+   const double self_energy = Re(sm_0l.self_energy_hh_1loop(p2));
    const double tadpole = Re(sm_0l.tadpole_hh_1loop() / sm_0l.get_v());
-   const double mh2_tree = Sqr(sm_0l.get_Mhh());
+   const double mh2_tree = sm_0l.get_M2hh();
    const double Mh2_pole = mh2_tree - self_energy + tadpole;
 
    return Mh2_pole;
@@ -175,8 +175,8 @@ double calculate_Mh2_pole(
    const auto mh2_tree = calculate_mh2_tree_level(model_1l);
 
    // calculate 1L self-energy using tree-level parameters
-   const double p = model_0l.get_M@HiggsBoson(idx)@;
-   const auto self_energy = Re(model_0l.self_energy_hh_1loop(p));
+   const double p2 = model_0l.get_M2@HiggsBoson(idx)@;
+   const auto self_energy = Re(model_0l.self_energy_hh_1loop(p2));
 
    // calculate 1L tadpoles using tree-level parameters
    const auto tadpole = calculate_tadpole_over_vevs(model_0l, 1);
@@ -266,10 +266,10 @@ double calculate_MFu_pole_1loop(
    int i,
    const Standard_model& sm_0l)
 {
-   const double p = sm_0l.get_MFu(i);
-   const auto self_energy_1  = Re(sm_0l.self_energy_Fu_1loop_1(p));
-   const auto self_energy_PL = Re(sm_0l.self_energy_Fu_1loop_PL(p));
-   const auto self_energy_PR = Re(sm_0l.self_energy_Fu_1loop_PR(p));
+   const double p2 = Sqr(sm_0l.get_MFu(i));
+   const auto self_energy_1  = Re(sm_0l.self_energy_Fu_1loop_1(p2));
+   const auto self_energy_PL = Re(sm_0l.self_energy_Fu_1loop_PL(p2));
+   const auto self_energy_PR = Re(sm_0l.self_energy_Fu_1loop_PR(p2));
    const auto M_tree = sm_0l.get_mass_matrix_Fu();
    const auto M_loop = (M_tree - self_energy_PR * M_tree
                         - M_tree * self_energy_PL - self_energy_1).eval();
@@ -284,10 +284,10 @@ double calculate_MFd_pole_1loop(
    int i,
    const Standard_model& sm_0l)
 {
-   const double p = sm_0l.get_MFd(i);
-   const auto self_energy_1  = Re(sm_0l.self_energy_Fd_1loop_1(p));
-   const auto self_energy_PL = Re(sm_0l.self_energy_Fd_1loop_PL(p));
-   const auto self_energy_PR = Re(sm_0l.self_energy_Fd_1loop_PR(p));
+   const double p2 = Sqr(sm_0l.get_MFd(i));
+   const auto self_energy_1  = Re(sm_0l.self_energy_Fd_1loop_1(p2));
+   const auto self_energy_PL = Re(sm_0l.self_energy_Fd_1loop_PL(p2));
+   const auto self_energy_PR = Re(sm_0l.self_energy_Fd_1loop_PR(p2));
    const auto M_tree = sm_0l.get_mass_matrix_Fd();
    const auto M_loop = (M_tree - self_energy_PR * M_tree
                         - M_tree * self_energy_PL - self_energy_1).eval();
@@ -302,10 +302,10 @@ double calculate_MFe_pole_1loop(
    int i,
    const Standard_model& sm_0l)
 {
-   const double p = sm_0l.get_MFe(i);
-   const auto self_energy_1  = Re(sm_0l.self_energy_Fe_1loop_1(p));
-   const auto self_energy_PL = Re(sm_0l.self_energy_Fe_1loop_PL(p));
-   const auto self_energy_PR = Re(sm_0l.self_energy_Fe_1loop_PR(p));
+   const double p2 = Sqr(sm_0l.get_MFe(i));
+   const auto self_energy_1  = Re(sm_0l.self_energy_Fe_1loop_1(p2));
+   const auto self_energy_PL = Re(sm_0l.self_energy_Fe_1loop_PL(p2));
+   const auto self_energy_PR = Re(sm_0l.self_energy_Fe_1loop_PR(p2));
    const auto M_tree = sm_0l.get_mass_matrix_Fe();
    const auto M_loop = (M_tree - self_energy_PR * M_tree
                         - M_tree * self_energy_PL - self_energy_1).eval();
@@ -507,40 +507,40 @@ Eigen::Matrix<double,3,3> calculate_MFe_DRbar_1loop(
 
 double calculate_MW_pole_1loop(const Standard_model& sm_0l)
 {
-   const double mw = sm_0l.get_MVWp();
-   const double p = sm_0l.get_MVWp();
-   const double self_energy = Re(sm_0l.self_energy_VWp_1loop(p));
-   const double M_loop = Sqr(mw) - self_energy;
+   const double mw2 = sm_0l.get_M2VWp();
+   const double p2 = mw2;
+   const double self_energy = Re(sm_0l.self_energy_VWp_1loop(p2));
+   const double M_loop = mw2 - self_energy;
 
    return SignedAbsSqrt(M_loop);
 }
 
 double calculate_MW_pole_1loop(const @ModelName@_mass_eigenstates& model_0l)
 {
-   const double mw = model_0l.get_M@VectorW(0)@;
-   const double p = model_0l.get_M@VectorW(0)@;
-   const double self_energy = Re(model_0l.self_energy_@VectorW@_1loop(p));
-   const double M_loop = Sqr(mw) - self_energy;
+   const double mw2 = model_0l.get_M2@VectorW(0)@;
+   const double p2 = mw2;
+   const double self_energy = Re(model_0l.self_energy_@VectorW@_1loop(p2));
+   const double M_loop = mw2 - self_energy;
 
    return SignedAbsSqrt(M_loop);
 }
 
 double calculate_MZ_pole_1loop(const Standard_model& sm_0l)
 {
-   const double mz = sm_0l.get_MVZ();
-   const double p = sm_0l.get_MVZ();
-   const double self_energy = Re(sm_0l.self_energy_VZ_1loop(p));
-   const double M_loop = Sqr(mz) - self_energy;
+   const double mz2 = sm_0l.get_M2VZ();
+   const double p2 = mz2;
+   const double self_energy = Re(sm_0l.self_energy_VZ_1loop(p2));
+   const double M_loop = mz2 - self_energy;
 
    return SignedAbsSqrt(M_loop);
 }
 
 double calculate_MZ_pole_1loop(const @ModelName@_mass_eigenstates& model_0l)
 {
-   const double mz = model_0l.get_M@VectorZ(0)@;
-   const double p = model_0l.get_M@VectorZ(0)@;
-   const double self_energy = Re(model_0l.self_energy_@VectorZ@_1loop(p));
-   const double M_loop = Sqr(mz) - self_energy;
+   const double mz2 = model_0l.get_M2@VectorZ(0)@;
+   const double p2 = mz2;
+   const double self_energy = Re(model_0l.self_energy_@VectorZ@_1loop(p2));
+   const double M_loop = mz2 - self_energy;
 
    return SignedAbsSqrt(M_loop);
 }
@@ -551,7 +551,7 @@ double calculate_MW_DRbar_1loop(
 {
    const double MW_sm = calculate_MW_pole_1loop(sm_0l);
    const double MW_bsm = calculate_MW_pole_1loop(model_0l);
-   const double mw2 = Sqr(MW_sm) - Sqr(MW_bsm) + Sqr(model_0l.get_M@VectorW(0)@);
+   const double mw2 = Sqr(MW_sm) - Sqr(MW_bsm) + model_0l.get_M2@VectorW(0)@;
 
    return AbsSqrt(mw2);
 }
@@ -562,7 +562,7 @@ double calculate_MZ_DRbar_1loop(
 {
    const double MZ_sm = calculate_MZ_pole_1loop(sm_0l);
    const double MZ_bsm = calculate_MZ_pole_1loop(model_0l);
-   const double mz2 = Sqr(MZ_sm) - Sqr(MZ_bsm) + Sqr(model_0l.get_M@VectorZ(0)@);
+   const double mz2 = Sqr(MZ_sm) - Sqr(MZ_bsm) + model_0l.get_M2@VectorZ(0)@;
 
    return AbsSqrt(mz2);
 }
@@ -671,7 +671,7 @@ void match_high_to_low_scale_model_tree_level(
 {
    auto model_tmp = model;
    model_tmp.calculate_DRbar_masses();
-   sm.set_Lambdax(Sqr(model_tmp.get_M@HiggsBoson(idx)@/sm.get_v()));
+   sm.set_Lambdax(model_tmp.get_M2@HiggsBoson(idx)@/Sqr(sm.get_v()));
    sm.calculate_DRbar_masses();
 }
 

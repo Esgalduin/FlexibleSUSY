@@ -99,7 +99,7 @@ std::complex<double> H0(T p2, T m2a, T m2b, double scl2) noexcept
 #endif
 
 // the following are mainly for interfacing with loop function
-// implementations from softsusy since they come only with double
+// implementations inspired by softsusy since they come only with double
 // return type.  If LoopTools or FF is in use, they reduce simply to
 // A0(m2, scl2).real(), etc.
 double ReA0 (double m2, double scl2) PVATTR;

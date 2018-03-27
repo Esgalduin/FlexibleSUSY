@@ -45,10 +45,12 @@ const std::array<double, NUMBER_OF_MSSM_SPARTICLES> Hypercharge_right = {
 };
 
 /**
- * Obtains 2 x 2 mass matrix using input parameters in first argument 
+ * Obtains 2 x 2 mass matrix using input parameters in first argument
  * and diagonalises it.  Fills the second argument with the eigenvalues
  * and returns the mixing angle.
- */ 
+ *
+ * @note The mass eigenvalues are squared!
+ */
 double diagonalize_sfermions_2x2(const Mass_data& pars,
                                  Eigen::Array<double,2,1>& msf)
 {
@@ -90,8 +92,6 @@ double diagonalize_sfermions_2x2(const Mass_data& pars,
    if (msf.minCoeff() < 0.)
       WARNING("diagonalize_sfermions_2x2: sfermion tachyon");
 #endif
-
-   msf = AbsSqrt(msf);
 
    double theta;
 

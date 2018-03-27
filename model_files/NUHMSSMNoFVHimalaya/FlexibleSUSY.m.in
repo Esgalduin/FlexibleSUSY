@@ -6,9 +6,9 @@ MINPAR = {
 };
 
 EXTPAR = { {0, Qin},
-           {1, M1},
-           {2, M2},
-           {3, M3},
+           {1, M1IN},
+           {2, M2IN},
+           {3, M3IN},
            {11, AtIN},
            {12, AbIN},
            {13, AtauIN},
@@ -99,9 +99,9 @@ HighScaleInput = {
    {me2[1,1],me11IN^2},
    {me2[2,2],me22IN^2},
    {me2[3,3],me33IN^2},
-   {MassB, M1},
-   {MassWB,M2},
-   {MassG,M3}
+   {MassB, M1IN},
+   {MassWB,M2IN},
+   {MassG,M3IN}
 };
 
 LowScale = If[Mlow != 0, Mlow, LowEnergyConstant[MZ]];
@@ -150,7 +150,7 @@ ExtraSLHAOutputBlocks = {
    {HMIX , {{1, \[Mu]},
             {2, vu / vd},
             {3, Sqrt[vu^2 + vd^2]},
-            {4, M[Ah[2]]^2},
+            {4, M2[Ah[2]]},
             {101, B[\[Mu]]},
             {102, vd},
             {103, vu} } },

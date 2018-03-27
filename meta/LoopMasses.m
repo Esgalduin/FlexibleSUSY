@@ -85,10 +85,10 @@ mssm_twoloop_mt::Parameters pars;
 pars.g3 = " <> CConversion`RValueToCFormString[SARAH`strongCoupling /. Parameters`ApplyGUTNormalization[]] <> ";
 pars.mt = " <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]] <> ";
 pars.mg = " <> CConversion`RValueToCFormString[FlexibleSUSY`M[SARAH`Gluino]] <> ";
-pars.mst1 = mst_1;
-pars.mst2 = mst_2;
+pars.mst1 = AbsSqrt(mst_1);
+pars.mst2 = AbsSqrt(mst_2);
 pars.msusy = " <> CConversion`RValueToCFormString[Sqrt[Sqrt[Abs[SARAH`SoftSquark[2,2]] Abs[SARAH`SoftDown[2,2]]]]] <> ";
-pars.xt = Sin(2*theta_t) * (Sqr(mst_1) - Sqr(mst_2)) / (2. * pars.mt);
+pars.xt = Sin(2*theta_t) * (Abs(mst_1) - Abs(mst_2)) / (2. * pars.mt);
 pars.Q = get_scale();";
 
 
@@ -159,18 +159,18 @@ if (get_thresholds() > 1 && threshold_corrections.mb > 1) {
    pars.mt = " <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]] <> ";
    pars.mb = " <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMBottomQuarkMultiplet[]]] <> ";
    pars.mg = " <> CConversion`RValueToCFormString[FlexibleSUSY`M[SARAH`Gluino]] <> ";
-   pars.mst1 = mst_1;
-   pars.mst2 = mst_2;
-   pars.msb1 = msb_1;
-   pars.msb2 = msb_2;
+   pars.mst1 = AbsSqrt(mst_1);
+   pars.mst2 = AbsSqrt(mst_2);
+   pars.msb1 = AbsSqrt(msb_1);
+   pars.msb2 = AbsSqrt(msb_2);
    pars.msusy = " <> CConversion`RValueToCFormString[
        Power[
            AbsSqrt[SARAH`SoftSquark[0,0]] AbsSqrt[SARAH`SoftUp[0,0]] AbsSqrt[SARAH`SoftDown[0,0]]
            AbsSqrt[SARAH`SoftSquark[1,1]] AbsSqrt[SARAH`SoftUp[1,1]] AbsSqrt[SARAH`SoftDown[1,1]]
            , 1/6]
    ] <> ";
-   pars.xt = Sin(2*theta_t) * (Sqr(mst_1) - Sqr(mst_2)) / (2. * pars.mt);
-   pars.xb = Sin(2*theta_b) * (Sqr(msb_1) - Sqr(msb_2)) / (2. * pars.mb);
+   pars.xt = Sin(2*theta_t) * (Abs(mst_1) - Abs(mst_2)) / (2. * pars.mt);
+   pars.xb = Sin(2*theta_b) * (Abs(msb_1) - Abs(msb_2)) / (2. * pars.mb);
    pars.Q = get_scale();
 
    const double alpha_s = Sqr(pars.g3) / (4.*Pi);
@@ -185,18 +185,18 @@ if (get_thresholds() > 1 && threshold_corrections.mb > 1) {
 
 Do1DimScalar[particle_, particleName_String, massName_String, massMatrixName_String,
              selfEnergyFunction_String, momentum_String, tadpole_String:""] :=
-    "const double p = " <> momentum <> ";\n" <>
-    "double self_energy = Re(" <> selfEnergyFunction <> "(p));\n" <>
+    "const double p2 = " <> momentum <> ";\n" <>
+    "double self_energy = Re(" <> selfEnergyFunction <> "(p2));\n" <>
     If[FlexibleSUSY`UseHiggs2LoopSM === True && particle === SARAH`HiggsBoson,
        "if (pole_mass_loop_order > 1)\n" <>
-       IndentText["self_energy += self_energy_" <> particleName <> "_2loop(p);\n"], ""] <>
+       IndentText["self_energy += self_energy_" <> particleName <> "_2loop(p2);\n"], ""] <>
     If[FlexibleSUSY`UseSARAH2Loop === True && particle === SARAH`HiggsBoson,
        "if (pole_mass_loop_order > 1) {\n" <>
        IndentText["auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n" <>
-                  "self_energy += Re(model_gl.self_energy_" <> particleName <> "_2loop(p));\n"<>
+                  "self_energy += Re(model_gl.self_energy_" <> particleName <> "_2loop(p2));\n"<>
                   If[FlexibleSUSY`UseSARAH2Loop === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
                      "if(ewsb_solve_consistently) {\n" <>
-                     "  self_energy += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
+                     "  self_energy += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
                      "}\n",
                      ""
                   ]] <> "}\n", ""] <>
@@ -211,17 +211,17 @@ Do1DimScalar[particle_, particleName_String, massName_String, massMatrixName_Str
        IndentText["self_energy += self_energy_" <> particleName <> "_4loop();\n"], ""] <>
     "const double mass_sqr = " <> massMatrixName <> " - self_energy" <>
     If[tadpole == "", "", " + " <> tadpole] <> ";\n\n" <>
-    "PHYSICAL(" <> massName <> ") = SignedAbsSqrt(mass_sqr);\n";
+    "PHYSICAL(" <> massName <> ") = mass_sqr;\n";
 
 Do1DimFermion[particle_, massMatrixName_String, selfEnergyFunctionS_String,
               selfEnergyFunctionPL_String, selfEnergyFunctionPR_String, momentum_String, type_] :=
-    "const double p = " <> momentum <> ";\n" <>
-    "const " <> CreateCType[type] <> " self_energy_1  = " <> CastIfReal[selfEnergyFunctionS  <> "(p)",type] <> ";\n" <>
-    "const " <> CreateCType[type] <> " self_energy_PL = " <> CastIfReal[selfEnergyFunctionPL <> "(p)",type] <> ";\n" <>
-    "const " <> CreateCType[type] <> " self_energy_PR = " <> CastIfReal[selfEnergyFunctionPR <> "(p)",type] <> ";\n" <>
+    "const double p2 = Sqr(" <> momentum <> ");\n" <>
+    "const " <> CreateCType[type] <> " self_energy_1  = " <> CastIfReal[selfEnergyFunctionS  <> "(p2)",type] <> ";\n" <>
+    "const " <> CreateCType[type] <> " self_energy_PL = " <> CastIfReal[selfEnergyFunctionPL <> "(p2)",type] <> ";\n" <>
+    "const " <> CreateCType[type] <> " self_energy_PR = " <> CastIfReal[selfEnergyFunctionPR <> "(p2)",type] <> ";\n" <>
     "const auto M_loop = " <> massMatrixName <>
     " - self_energy_1 - " <> massMatrixName <> " * (self_energy_PL + self_energy_PR);\n" <>
-    "PHYSICAL(" <> ToValidCSymbolString[FlexibleSUSY`M[particle]] <> ") = " <>
+    "PHYSICAL(" <> ToValidCSymbolString[TreeMasses`GetMass[particle]] <> ") = " <>
     "calculate_singlet_mass(M_loop);\n";
 
 Do1DimFermion[particle_ /; particle === TreeMasses`GetSMTopQuarkMultiplet[], massMatrixName_String,
@@ -230,7 +230,7 @@ Do1DimFermion[particle_ /; particle === TreeMasses`GetSMTopQuarkMultiplet[], mas
             topSelfEnergyFunctionS, topSelfEnergyFunctionPL, topSelfEnergyFunctionPR,
             qcdOneLoop, qcdTwoLoop, qcdThreeLoop
            },
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            topSelfEnergyFunctionS  = SelfEnergies`CreateHeavySelfEnergyFunctionName[particle[1], 1];
            topSelfEnergyFunctionPL = SelfEnergies`CreateHeavySelfEnergyFunctionName[particle[PL], 1];
            topSelfEnergyFunctionPR = SelfEnergies`CreateHeavySelfEnergyFunctionName[particle[PR], 1];
@@ -248,10 +248,10 @@ Do1DimFermion[particle_ /; particle === TreeMasses`GetSMTopQuarkMultiplet[], mas
            AddMtPoleQCDCorrections[1, qcdOneLoop] <> "\n" <>
            AddMtPoleQCDCorrections[2, qcdTwoLoop] <> "\n" <>
            AddMtPoleQCDCorrections[3, qcdThreeLoop] <> "
-const double p = " <> momentum <> ";
-const " <> CreateCType[type] <> " self_energy_1  = " <> CastIfReal[topSelfEnergyFunctionS  <> "(p)",type] <> ";
-const " <> CreateCType[type] <> " self_energy_PL = " <> CastIfReal[topSelfEnergyFunctionPL <> "(p)",type] <> ";
-const " <> CreateCType[type] <> " self_energy_PR = " <> CastIfReal[topSelfEnergyFunctionPR <> "(p)",type] <> ";
+const double p2 = Sqr(" <> momentum <> ");
+const " <> CreateCType[type] <> " self_energy_1  = " <> CastIfReal[topSelfEnergyFunctionS  <> "(p2)",type] <> ";
+const " <> CreateCType[type] <> " self_energy_PL = " <> CastIfReal[topSelfEnergyFunctionPL <> "(p2)",type] <> ";
+const " <> CreateCType[type] <> " self_energy_PR = " <> CastIfReal[topSelfEnergyFunctionPR <> "(p2)",type] <> ";
 const auto M_loop = " <> massMatrixName <> "\
  - self_energy_1 - " <> massMatrixName <> " * (self_energy_PL + self_energy_PR)\
  - " <> massMatrixName <> " * (qcd_1l + qcd_2l + qcd_3l);\n
@@ -260,12 +260,12 @@ PHYSICAL(" <> massName <> ") = calculate_singlet_mass(M_loop);\n"
 
 Do1DimVector[particleName_String, massName_String, massMatrixName_String,
              selfEnergyFunction_String, momentum_String] :=
-    "const double p = " <> momentum <> ";\n" <>
-    "const double self_energy = Re(" <> selfEnergyFunction <> "(p));\n" <>
+    "const double p2 = " <> momentum <> ";\n" <>
+    "const double self_energy = Re(" <> selfEnergyFunction <> "(p2));\n" <>
     "const double mass_sqr = " <> massMatrixName <> " - self_energy;\n\n" <>
     "if (mass_sqr < 0.)\n" <>
     IndentText[TreeMasses`FlagPoleTachyon[particleName]] <> "\n" <>
-    "PHYSICAL(" <> massName <> ") = AbsSqrt(mass_sqr);\n";
+    "PHYSICAL(" <> massName <> ") = mass_sqr;\n";
 
 
 (* ********** fast diagonalization routines ********** *)
@@ -283,7 +283,7 @@ DoFastDiagonalization[particle_Symbol /; IsScalar[particle], tadpoles_List] :=
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleName = ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            massNameReordered = massName <> "_reordered";
            mixingMatrix = FindMixingMatrixSymbolFor[particle];
            massMatrixStr = "get_mass_matrix_" <> ToValidCSymbolString[particle];
@@ -303,10 +303,10 @@ DoFastDiagonalization[particle_Symbol /; IsScalar[particle], tadpoles_List] :=
                        "for (int i1 = 0; i1 < " <> dimStr <>"; ++i1) {\n" <>
                        IndentText["for (int i2 = " <> If[selfEnergyIsSymmetric,"i1","0"] <>
                                   "; i2 < " <> dimStr <>"; ++i2) {\n" <>
-                                  IndentText["const double p = AbsSqrt(" <> massNameReordered <> "(i1) * " <>
+                                  IndentText["const double p2 = AbsSqrt(" <> massNameReordered <> "(i1) * " <>
                                              massNameReordered <> "(i2));\n" <>
                                              "self_energy(i1,i2) = " <> CastIfReal[
-                                             selfEnergyFunction <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n"] <>
+                                             selfEnergyFunction <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n"] <>
                                   "}\n"
                                  ] <>
                        "}\n" <>
@@ -328,10 +328,7 @@ DoFastDiagonalization[particle_Symbol /; IsScalar[particle], tadpoles_List] :=
                               particle, "M_loop", "PHYSICAL(" <> massName <> ")",
                               "PHYSICAL(" <> U <> ")"];
                 ];
-              result = result <>
-                       "\n" <>
-                       "PHYSICAL(" <> massName <> ") = SignedAbsSqrt(PHYSICAL(" <>
-                       massName <> "));\n";
+              result = result <> "\n";
               ,
               result = "const " <> selfEnergyMatrixCType <> " M_tree(" <> massMatrixStr <> "());\n" <>
                        Do1DimScalar[particle, particleName, massName, "M_tree", selfEnergyFunction, massName,
@@ -348,7 +345,7 @@ DoFastDiagonalization[particle_Symbol /; IsFermion[particle], _] :=
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleName = ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            massNameReordered = massName <> "_reordered";
            massMatrixStr = "get_mass_matrix_" <> particleName;
            If[IsUnmixed[particle] && GetMassOfUnmixedParticle[particle] === 0,
@@ -374,14 +371,14 @@ DoFastDiagonalization[particle_Symbol /; IsFermion[particle], _] :=
                        selfEnergyMatrixCType <> " self_energy_PR;\n" <>
                        "for (int i1 = 0; i1 < " <> dimStr <>"; ++i1) {\n" <>
                        IndentText["for (int i2 = 0; i2 < " <> dimStr <>"; ++i2) {\n" <>
-                                  IndentText["const double p = AbsSqrt(" <> massNameReordered <> "(i1) * " <>
-                                             massNameReordered <> "(i2));\n" <>
+                                  IndentText["const double p2 = " <> massNameReordered <> "(i1) * " <>
+                                             massNameReordered <> "(i2);\n" <>
                                              "self_energy_1(i1,i2)  = " <> CastIfReal[
-                                             selfEnergyFunctionS <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
+                                             selfEnergyFunctionS <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
                                              "self_energy_PL(i1,i2) = " <> CastIfReal[
-                                             selfEnergyFunctionPL <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
+                                             selfEnergyFunctionPL <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
                                              "self_energy_PR(i1,i2) = " <> CastIfReal[
-                                             selfEnergyFunctionPR <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n"
+                                             selfEnergyFunctionPR <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n"
                                             ] <>
                                   "}\n"
                                  ] <>
@@ -439,7 +436,7 @@ DoFastDiagonalization[particle_Symbol /; IsVector[particle], _] :=
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleName = ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            mixingMatrix = ToValidCSymbolString[FindMixingMatrixSymbolFor[particle]];
            selfEnergyFunction = SelfEnergies`CreateSelfEnergyFunctionName[particle, 1];
            selfEnergyMatrixType = TreeMasses`GetMassMatrixType[particle];
@@ -473,7 +470,7 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleName = ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[inputMomentum == "", momentum = massName];
            mixingMatrix = FindMixingMatrixSymbolFor[particle];
            mixingMatrixType = TreeMasses`GetMassMatrixType[particle];
@@ -491,7 +488,7 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
                             TreeMasses`CallSVDFunction[
                                 particle, "M_loop", "eigen_values",
                                 Utemp, Vtemp] <> "\n" <>
-                            "PHYSICAL(" <> massName <> "(es)) = SignedAbsSqrt(eigen_values(es));\n" <>
+                            "PHYSICAL(" <> massName <> "(es)) = eigen_values(es);\n" <>
                             "if (es == " <> ToString[GetDimensionStartSkippingGoldstones[particle]-1] <> ") {\n" <>
                             IndentText["PHYSICAL(" <> U <> ") = " <> Utemp <> ";\n" <>
                                        "PHYSICAL(" <> V <> ") = " <> Vtemp <> ";\n"] <>
@@ -503,7 +500,7 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
                             TreeMasses`CallDiagonalizeHermitianFunction[
                                 particle, "M_loop", "eigen_values",
                                 Utemp] <> "\n" <>
-                            "PHYSICAL(" <> massName <> "(es)) = SignedAbsSqrt(eigen_values(es));\n";
+                            "PHYSICAL(" <> massName <> "(es)) = eigen_values(es);\n";
               If[mixingMatrix =!= Null,
                  diagSnippet = diagSnippet <>
                                "if (es == " <> ToString[GetDimensionStartSkippingGoldstones[particle]-1] <> ")\n" <>
@@ -538,8 +535,8 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
                        "const " <> selfEnergyMatrixCType <> " M_tree(" <> massMatrixStr <> "());\n" <>
                        calcHigherLoopHiggsContributions <> "\n" <>
                        "for (int es = 0; es < " <> dimStr <> "; ++es) {\n" <>
-                       IndentText["const double p = Abs(" <> momentum <> "(es));\n" <>
-                                  selfEnergyMatrixCType <> " self_energy = " <> CastIfReal[selfEnergyFunction <> "(p)", selfEnergyMatrixType] <> ";\n" <>
+                       IndentText["const double p2 = " <> momentum <> "(es);\n" <>
+                                  selfEnergyMatrixCType <> " self_energy = " <> CastIfReal[selfEnergyFunction <> "(p2)", selfEnergyMatrixType] <> ";\n" <>
                                   addHigherLoopHiggsContributions <>
                                   "const " <> selfEnergyMatrixCType <> " M_loop(M_tree - self_energy" <>
                                   If[tadpoleMatrix == "", "", " + tadpoles"] <> ");\n" <>
@@ -569,7 +566,7 @@ DoMediumDiagonalization[particle_Symbol /; IsFermion[particle], inputMomentum_, 
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleName = ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[inputMomentum == "", momentum = massName];
            If[IsUnmixed[particle] && GetMassOfUnmixedParticle[particle] === 0,
               If[dim == 1,
@@ -600,9 +597,9 @@ DoMediumDiagonalization[particle_Symbol /; IsFermion[particle], inputMomentum_, 
                                 Simplify @ N[-ThreeLoopQCD`GetMTopPoleOverMTopMSbar[{0,0,0,1}, particle, Global`currentScale] /.
                                              Log[m_/Global`currentScale^2] :> -Log[Global`currentScale^2/m]],
                                 0];
-              qcdCorrections = AddMtPoleQCDCorrections[1, qcdOneLoop /. FlexibleSUSY`M[particle] -> thirdGenMass] <> "\n" <>
-                               AddMtPoleQCDCorrections[2, qcdTwoLoop /. FlexibleSUSY`M[particle] -> thirdGenMass] <> "\n" <>
-                               AddMtPoleQCDCorrections[3, qcdThreeLoop /. FlexibleSUSY`M[particle] -> thirdGenMass] <> "\n";
+              qcdCorrections = AddMtPoleQCDCorrections[1, qcdOneLoop /. FlexibleSUSY`M[particle] :> thirdGenMass] <> "\n" <>
+                               AddMtPoleQCDCorrections[2, qcdTwoLoop /. FlexibleSUSY`M[particle] :> thirdGenMass] <> "\n" <>
+                               AddMtPoleQCDCorrections[3, qcdThreeLoop /. FlexibleSUSY`M[particle] :> thirdGenMass] <> "\n";
              ];
            selfEnergyFunctionS  = SelfEnergies`CreateSelfEnergyFunctionName[particle[1], 1];
            selfEnergyFunctionPL = SelfEnergies`CreateSelfEnergyFunctionName[particle[PL], 1];
@@ -611,7 +608,7 @@ DoMediumDiagonalization[particle_Symbol /; IsFermion[particle], inputMomentum_, 
               result = qcdCorrections <>
                        "const " <> selfEnergyMatrixCType <> " M_tree(" <> massMatrixStr <> "());\n" <>
                        "for (int es = 0; es < " <> dimStr <> "; ++es) {\n" <>
-                       IndentText["const double p = Abs(" <> momentum <> "(es));\n" <>
+                       IndentText["const double p2 = AbsSqr(" <> momentum <> "(es));\n" <>
                                   If[topTwoLoop,
                                      selfEnergyMatrixCType <> " self_energy_1;\n" <>
                                      selfEnergyMatrixCType <> " self_energy_PL;\n" <>
@@ -620,22 +617,22 @@ DoMediumDiagonalization[particle_Symbol /; IsFermion[particle], inputMomentum_, 
                                      IndentText["for (int i2 = 0; i2 < " <> dimStr <>"; ++i2) {\n" <>
                                                 IndentText[
                                                     "if (i1 == 2 && i2 == 2) {\n" <>
-                                                    IndentText["self_energy_1(i1,i2)  = " <> CastIfReal[topSelfEnergyFunctionS <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
-                                                               "self_energy_PL(i1,i2) = " <> CastIfReal[topSelfEnergyFunctionPL <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
-                                                               "self_energy_PR(i1,i2) = " <> CastIfReal[topSelfEnergyFunctionPR <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n"] <>
+                                                    IndentText["self_energy_1(i1,i2)  = " <> CastIfReal[topSelfEnergyFunctionS <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
+                                                               "self_energy_PL(i1,i2) = " <> CastIfReal[topSelfEnergyFunctionPL <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
+                                                               "self_energy_PR(i1,i2) = " <> CastIfReal[topSelfEnergyFunctionPR <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n"] <>
                                                     "} else {\n" <>
-                                                    IndentText["self_energy_1(i1,i2)  = " <> CastIfReal[selfEnergyFunctionS <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
-                                                               "self_energy_PL(i1,i2) = " <> CastIfReal[selfEnergyFunctionPL <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
-                                                               "self_energy_PR(i1,i2) = " <> CastIfReal[selfEnergyFunctionPR <> "(p,i1,i2)", selfEnergyMatrixType] <> ";\n"] <>
+                                                    IndentText["self_energy_1(i1,i2)  = " <> CastIfReal[selfEnergyFunctionS <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
+                                                               "self_energy_PL(i1,i2) = " <> CastIfReal[selfEnergyFunctionPL <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n" <>
+                                                               "self_energy_PR(i1,i2) = " <> CastIfReal[selfEnergyFunctionPR <> "(p2,i1,i2)", selfEnergyMatrixType] <> ";\n"] <>
                                                     "}\n"
                                                 ] <>
                                                 "}\n"
                                      ] <>
                                      "}\n"
                                      ,
-                                     "const " <> selfEnergyMatrixCType <> " self_energy_1  = " <> CastIfReal[selfEnergyFunctionS  <> "(p)", selfEnergyMatrixType] <> ";\n" <>
-                                     "const " <> selfEnergyMatrixCType <> " self_energy_PL = " <> CastIfReal[selfEnergyFunctionPL <> "(p)", selfEnergyMatrixType] <> ";\n" <>
-                                     "const " <> selfEnergyMatrixCType <> " self_energy_PR = " <> CastIfReal[selfEnergyFunctionPR <> "(p)", selfEnergyMatrixType] <> ";\n"
+                                     "const " <> selfEnergyMatrixCType <> " self_energy_1  = " <> CastIfReal[selfEnergyFunctionS  <> "(p2)", selfEnergyMatrixType] <> ";\n" <>
+                                     "const " <> selfEnergyMatrixCType <> " self_energy_PL = " <> CastIfReal[selfEnergyFunctionPL <> "(p2)", selfEnergyMatrixType] <> ";\n" <>
+                                     "const " <> selfEnergyMatrixCType <> " self_energy_PR = " <> CastIfReal[selfEnergyFunctionPR <> "(p2)", selfEnergyMatrixType] <> ";\n"
                                     ] <>
                                   If[topTwoLoop,
                                      selfEnergyMatrixCType <> " delta_M(- self_energy_PR * M_tree " <>
@@ -722,7 +719,7 @@ DoMediumDiagonalization[particle_Symbol /; IsVector[particle], inputMomentum_, _
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleName = ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[inputMomentum == "", momentum = massName];
            mixingMatrix = ToValidCSymbolString[FindMixingMatrixSymbolFor[particle]];
            selfEnergyFunction = SelfEnergies`CreateSelfEnergyFunctionName[particle, 1];
@@ -737,7 +734,7 @@ DoMediumDiagonalization[particle_Symbol /; IsVector[particle], inputMomentum_, _
            If[dim > 1,
               result = "WARNING(\"diagonalization of " <> ToString[particle] <> " not implemented\");\n";
               ,
-              result = "const " <> selfEnergyMatrixCType <> " M_tree(Sqr(" <> massName <> "));\n" <>
+              result = "const " <> selfEnergyMatrixCType <> " M_tree(" <> massName <> ");\n" <>
                        Do1DimVector[particleName, massName, "M_tree", selfEnergyFunction, momentum];
              ];
            Return[result];
@@ -763,13 +760,13 @@ if (pole_mass_loop_order > 1) {
 " <> IndentText["\
 " <> If[FlexibleSUSY`UseSARAH2Loop === True,
    "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n" <>
-   "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
+   "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
    If[FlexibleSUSY`UseConsistentEWSBSolution === True,
       "if(ewsb_solve_consistently) {\n" <>
-      "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p));\n" <>
+      "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
       "}\n",""]
    ,
-   "self_energy_2l = self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p);\n"
+   "self_energy_2l = self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2);\n"
 ] <>
 "for (int i = 0; i < " <> dimStr <> "; i++) {
    for (int k = 0; k < " <> dimStr <> "; k++) {
@@ -807,7 +804,7 @@ DoSlowDiagonalization[particle_Symbol, tadpole_] :=
            dim = GetDimension[particle];
            dimStr = ToString[dim];
            particleStr = CConversion`ToValidCSymbolString[particle];
-           massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            inputMomenta = "old_" <> massName;
            outputMomenta = "new_" <> massName;
            If[dim > 1 && FlexibleSUSY`UseSARAH2Loop === False &&
@@ -858,7 +855,7 @@ DoDiagonalization[particle_Symbol, FlexibleSUSY`HighPrecision, tadpole_] :=
     "// diagonalization with high precision\n" <> DoSlowDiagonalization[particle, tadpole];
 
 CreateLoopMassFunctionName[particle_Symbol] :=
-    "calculate_" <> ToValidCSymbolString[FlexibleSUSY`M[particle]] <> "_pole";
+    "calculate_" <> ToValidCSymbolString[TreeMasses`GetMass[particle]] <> "_pole";
 
 CallPoleMassFunction[particle_Symbol, obj_:""] :=
     obj <> CreateLoopMassFunctionName[particle] <> "();\n";
@@ -904,27 +901,27 @@ Create1DimPoleMassFunction[particle_Symbol] :=
              ];
            If[!IsMassless[particle],
                particleName = ToValidCSymbolString[particle];
-               massName = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+               massName = ToValidCSymbolString[TreeMasses`GetMass[particle]];
                selfEnergyFunction = SelfEnergies`CreateSelfEnergyFunctionName[particle, 1];
                (* vector bosons are always unmixed -> make sure the
                   right mass eigenvalue is used.  The mass matrix might
                   contain mixing matrix elements, which can result in
                   the wrong mass eigenstate. *)
                If[IsVector[particle],
-                  mTree = "Sqr(" <> CConversion`ToValidCSymbolString[FlexibleSUSY`M[particle]] <> ")",
+                  mTree = CConversion`ToValidCSymbolString[TreeMasses`GetMass[particle]],
                   mTree = "get_mass_matrix_" <> particleName <> "()";
                  ];
                body = body <>
-                      "const double self_energy = Re(" <> selfEnergyFunction <> "(p));\n" <>
+                      "const double self_energy = Re(" <> selfEnergyFunction <> "(p2));\n" <>
                       "const double mass_sqr = " <> mTree <> " - self_energy;\n\n" <>
                       "if (mass_sqr < 0.)\n" <>
                       IndentText[TreeMasses`FlagPoleTachyon[particleName]] <> "\n" <>
-                      "return AbsSqrt(mass_sqr);\n";
+                      "return mass_sqr;\n";
               ,
               body = "return 0.;\n";
              ];
            result = "double CLASSNAME::" <> CreateLoopMassFunctionName[particle] <>
-                    "(double p)\n{\n" <> IndentText[body] <> "}\n\n";
+                    "(double p2)\n{\n" <> IndentText[body] <> "}\n\n";
            Return[result];
           ];
 
@@ -1041,11 +1038,11 @@ CallCalculateDRbarMass[splitName_String, multipletName_String, index_Integer, re
           ];
 
 CreateRunningDRbarMassPrototype[particle_ /; IsFermion[particle]] :=
-    "double calculate_" <> ToValidCSymbolString[FlexibleSUSY`M[particle]] <>
+    "double calculate_" <> ToValidCSymbolString[TreeMasses`GetMass[particle]] <>
     "_DRbar(double" <> If[TreeMasses`GetDimension[particle] > 1, ", int", ""] <> ") const;\n";
 
 CreateRunningDRbarMassPrototype[particle_] :=
-    "double calculate_" <> ToValidCSymbolString[FlexibleSUSY`M[particle]] <>
+    "double calculate_" <> ToValidCSymbolString[TreeMasses`GetMass[particle]] <>
     "_DRbar(double);\n";
 
 CreateRunningDRbarMassPrototypes[] :=
@@ -1064,7 +1061,7 @@ CreateRunningDRbarMassFunction[particle_ /; particle === TreeMasses`GetSMBottomQ
            selfEnergyFunctionS  = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[1], 1];
            selfEnergyFunctionPL = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[PL], 1];
            selfEnergyFunctionPR = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[PR], 1];
-           name = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           name = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[IsMassless[particle],
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double) const\n{\n";,
@@ -1078,16 +1075,16 @@ CreateRunningDRbarMassFunction[particle_ /; particle === TreeMasses`GetSMBottomQ
               drbarConversion = GetConversionFactorMSbarTo[particle, renormalizationScheme, {alphaS, SARAH`leftCoupling, gPrime}];
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_sm_msbar) const\n{\n";
-                 body = "const double p = m_sm_msbar;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p));\n";
+                 body = "const double p2 = SignedAbsSqr(m_sm_msbar);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2));\n";
                  ,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_sm_msbar, int idx) const\n{\n";
-                 body = "const double p = m_sm_msbar;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p, idx, idx));\n";
+                 body = "const double p2 = SignedAbsSqr(m_sm_msbar);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2, idx, idx));\n";
                 ];
               body = body <>
               "const double m_tree = " <> RValueToCFormString[treeLevelMass] <> ";\n" <>
@@ -1110,7 +1107,7 @@ CreateRunningDRbarMassFunction[particle_ /; TreeMasses`IsSMChargedLepton[particl
            selfEnergyFunctionS  = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[1], 1];
            selfEnergyFunctionPL = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[PL], 1];
            selfEnergyFunctionPR = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[PR], 1];
-           name = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           name = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[IsMassless[particle],
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double) const\n{\n";,
@@ -1123,16 +1120,16 @@ CreateRunningDRbarMassFunction[particle_ /; TreeMasses`IsSMChargedLepton[particl
               drbarConversion = GetConversionFactorMSbarTo[particle, renormalizationScheme, {SARAH`strongCoupling^2/(4 Pi), SARAH`leftCoupling, gPrime}];
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_sm_msbar) const\n{\n";
-                 body = "const double p = m_sm_msbar;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p));\n";
+                 body = "const double p2 = AbsSqr(m_sm_msbar);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2));\n";
                  ,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_sm_msbar, int idx) const\n{\n";
-                 body = "const double p = m_sm_msbar;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p, idx, idx));\n";
+                 body = "const double p2 = AbsSqr(m_sm_msbar);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2, idx, idx));\n";
                 ];
               body = body <>
               "const double drbar_conversion = " <> RValueToCFormString[drbarConversion] <> ";\n" <>
@@ -1182,7 +1179,7 @@ CreateRunningDRbarMassFunction[particle_ /; particle === TreeMasses`GetSMTopQuar
            selfEnergyFunctionS  = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[1], 1];
            selfEnergyFunctionPL = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[PL], 1];
            selfEnergyFunctionPR = SelfEnergies`CreateHeavyRotatedSelfEnergyFunctionName[particle[PR], 1];
-           name = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           name = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[IsMassless[particle],
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double) const\n{\n";,
@@ -1210,37 +1207,37 @@ CreateRunningDRbarMassFunction[particle_ /; particle === TreeMasses`GetSMTopQuar
                 ];
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_pole) const\n{\n";
-                 body = "const double p = m_pole;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p));\n\n";
+                 body = "const double p2 = AbsSqr(m_pole);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2));\n\n";
                  ,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_pole, int idx) const\n{\n";
-                 body = "const double p = m_pole;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p, idx, idx));\n\n";
+                 body = "const double p2 = AbsSqr(m_pole);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2, idx, idx));\n\n";
                 ];
               body = body <>
               "const double currentScale = get_scale();\n" <>
               "double qcd_1l = 0., qcd_2l = 0., qcd_3l = 0.;\n\n" <>
                   If[FlexibleSUSY`UseMSSMYukawa2Loop === True,
                      CreateMSSM1LoopSQCDContributions[],
-                     "qcd_1l = " <> CConversion`RValueToCFormString[qcdOneLoop /. FlexibleSUSY`M[particle] -> treeLevelMass] <> ";"
+                     "qcd_1l = " <> CConversion`RValueToCFormString[qcdOneLoop /. TreeMasses`GetMass[particle] :> treeLevelMass] <> ";"
                     ] <>
               "\n\n" <>
               "if (get_thresholds() > 1 && threshold_corrections.mt > 1) {\n" <>
               IndentText[
                   If[FlexibleSUSY`UseMSSMYukawa2Loop === True,
                      CreateMSSM2LoopSQCDContributions[],
-                     "const double q_2l = " <> CConversion`RValueToCFormString[qcdTwoLoop /. FlexibleSUSY`M[particle] -> treeLevelMass] <> ";\n\n" <>
+                     "const double q_2l = " <> CConversion`RValueToCFormString[qcdTwoLoop /. TreeMasses`GetMass[particle] :> treeLevelMass] <> ";\n\n" <>
                      "qcd_2l = -q_2l + qcd_1l * qcd_1l;"
                     ]
               ] <> "\n" <>
               "}\n\n" <>
               If[qcdThreeLoop =!= 0,
               "if (get_thresholds() > 2 && threshold_corrections.mt > 2) {\n" <>
-                  IndentText["qcd_3l = " <> CConversion`RValueToCFormString[qcdThreeLoop /. FlexibleSUSY`M[particle] -> treeLevelMass] <> ";"] <> "\n" <>
+                  IndentText["qcd_3l = " <> CConversion`RValueToCFormString[qcdThreeLoop /. TreeMasses`GetMass[particle] :> treeLevelMass] <> ";"] <> "\n" <>
               "}\n\n", ""] <>
               "const double m_susy_drbar = m_pole + self_energy_1 " <>
               "+ m_pole * (self_energy_PL + self_energy_PR + qcd_1l + qcd_2l + qcd_3l);\n\n" <>
@@ -1256,7 +1253,7 @@ CreateRunningDRbarMassFunction[particle_ /; IsFermion[particle], _] :=
            selfEnergyFunctionS  = SelfEnergies`CreateSelfEnergyFunctionName[particle[1], 1];
            selfEnergyFunctionPL = SelfEnergies`CreateSelfEnergyFunctionName[particle[PL], 1];
            selfEnergyFunctionPR = SelfEnergies`CreateSelfEnergyFunctionName[particle[PR], 1];
-           name = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           name = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[IsMassless[particle],
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double) const\n{\n";,
@@ -1266,16 +1263,16 @@ CreateRunningDRbarMassFunction[particle_ /; IsFermion[particle], _] :=
               ,
               If[dimParticle == 1,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_pole) const\n{\n";
-                 body = "const double p = m_pole;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p));\n";
+                 body = "const double p2 = AbsSqr(m_pole);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2));\n";
                  ,
                  result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_pole, int idx) const\n{\n";
-                 body = "const double p = m_pole;\n" <>
-                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p, idx, idx));\n" <>
-                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p, idx, idx));\n";
+                 body = "const double p2 = AbsSqr(m_pole);\n" <>
+                 "const double self_energy_1  = Re(" <> selfEnergyFunctionS  <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PL = Re(" <> selfEnergyFunctionPL <> "(p2, idx, idx));\n" <>
+                 "const double self_energy_PR = Re(" <> selfEnergyFunctionPR <> "(p2, idx, idx));\n";
                 ];
               body = body <> "\n" <>
                      "const double m_drbar = m_pole + self_energy_1 + m_pole * (self_energy_PL + self_energy_PR)";
@@ -1289,19 +1286,19 @@ CreateRunningDRbarMassFunction[particle_, _] :=
     Module[{result, body, selfEnergyFunction, name, particleName},
            selfEnergyFunction = SelfEnergies`CreateSelfEnergyFunctionName[particle, 1];
            particleName = ToValidCSymbolString[particle];
-           name = ToValidCSymbolString[FlexibleSUSY`M[particle]];
+           name = ToValidCSymbolString[TreeMasses`GetMass[particle]];
            If[IsMassless[particle],
               result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double)\n{\n";
               body = "return 0.0;\n";
               ,
-              result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_pole)\n{\n";
-              body = "const double p = m_pole;\n" <>
-              "const double self_energy = Re(" <> selfEnergyFunction <> "(p));\n" <>
-              "const double mass_sqr = Sqr(m_pole) + self_energy;\n\n" <>
+              result = "double CLASSNAME::calculate_" <> name <> "_DRbar(double m_pole_sqr)\n{\n";
+              body = "const double p2 = m_pole_sqr;\n" <>
+              "const double self_energy = Re(" <> selfEnergyFunction <> "(p2));\n" <>
+              "const double mass_sqr = m_pole_sqr + self_energy;\n\n" <>
               "if (mass_sqr < 0.) {\n" <>
               IndentText[TreeMasses`FlagPoleTachyon[particleName] <>
-                         "return m_pole;"] <> "\n}\n\n" <>
-              "return AbsSqrt(mass_sqr);\n";
+                         "return m_pole_sqr;"] <> "\n}\n\n" <>
+              "return mass_sqr;\n";
              ];
            Return[result <> IndentText[body] <> "}\n\n"];
           ];
@@ -1313,13 +1310,19 @@ CreateRunningDRbarMassFunctions[renormalizationScheme_:FlexibleSUSY`DRbar] :=
            Return[result];
           ];
 
-GetLightestMassEigenstate[FlexibleSUSY`M[mass_]] :=
+GetLightestMassEigenstate[(FlexibleSUSY`M | FlexibleSUSY`M2)[mass_]] :=
     GetLightestMassEigenstate[mass];
 
 GetLightestMassEigenstate[mass_] :=
     If[GetDimension[mass] == 1,
-       FlexibleSUSY`M[mass],
-       FlexibleSUSY`M[mass][GetDimensionStartSkippingGoldstones[mass] - 1]];
+       TreeMasses`GetMass[mass],
+       TreeMasses`GetMass[mass][GetDimensionStartSkippingGoldstones[mass] - 1]];
+
+GetLightestMassEigenstateStr[mass_] /; TreeMasses`IsFermion[mass] :=
+    "Abs(PHYSICAL(" <> CConversion`RValueToCFormString[GetLightestMassEigenstate[mass]] <> "))";
+
+GetLightestMassEigenstateStr[mass_] :=
+    "AbsSqrt(PHYSICAL(" <> CConversion`RValueToCFormString[GetLightestMassEigenstate[mass]] <> "))";
 
 CreateLSPFunctions[{}] := {"", ""};
 
@@ -1336,14 +1339,12 @@ particle_type = " <> info <> "::NUMBER_OF_PARTICLES;
            For[m = 1, m <= Length[masses], m++,
                mass = masses[[m]];
                body = body <> "\
-tmp_mass = Abs(PHYSICAL(" <>
-CConversion`RValueToCFormString[GetLightestMassEigenstate[mass]] <>
-"));
+tmp_mass = " <> GetLightestMassEigenstateStr[mass] <> ";
 if (tmp_mass < lsp_mass) {
 " <> IndentText["\
 lsp_mass = tmp_mass;
 particle_type = " <> info <> "::" <>
-CConversion`ToValidCSymbolString[mass /. FlexibleSUSY`M -> Identity] <>
+CConversion`ToValidCSymbolString[mass /. { FlexibleSUSY`M -> Identity, FlexibleSUSY`M2 -> Identity }] <>
 ";"] <>
 "
 }

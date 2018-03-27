@@ -21,6 +21,7 @@
 #ifndef @ModelName@_PHYSICAL_H
 #define @ModelName@_PHYSICAL_H
 
+#include "wrappers.hpp"
 #include <Eigen/Core>
 
 #include <iosfwd>
@@ -39,6 +40,8 @@ struct @ModelName@_physical {
 
 @physicalMassesDef@
 @mixingMatricesDef@
+@massGetters@
+@mixingMatrixGetters@
 };
 
 std::ostream& operator<<(std::ostream&, const @ModelName@_physical&);

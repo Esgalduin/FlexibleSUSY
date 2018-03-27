@@ -379,19 +379,19 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
        tadpolefields = (GetnPointField[#] & /@ relevantTadpoles)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
        selfenergyfields = (GetnPointField[#] & /@ relevantSelfEnergies)/.{Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
 
-       massshiftsintadpole = Map[TreeMass[#[[2]], eigenstates] &, relevantTadpoles, {2}] //.gaugelesssub /.treelevelsolution;
+       massshiftsintadpole = Map[TreeMass[#[[2]], eigenstates] &, relevantTadpoles, {2}] /.gaugelesssub /.treelevelsolution;
        massshiftsintadpole = TreeMasses`StripGenerators[massshiftsintadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
        massshiftsintadpole = Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsintadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
 
-       massshiftsinSE = Map[{TreeMass[#[[1]], eigenstates],TreeMass[#[[2]], eigenstates]} &, relevantSelfEnergies, {2}] //.gaugelesssub /.treelevelsolution;
+       massshiftsinSE = Map[{TreeMass[#[[1]], eigenstates],TreeMass[#[[2]], eigenstates]} &, relevantSelfEnergies, {2}] /.gaugelesssub /.treelevelsolution;
        massshiftsinSE = TreeMasses`StripGenerators[#,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}] & /@ massshiftsinSE; (* get rid of all colour indices and any generators, that might be present *)
        massshiftsinSE = Map[Normal[Series[#,tadpoleSeriesParametersFirstOrder]]-Normal[Series[#,tadpoleSeriesParametersZeroOrder]]& , massshiftsinSE, {3}];
 
-       tadpoleshifts = Plus @@@ (Thread[noEvalfunc[relevantTadpoles,massshiftsintadpole]]//.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}); (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
-       SEshifts = Plus @@@ (Thread[noEvalfunc[relevantSelfEnergies,massshiftsinSE]]//.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]});
+       tadpoleshifts = Plus @@@ (Thread[noEvalfunc[relevantTadpoles,massshiftsintadpole]]/.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}); (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
+       SEshifts = Plus @@@ (Thread[noEvalfunc[relevantSelfEnergies,massshiftsinSE]]/.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]});
 
-       tadsnPointform = Thread[SelfEnergies`TadpoleShift1L[tadpolefields,0,tadpoleshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
-       SEnPointform = Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyfields,0,SEshifts]]//.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+       tadsnPointform = Thread[SelfEnergies`TadpoleShift1L[tadpolefields,0,tadpoleshifts]]/.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+       SEnPointform = Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyfields,0,SEshifts]]/.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
        tadsnPointform = tadsnPointform /. ReduceExplicitGenIndices[];
        SEnPointform = SEnPointform /. ReduceExplicitGenIndices[];
@@ -404,7 +404,7 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
 
 CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",goldstones=SARAH`GoldstoneGhost,goldstonemasses,
    couplingnames = Symbol[SymbolName[#]]& /@ brokencouplings},
-   goldstonemasses = FlexibleSUSY`M[#]& /@ (Transpose[goldstones][[2]] /. {field_[{Ind_}] -> field[Ind-1]}) ;
+   goldstonemasses = SARAH`Mass2[#]& /@ (Transpose[goldstones][[2]] /. {field_[{Ind_}] -> field[Ind-1]}) ;
 
    For[nm = 1,nm <= Length[couplingnames], nm++,
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";

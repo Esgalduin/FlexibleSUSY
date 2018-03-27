@@ -96,16 +96,15 @@ double delta_mh_3loop_at_at_as_sm(
  * @param scale renormalization scale
  * @param mt MS-bar top mass
  * @param yt MS-bar Yukawa coupling
- * @param mh MS-bar Higgs mass
+ * @param mh2 MS-bar Higgs mass (squared)
  *
  * @return real part of 3-loop correction \f$O(\alpha_t^3) \f$
  */
 double delta_mh_3loop_at_at_at_sm(
-   double scale, double mt, double yt, double mh)
+   double scale, double mt, double yt, double mh2)
 {
    const double yt6 = Power6(yt);
    const double mt2 = Sqr(mt);
-   const double mh2 = Sqr(mh);
    const double Q2 = Sqr(scale);
    const double LogH = FiniteLog(mh2 / Q2);
    const double LogT = FiniteLog(mt2 / Q2);

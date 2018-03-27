@@ -22,6 +22,7 @@
 
 #include "effective_couplings.hpp"
 #include "wrappers.hpp"
+#include "raii.hpp"
 
 namespace flexiblesusy {
 
@@ -31,7 +32,8 @@ using namespace effective_couplings;
 #define MODELPARAMETER(parameter) model.get_##parameter()
 #define DERIVEDPARAMETER(parameter) model.##parameter()
 #define PHASE(parameter) model.get_##parameter()
-#define PHYSICAL(parameter) model.get_physical().parameter
+#define PHYSICAL(parameter) model.get_physical().get_##parameter()
+#define PHYSICALSTRUCT model.get_physical()
 
 @ModelName@_effective_couplings::@ModelName@_effective_couplings(
    const @ModelName@_mass_eigenstates& model_,

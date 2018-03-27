@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( test_SM_1loop_full )
 
    m.set_scale(scale);
 
-   const double se_fs = Re(m.self_energy_hh_1loop(p));
+   const double se_fs = Re(m.self_energy_hh_1loop(p2));
    const double t_fs  = -Re(m.tadpole_hh_1loop() / v);
 
    // BOOST_CHECK_CLOSE_FRACTION(se_smh, se_fs + t_fs, 1.0e-10);
@@ -128,6 +128,7 @@ std::pair<SM_mass_eigenstates, standard_model::Standard_model> make_point(int lo
    m2.set(m1.get());
 
    m1.do_calculate_sm_pole_masses(true);
+   m1.set_precision(1);
    m1.set_loops(loops);
    m1.set_pole_mass_loop_order(loops);
    m1.set_ewsb_loop_order(loops);
@@ -137,6 +138,7 @@ std::pair<SM_mass_eigenstates, standard_model::Standard_model> make_point(int lo
    m1.calculate_pole_masses();
 
    m2.set_loops(loops);
+   m2.set_precision(1);
    m2.set_pole_mass_loop_order(loops);
    m2.set_ewsb_loop_order(loops);
    m2.solve_ewsb_tree_level();
@@ -151,8 +153,8 @@ void compare_Mh(int loops)
 {
    const auto m = make_point(loops);
 
-   const double Mh_1 = m.first.get_physical().Mhh;
-   const double Mh_2 = m.second.get_physical().Mhh;
+   const double Mh_1 = m.first.get_physical().get_Mhh();
+   const double Mh_2 = m.second.get_physical().get_Mhh();
 
    BOOST_REQUIRE(!m.first.get_problems().have_problem());
    BOOST_REQUIRE(!m.second.get_problems().have_problem());
@@ -291,7 +293,7 @@ double calc_Mh_at(T model, double Q)
    model.solve_ewsb();
    model.calculate_pole_masses();
 
-   return model.get_physical().Mhh;
+   return model.get_physical().get_Mhh();
 }
 
 template <class T>
@@ -338,7 +340,7 @@ BOOST_AUTO_TEST_CASE( test_scale_variation )
    };
 
    for (int i = 0; i < DMh_1.size(); i++)
-      BOOST_TEST_MESSAGE("DMh(" << i << "-loop) = " << DMh_1[i]);
+      BOOST_TEST_MESSAGE("DMh(" << i << "-loop) = " << DMh_1[i] << " = " << DMh_2[i]);
 
    BOOST_REQUIRE(DMh_1.size() == DMh_2.size());
 

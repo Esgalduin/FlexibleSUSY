@@ -28,12 +28,12 @@ void setup_NMSSM_const(NMSSM<Two_scale>& m, NmssmSoftsusy& s, const NMSSM_input_
    const double cosBeta = cos(atan(tanBeta));
    const double M12 = input.m12;
    const double m0 = input.m0;
-   const double a0 = input.Azero + 100;
+   const double a0 = input.Azero;
    const double root2 = sqrt(2.0);
    const double vev = 246.0;
    const double vu = vev * sinBeta;
    const double vd = vev * cosBeta;
-   const double vS = 1000.;
+   const double vS = input.m0;
    const double susyMu = 0;
    const double BMu = 0;
    const double scale = Electroweak_constants::MZ;

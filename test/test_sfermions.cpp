@@ -128,10 +128,10 @@ BOOST_AUTO_TEST_CASE( test_stop )
    Eigen::Array<double,2,1> mstop;
    double theta_stop;
 
-   m.calculate_MSu_3rd_generation(mstop(0), mstop(1), theta_stop);
+   m.calculate_M2Su_3rd_generation(mstop(0), mstop(1), theta_stop);
 
-   BOOST_CHECK_CLOSE_FRACTION(mstop(0), mf(1), 1.0e-9);
-   BOOST_CHECK_CLOSE_FRACTION(mstop(1), mf(2), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(mstop(0)), mf(1), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(mstop(1)), mf(2), 1.0e-9);
    BOOST_CHECK_CLOSE_FRACTION(theta_stop, thetat, 1.0e-9);
 }
 
@@ -149,10 +149,10 @@ BOOST_AUTO_TEST_CASE( test_sbottom )
    Eigen::Array<double,2,1> msbottom;
    double theta_sbottom;
 
-   m.calculate_MSd_3rd_generation(msbottom(0), msbottom(1), theta_sbottom);
+   m.calculate_M2Sd_3rd_generation(msbottom(0), msbottom(1), theta_sbottom);
 
-   BOOST_CHECK_CLOSE_FRACTION(msbottom(0), mf(1), 1.0e-9);
-   BOOST_CHECK_CLOSE_FRACTION(msbottom(1), mf(2), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(msbottom(0)), mf(1), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(msbottom(1)), mf(2), 1.0e-9);
    BOOST_CHECK_CLOSE_FRACTION(theta_sbottom, thetab, 1.0e-9);
 }
 
@@ -170,10 +170,10 @@ BOOST_AUTO_TEST_CASE( test_stau )
    Eigen::Array<double,2,1> mstau;
    double theta_stau;
 
-   m.calculate_MSe_3rd_generation(mstau(0), mstau(1), theta_stau);
+   m.calculate_M2Se_3rd_generation(mstau(0), mstau(1), theta_stau);
 
-   BOOST_CHECK_CLOSE_FRACTION(mstau(0), mf(1), 1.0e-9);
-   BOOST_CHECK_CLOSE_FRACTION(mstau(1), mf(2), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(mstau(0)), mf(1), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(mstau(1)), mf(2), 1.0e-9);
    BOOST_CHECK_CLOSE_FRACTION(theta_stau, thetatau, 1.0e-9);
 }
 
@@ -188,10 +188,10 @@ BOOST_AUTO_TEST_CASE( test_snu )
    Eigen::Array<double,2,1> msnu;
    double theta_snu;
 
-   m.calculate_MSv_3rd_generation(msnu(0), msnu(1), theta_snu);
+   m.calculate_M2Sv_3rd_generation(msnu(0), msnu(1), theta_snu);
 
-   BOOST_CHECK_CLOSE_FRACTION(msnu(0), 0., 1.0e-9);
-   BOOST_CHECK_CLOSE_FRACTION(msnu(1), mf, 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(msnu(0)), 0., 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(msnu(1)), mf, 1.0e-9);
    BOOST_CHECK_CLOSE_FRACTION(theta_snu, 0.5 * Pi, 1.0e-9);
 }
 
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( test_snu )
 double calculate_theta_stop_field_independent(const CMSSM<Two_scale>& m)
 {
    double mst1, mst2, theta_stop;
-   m.calculate_MSu_3rd_generation(mst1, mst2, theta_stop);
+   m.calculate_M2Su_3rd_generation(mst1, mst2, theta_stop);
 
    const double mt = m.get_MFu(2);
    const double At = m.get_TYu(2,2) / m.get_Yu(2,2);
@@ -207,7 +207,7 @@ double calculate_theta_stop_field_independent(const CMSSM<Two_scale>& m)
    const double tanb = m.get_vu() / m.get_vd();
    const double signMu = -1;
    const double Xt = At + signMu * Mu / tanb;
-   const double s2t = 2 * mt * Xt / (Sqr(mst1) - Sqr(mst2));
+   const double s2t = 2 * mt * Xt / (Abs(mst1) - Abs(mst2));
 
    return 0.5 * ArcSin(s2t);
 }
@@ -231,13 +231,13 @@ BOOST_AUTO_TEST_CASE( test_stop_different_sign )
    Eigen::Array<double,2,1> mstop;
    double theta_stop;
 
-   m.calculate_MSu_3rd_generation(mstop(0), mstop(1), theta_stop);
+   m.calculate_M2Su_3rd_generation(mstop(0), mstop(1), theta_stop);
 
    // calculate theta according to Eq. (19) of arxiv:hep-ph/0105096
    const double theta_stop_2 = calculate_theta_stop_field_independent(m);
 
-   BOOST_CHECK_CLOSE_FRACTION(mstop(0), mf(1), 1.0e-9);
-   BOOST_CHECK_CLOSE_FRACTION(mstop(1), mf(2), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(mstop(0)), mf(1), 1.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(AbsSqrt(mstop(1)), mf(2), 1.0e-9);
    BOOST_CHECK_CLOSE_FRACTION(theta_stop, thetat, 1.0e-9);
    BOOST_CHECK_CLOSE_FRACTION(theta_stop, theta_stop_2, 1.0e-9);
 }

@@ -99,14 +99,14 @@ std::complex<double> Standard_model_tester::get_eff_CphhVPVP()
    const double scale = model.get_scale();
    const Eigen::ArrayXd saved_pars(model.get());
 
-   const double Mhh = model.get_physical().Mhh;
+   const double Mhh = model.get_physical().get_Mhh();
 
    run_SM_gauge_couplings_to(0.5 * Mhh);
 
    Eigen::Array<double,3,1> MFu(model.get_physical().MFu);
    const Eigen::Array<double,3,1> MFd(model.get_physical().MFd);
    const Eigen::Array<double,3,1> MFe(model.get_physical().MFe);
-   const double MVWp = model.get_physical().MVWp;
+   const double MVWp = model.get_physical().get_MVWp();
 
    double qcd_fermion = 1.0;
    if (include_qcd_corrections) {
@@ -143,7 +143,7 @@ std::complex<double> Standard_model_tester::get_eff_CphhVGVG()
    const double scale = model.get_scale();
    const Eigen::ArrayXd saved_pars(model.get());
 
-   const double Mhh = model.get_physical().Mhh;
+   const double Mhh = model.get_physical().get_Mhh();
 
    run_SM_gauge_couplings_to(Mhh);
    model.calculate_DRbar_masses();

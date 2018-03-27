@@ -34,7 +34,7 @@
 #include <iomanip>
 #include <iterator>
 
-#define PHYSICAL(p) model.get_physical().p
+#define PHYSICAL(p) model.get_physical().get_##p()
 #define MODELPARAMETER(p) model.get_##p()
 
 namespace flexiblesusy {

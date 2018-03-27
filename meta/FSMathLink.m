@@ -164,6 +164,7 @@ ToValidWolframSymbolString[par_] := ToString[par];
 
 ToValidOutputParStr[FlexibleSUSY`Pole[par_]] := ToValidOutputParStr[par]; (* Pole[x] is not a valid parameter name *)
 ToValidOutputParStr[p:FlexibleSUSY`M[_]] := CConversion`ToValidCSymbolString[p];
+ToValidOutputParStr[p:FlexibleSUSY`M2[_]] := CConversion`ToValidCSymbolString[p];
 ToValidOutputParStr[FlexibleSUSY`SCALE] := "scale";
 ToValidOutputParStr[par_] := CConversion`ToValidCSymbolString[par];
 

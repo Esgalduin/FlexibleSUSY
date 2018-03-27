@@ -388,7 +388,7 @@ CheckSetting[patt:{parameter_[idx1_Integer, idx2_Integer], value_}, constraintNa
 
 CheckSetting[patt:{parameter_, value_}, constraintName_String, isInitial_] :=
     Module[{outputParameters, modelPars},
-           outputParameters = Parameters`GetOutputParameters[];
+           outputParameters = Parameters`GetAllMassOutputParameters[];
            If[MemberQ[outputParameters, parameter],
               Print["Error: In constraint ", constraintName, ": ", InputForm[patt]];
               Print["   ", parameter, " is a output parameter!"];
@@ -407,7 +407,7 @@ CheckSetting[patt:{parameter_, value_}, constraintName_String, isInitial_] :=
 CheckSetting[patt:( FlexibleSUSY`FSRestrictParameter[p_,__] | FlexibleSUSY`FSInitialSetting[p_,__] ),
              constraintName_String, __] :=
     Module[{outputParameters},
-           outputParameters = Parameters`GetOutputParameters[];
+           outputParameters = Parameters`GetAllMassOutputParameters[];
            If[MemberQ[outputParameters, p],
               Print["Error: In constraint ", constraintName, ": ", InputForm[patt]];
               Print["   ", p, " is a output parameter!"];
@@ -551,7 +551,9 @@ CalculateScaleFromExpr[Equal[expr1_, expr2_], scaleName_String] :=
           ];
 
 CalculateScaleFromExpr[expr_, scaleName_String] :=
-    scaleName <> " = " <> CConversion`RValueToCFormString[Parameters`DecreaseIndexLiterals[expr, Parameters`GetOutputParameters[]]] <> ";\n";
+    scaleName <> " = " <> CConversion`RValueToCFormString[
+        Parameters`DecreaseIndexLiterals[expr, Parameters`GetAllMassOutputParameters[]]
+    ] <> ";\n";
 
 DefineAndDefaultInitialize[{t:FlexibleSUSY`Phase[_], _}] :=
     CConversion`CreateCType[GuessExtraParameterType[t]] <> " " <>

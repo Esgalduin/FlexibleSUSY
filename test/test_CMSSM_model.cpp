@@ -370,10 +370,10 @@ void compare_gluino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    // one-loop
    s.gluino(1);
    const double softsusy_gluino_se = s.displayPhys().mGluino - softsusy_gluino_tree;
-   const double p = std::fabs(m3);
-   const double glu_scalar = m.self_energy_Glu_1loop_1(p).real();
-   const double glu_left   = m.self_energy_Glu_1loop_PL(p).real();
-   const double glu_right  = m.self_energy_Glu_1loop_PR(p).real();
+   const double p2 = Sqr(m3);
+   const double glu_scalar = m.self_energy_Glu_1loop_1(p2).real();
+   const double glu_left   = m.self_energy_Glu_1loop_PL(p2).real();
+   const double glu_right  = m.self_energy_Glu_1loop_PR(p2).real();
    const double glu_se     = - (glu_scalar + m3 * (glu_left + glu_right));
 
    TEST_CLOSE(softsusy_gluino_se, glu_se, 1.0e-4);
@@ -381,7 +381,8 @@ void compare_gluino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 
 void compare_neutralino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 {
-   const double p = s.displayDrBarPars().mneut(1);
+   const double p  = s.displayDrBarPars().mneut(1);
+   const double p2 = Sqr(p);
 
    const double tanb = s.displayTanb();
    const double cosb = cos(atan(tanb));
@@ -405,9 +406,9 @@ void compare_neutralino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix sarah_sigma_L(4,4), sarah_sigma_R(4,4), sarah_sigma_S(4,4);
    for (int i = 1; i <= 4; ++i) {
       for (int k = 1; k <= 4; ++k) {
-         sarah_sigma_L(i,k) = m.self_energy_Chi_1loop_PL(p,i-1,k-1);
-         sarah_sigma_R(i,k) = m.self_energy_Chi_1loop_PR(p,i-1,k-1);
-         sarah_sigma_S(i,k) = m.self_energy_Chi_1loop_1(p,i-1,k-1);
+         sarah_sigma_L(i,k) = m.self_energy_Chi_1loop_PL(p2,i-1,k-1);
+         sarah_sigma_R(i,k) = m.self_energy_Chi_1loop_PR(p2,i-1,k-1);
+         sarah_sigma_S(i,k) = m.self_energy_Chi_1loop_1(p2,i-1,k-1);
       }
    }
 
@@ -439,6 +440,7 @@ void compare_neutralino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 void compare_chargino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 {
    const double p = std::fabs(s.displayDrBarPars().mch(1));
+   const double p2 = Sqr(p);
 
    const double tanb = s.displayTanb();
    const double cosb = cos(atan(tanb));
@@ -456,9 +458,9 @@ void compare_chargino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix sarah_sigma_L(2,2), sarah_sigma_R(2,2), sarah_sigma_S(2,2);
    for (int i = 1; i <= 2; ++i) {
       for (int k = 1; k <= 2; ++k) {
-         sarah_sigma_L(i,k) = m.self_energy_Cha_1loop_PL(p,i-1,k-1);
-         sarah_sigma_R(i,k) = m.self_energy_Cha_1loop_PR(p,i-1,k-1);
-         sarah_sigma_S(i,k) = m.self_energy_Cha_1loop_1(p,i-1,k-1);
+         sarah_sigma_L(i,k) = m.self_energy_Cha_1loop_PL(p2,i-1,k-1);
+         sarah_sigma_R(i,k) = m.self_energy_Cha_1loop_PR(p2,i-1,k-1);
+         sarah_sigma_S(i,k) = m.self_energy_Cha_1loop_1(p2,i-1,k-1);
       }
    }
 
@@ -500,9 +502,9 @@ void compare_sneutrino_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    const DoubleVector Snu_softsusy_1loop(s.displayPhys().msnu);
    ComplexMatrix Snu_sarah_se(3,3);
    for (int i1 = 1; i1 <= 3; ++i1) {
-      const double p = Snu_sarah_tree(i1);
+      const double p2 = Sqr(Snu_sarah_tree(i1));
       for (int i2 = 1; i2 <= 3; ++i2) {
-         Snu_sarah_se(i1, i2) = m.self_energy_Sv_1loop(p, i1-1, i2-1);
+         Snu_sarah_se(i1, i2) = m.self_energy_Sv_1loop(p2, i1-1, i2-1);
       }
    }
 
@@ -547,9 +549,9 @@ void compare_selectron_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    const DoubleMatrix Se_softsusy_1loop(s.displayPhys().me);
    ComplexMatrix Se_sarah_se(6,6);
    for (int i1 = 1; i1 <= 6; ++i1) {
-      const double p = Se_sarah_tree(i1);
+      const double p2 = Sqr(Se_sarah_tree(i1));
       for (int i2 = 1; i2 <= 6; ++i2) {
-         Se_sarah_se(i1, i2) = m.self_energy_Se_1loop(p, i1-1, i2-1);
+         Se_sarah_se(i1, i2) = m.self_energy_Se_1loop(p2, i1-1, i2-1);
       }
    }
 
@@ -573,19 +575,19 @@ void compare_selectron_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    }
 
    // compare families 1 and 2
-   TEST_CLOSE(Se_softsusy_se(1,1), Se_sarah_se(1,1), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(1,2), Se_sarah_se(1,2), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(2,1), Se_sarah_se(2,1), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(2,2), Se_sarah_se(2,2), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(4,4), Se_sarah_se(4,4), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(4,5), Se_sarah_se(4,5), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(5,4), Se_sarah_se(5,4), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(5,5), Se_sarah_se(5,5), 1.0e-10);
+   TEST_CLOSE(Se_softsusy_se(1,1), Se_sarah_se(1,1), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(1,2), Se_sarah_se(1,2), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(2,1), Se_sarah_se(2,1), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(2,2), Se_sarah_se(2,2), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(4,4), Se_sarah_se(4,4), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(4,5), Se_sarah_se(4,5), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(5,4), Se_sarah_se(5,4), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(5,5), Se_sarah_se(5,5), 1.0e-7);
    // compare 3rd family
-   TEST_CLOSE(Se_softsusy_se(3,3), Se_sarah_se(3,3), 2.0e-10);
-   TEST_CLOSE(Se_softsusy_se(3,6), Se_sarah_se(3,6), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(6,3), Se_sarah_se(6,3), 1.0e-10);
-   TEST_CLOSE(Se_softsusy_se(6,6), Se_sarah_se(6,6), 2.0e-10);
+   TEST_CLOSE(Se_softsusy_se(3,3), Se_sarah_se(3,3), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(3,6), Se_sarah_se(3,6), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(6,3), Se_sarah_se(6,3), 1.0e-7);
+   TEST_CLOSE(Se_softsusy_se(6,6), Se_sarah_se(6,6), 1.0e-7);
 }
 
 void compare_sup_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
@@ -612,8 +614,8 @@ void compare_sup_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix Su_sarah_se(6,6);
    for (int i1 = 1; i1 <= 6; ++i1) {
       for (int i2 = 1; i2 <= 6; ++i2) {
-         const double p = sqrt(Su_sarah_tree(i1) * Su_sarah_tree(i2));
-         Su_sarah_se(i1, i2) = m.self_energy_Su_1loop(p, i1-1, i2-1);
+         const double p2 = Su_sarah_tree(i1) * Su_sarah_tree(i2);
+         Su_sarah_se(i1, i2) = m.self_energy_Su_1loop(p2, i1-1, i2-1);
       }
    }
 
@@ -628,19 +630,20 @@ void compare_sup_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    }
 
    // compare families 1 and 2
-   TEST_CLOSE(Su_softsusy_se(1,1), Su_sarah_se(1,1), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(1,2), Su_sarah_se(1,2), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(2,1), Su_sarah_se(2,1), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(2,2), Su_sarah_se(2,2), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(4,4), Su_sarah_se(4,4), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(4,5), Su_sarah_se(4,5), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(5,4), Su_sarah_se(5,4), 1.0e-10);
-   TEST_CLOSE(Su_softsusy_se(5,5), Su_sarah_se(5,5), 1.0e-10);
+   TEST_CLOSE(Su_softsusy_se(1,1), Su_sarah_se(1,1), 1.0e-06);
+   TEST_CLOSE(Su_softsusy_se(1,2), Su_sarah_se(1,2), 1.0e-06);
+   TEST_CLOSE(Su_softsusy_se(2,1), Su_sarah_se(2,1), 1.0e-06);
+   TEST_CLOSE(Su_softsusy_se(2,2), Su_sarah_se(2,2), 1.0e-06);
+   TEST_CLOSE(Su_softsusy_se(4,4), Su_sarah_se(4,4), 1.0e-06);
+   TEST_CLOSE(Su_softsusy_se(4,5), Su_sarah_se(4,5), 1.0e-07);
+   TEST_CLOSE(Su_softsusy_se(5,4), Su_sarah_se(5,4), 1.0e-07);
+   TEST_CLOSE(Su_softsusy_se(5,5), Su_sarah_se(5,5), 1.0e-06);
 
    // compare 3rd family
    {
       // for simplicity we take only one fixed momentum
-      const double p = Su_softsusy_tree(1,3);
+      const double p  = Su_softsusy_tree(1,3);
+      const double p2 = Sqr(p);
 
       DoubleMatrix mStopSquared(2,2);
       s.addStopCorrection(p, mStopSquared, mt);
@@ -650,16 +653,16 @@ void compare_sup_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
       Su_softsusy_se(6,3) = -mStopSquared(2,1);
       Su_softsusy_se(6,6) = -mStopSquared(2,2);
 
-      Su_sarah_se(3,3) = m.self_energy_Su_1loop(p,2,2);
-      Su_sarah_se(3,6) = m.self_energy_Su_1loop(p,2,5);
-      Su_sarah_se(6,3) = m.self_energy_Su_1loop(p,5,2);
-      Su_sarah_se(6,6) = m.self_energy_Su_1loop(p,5,5);
+      Su_sarah_se(3,3) = m.self_energy_Su_1loop(p2,2,2);
+      Su_sarah_se(3,6) = m.self_energy_Su_1loop(p2,2,5);
+      Su_sarah_se(6,3) = m.self_energy_Su_1loop(p2,5,2);
+      Su_sarah_se(6,6) = m.self_energy_Su_1loop(p2,5,5);
    }
 
-   TEST_CLOSE(Su_softsusy_se(3,3), Su_sarah_se(3,3), 1.0e-7);
-   TEST_CLOSE(Su_softsusy_se(3,6), Su_sarah_se(3,6), 1.0e-7);
-   TEST_CLOSE(Su_softsusy_se(6,3), Su_sarah_se(6,3), 1.0e-7);
-   TEST_CLOSE(Su_softsusy_se(6,6), Su_sarah_se(6,6), 1.0e-7);
+   TEST_CLOSE(Su_softsusy_se(3,3), Su_sarah_se(3,3), 1.0e-6);
+   TEST_CLOSE(Su_softsusy_se(3,6), Su_sarah_se(3,6), 1.0e-6);
+   TEST_CLOSE(Su_softsusy_se(6,3), Su_sarah_se(6,3), 1.0e-6);
+   TEST_CLOSE(Su_softsusy_se(6,6), Su_sarah_se(6,6), 1.0e-6);
 }
 
 void compare_sdown_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
@@ -687,8 +690,8 @@ void compare_sdown_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix Sd_sarah_se(6,6);
    for (int i1 = 1; i1 <= 6; ++i1) {
       for (int i2 = 1; i2 <= 6; ++i2) {
-         const double p = sqrt(Sd_sarah_tree(i1) * Sd_sarah_tree(i2));
-         Sd_sarah_se(i1, i2) = m.self_energy_Sd_1loop(p, i1-1, i2-1);
+         const double p2 = Sd_sarah_tree(i1) * Sd_sarah_tree(i2);
+         Sd_sarah_se(i1, i2) = m.self_energy_Sd_1loop(p2, i1-1, i2-1);
       }
    }
 
@@ -703,19 +706,20 @@ void compare_sdown_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    }
 
    // compare families 1 and 2
-   TEST_CLOSE(Sd_softsusy_se(1,1), Sd_sarah_se(1,1), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(1,2), Sd_sarah_se(1,2), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(2,1), Sd_sarah_se(2,1), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(2,2), Sd_sarah_se(2,2), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(4,4), Sd_sarah_se(4,4), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(4,5), Sd_sarah_se(4,5), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(5,4), Sd_sarah_se(5,4), 1.0e-10);
-   TEST_CLOSE(Sd_softsusy_se(5,5), Sd_sarah_se(5,5), 1.0e-10);
+   TEST_CLOSE(Sd_softsusy_se(1,1), Sd_sarah_se(1,1), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(1,2), Sd_sarah_se(1,2), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(2,1), Sd_sarah_se(2,1), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(2,2), Sd_sarah_se(2,2), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(4,4), Sd_sarah_se(4,4), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(4,5), Sd_sarah_se(4,5), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(5,4), Sd_sarah_se(5,4), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(5,5), Sd_sarah_se(5,5), 1.0e-6);
 
    // compare 3rd family
    {
       // for simplicity we take only one fixed momentum
-      const double p = Sd_softsusy_tree(1,3);
+      const double p  = Sd_softsusy_tree(1,3);
+      const double p2 = Sqr(p);
 
       DoubleMatrix mSbotSquared(2,2);
       s.addSbotCorrection(p, mSbotSquared, mt);
@@ -725,16 +729,16 @@ void compare_sdown_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
       Sd_softsusy_se(6,3) = -mSbotSquared(2,1);
       Sd_softsusy_se(6,6) = -mSbotSquared(2,2);
 
-      Sd_sarah_se(3,3) = m.self_energy_Sd_1loop(p,2,2);
-      Sd_sarah_se(3,6) = m.self_energy_Sd_1loop(p,2,5);
-      Sd_sarah_se(6,3) = m.self_energy_Sd_1loop(p,5,2);
-      Sd_sarah_se(6,6) = m.self_energy_Sd_1loop(p,5,5);
+      Sd_sarah_se(3,3) = m.self_energy_Sd_1loop(p2,2,2);
+      Sd_sarah_se(3,6) = m.self_energy_Sd_1loop(p2,2,5);
+      Sd_sarah_se(6,3) = m.self_energy_Sd_1loop(p2,5,2);
+      Sd_sarah_se(6,6) = m.self_energy_Sd_1loop(p2,5,5);
    }
 
-   TEST_CLOSE(Sd_softsusy_se(3,3), Sd_sarah_se(3,3), 1.0e-7);
-   TEST_CLOSE(Sd_softsusy_se(3,6), Sd_sarah_se(3,6), 1.0e-7);
-   TEST_CLOSE(Sd_softsusy_se(6,3), Sd_sarah_se(6,3), 1.0e-7);
-   TEST_CLOSE(Sd_softsusy_se(6,6), Sd_sarah_se(6,6), 1.0e-7);
+   TEST_CLOSE(Sd_softsusy_se(3,3), Sd_sarah_se(3,3), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(3,6), Sd_sarah_se(3,6), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(6,3), Sd_sarah_se(6,3), 1.0e-6);
+   TEST_CLOSE(Sd_softsusy_se(6,6), Sd_sarah_se(6,6), 1.0e-6);
 }
 
 void compare_CP_even_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
@@ -769,8 +773,8 @@ void compare_CP_even_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix sarah_sigma_light(2,2), sarah_sigma_heavy(2,2);
    for (int i1 = 1; i1 <= 2; ++i1) {
       for (int i2 = 1; i2 <= 2; ++i2) {
-         sarah_sigma_light(i1,i2) = m.self_energy_hh_1loop(mh0,i1-1,i2-1);
-         sarah_sigma_heavy(i1,i2) = m.self_energy_hh_1loop(mH0,i1-1,i2-1);
+         sarah_sigma_light(i1,i2) = m.self_energy_hh_1loop(Sqr(mh0),i1-1,i2-1);
+         sarah_sigma_heavy(i1,i2) = m.self_energy_hh_1loop(Sqr(mH0),i1-1,i2-1);
       }
    }
 
@@ -794,6 +798,7 @@ void compare_CP_odd_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 
    bool twisted;    // true if Ah(1) == A0, false otherwise
    const double p = mA0;
+   const double p2 = Sqr(p);
 
    if (Ah(1) <= Ah(2)) {
       TEST_CLOSE(mZrun, Ah(1), 1.0e-10);
@@ -810,7 +815,7 @@ void compare_CP_odd_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix sarah_sigma_AA(2,2);
    for (int i1 = 1; i1 <= 2; ++i1) {
       for (int i2 = 1; i2 <= 2; ++i2) {
-         sarah_sigma_AA(i1,i2) = m.self_energy_Ah_1loop(p,i1-1,i2-1);
+         sarah_sigma_AA(i1,i2) = m.self_energy_Ah_1loop(p2,i1-1,i2-1);
       }
    }
 
@@ -842,7 +847,7 @@ void compare_charged_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    TEST_EQUALITY(s.displayMu(), m.get_scale());
 
    bool twisted;    // true if Hpm(1) == Hpm, false otherwise
-   const double p = mHpm;
+   const double p = mHpm, p2 = Sqr(p);
 
    if (Hpm(1) <= Hpm(2)) {
       TEST_CLOSE(mWrun, Hpm(1), 1.0e-10);
@@ -859,7 +864,7 @@ void compare_charged_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    ComplexMatrix sarah_sigma_Hpm(2,2);
    for (int i1 = 1; i1 <= 2; ++i1) {
       for (int i2 = 1; i2 <= 2; ++i2) {
-         sarah_sigma_Hpm(i1,i2) = m.self_energy_Hpm_1loop(p,i1-1,i2-1);
+         sarah_sigma_Hpm(i1,i2) = m.self_energy_Hpm_1loop(p2,i1-1,i2-1);
       }
    }
 
@@ -872,9 +877,9 @@ void compare_charged_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
    TEST_CLOSE(sarah_sigma_Hpm.real(), sarah_sigma_Hpm.real().transpose(), 1.0e-10);
 
    if (twisted) {
-      TEST_CLOSE(sarah_sigma_Hpm.real()(1,1), softsusy_sigma_HpHm, 1.0e-10);
+      TEST_CLOSE(sarah_sigma_Hpm.real()(1,1), softsusy_sigma_HpHm, 1.0e-7);
    } else {
-      TEST_CLOSE(sarah_sigma_Hpm.real()(2,2), softsusy_sigma_HpHm, 1.0e-10);
+      TEST_CLOSE(sarah_sigma_Hpm.real()(2,2), softsusy_sigma_HpHm, 1.0e-7);
    }
 
    // TEST_CLOSE(sarah_sigma_Hpm.real()(1,2), 0.0, 1.0e-10);
@@ -883,9 +888,9 @@ void compare_charged_higgs_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 
 void compare_z_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 {
-   const double p = m.get_MVZ();
+   const double p = m.get_MVZ(), p2 = Sqr(p);
    const double scale = m.get_scale();
-   const Complex sarah_z_se(m.self_energy_VZ_1loop(p));
+   const Complex sarah_z_se(m.self_energy_VZ_1loop(p2));
    const double softsusy_z_se = s.piZZT(p, scale, false);
 
    TEST_EQUALITY(scale, m.get_scale());
@@ -900,9 +905,9 @@ void compare_z_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 
 void compare_w_self_energy(MssmSoftsusy s, CMSSM<Two_scale> m)
 {
-   const double p = m.get_MVWm();
+   const double p = m.get_MVWm(), p2 = Sqr(p);
    const double scale = m.get_scale();
-   const Complex sarah_w_se(m.self_energy_VWm_1loop(p));
+   const Complex sarah_w_se(m.self_energy_VWm_1loop(p2));
    const double softsusy_w_se = s.piWWT(p, scale, false);
 
    TEST_EQUALITY(scale, m.get_scale());
@@ -1055,7 +1060,7 @@ void compare_tadpoles_2loop(MssmSoftsusy s, CMSSM<Two_scale> m)
    const auto two_loop_tadpole(m.tadpole_hh_2loop());
 
    // check equality of 1-loop tadpoles again
-   TEST_CLOSE(two_loop_tadpole[0] / vd, td_1_and_2loop_ss - td_ss, 1.0e-10);
+   TEST_CLOSE(two_loop_tadpole[0] / vd, td_1_and_2loop_ss - td_ss, 1.0e-09);
    TEST_CLOSE(two_loop_tadpole[1] / vu, tu_1_and_2loop_ss - tu_ss, 1.0e-11);
 }
 
@@ -1071,17 +1076,17 @@ void compare_loop_masses(MssmSoftsusy s, CMSSM<Two_scale> m)
 
    TEST_EQUALITY(s.displayMu(), m.get_scale());
 
-   TEST_CLOSE(s.displayPhys().msnu             , ToDoubleVector(m.get_physical().MSv), 1.0e-10);
-   TEST_CLOSE(s.displayPhys().mGluino          , m.get_physical().MGlu, 1.0e-4);
-   TEST_CLOSE(s.displayPhys().mneut.apply(fabs), ToDoubleVector(m.get_physical().MChi), 1.0e-10);
-   TEST_CLOSE(s.displayPhys().mch.apply(fabs)  , ToDoubleVector(m.get_physical().MCha), 1.0e-11);
+   TEST_CLOSE(s.displayPhys().msnu             , ToDoubleVector(m.get_physical().get_MSv()), 1.0e-10);
+   TEST_CLOSE(s.displayPhys().mGluino          , m.get_physical().get_MGlu(), 1.0e-4);
+   TEST_CLOSE(s.displayPhys().mneut.apply(fabs), ToDoubleVector(m.get_physical().get_MChi()), 1.0e-10);
+   TEST_CLOSE(s.displayPhys().mch.apply(fabs)  , ToDoubleVector(m.get_physical().get_MCha()), 1.0e-11);
 
-   TEST_CLOSE(s.displayPhys().me.flatten().sort(), ToDoubleVector(m.get_physical().MSe), 1.0e-10);
-   TEST_CLOSE(s.displayPhys().mu.flatten().sort(), ToDoubleVector(m.get_physical().MSu), 1.0e-10);
-   TEST_CLOSE(s.displayPhys().md.flatten().sort(), ToDoubleVector(m.get_physical().MSd), 2.0e-10);
+   TEST_CLOSE(s.displayPhys().me.flatten().sort(), ToDoubleVector(m.get_physical().get_MSe()), 1.0e-09);
+   TEST_CLOSE(s.displayPhys().mu.flatten().sort(), ToDoubleVector(m.get_physical().get_MSu()), 1.0e-09);
+   TEST_CLOSE(s.displayPhys().md.flatten().sort(), ToDoubleVector(m.get_physical().get_MSd()), 1.0e-09);
 
-   TEST_EQUALITY(0.0, m.get_physical().MVG);
-   TEST_EQUALITY(0.0, m.get_physical().MVP);
+   TEST_EQUALITY(0.0, m.get_physical().get_MVG());
+   TEST_EQUALITY(0.0, m.get_physical().get_MVP());
 
    // ensure that the important scalar potential parameters are equal
    // before solvin the 1-loop EWSB
@@ -1100,54 +1105,54 @@ void compare_loop_masses(MssmSoftsusy s, CMSSM<Two_scale> m)
    m.calculate_pole_masses();
    s.physical(1);
 
-   DoubleVector hh(ToDoubleVector(m.get_physical().Mhh));
+   DoubleVector hh(ToDoubleVector(m.get_physical().get_Mhh()));
    TEST_CLOSE(s.displayPhys().mh0(1), hh(1), 0.114);
    TEST_CLOSE(s.displayPhys().mh0(2), hh(2), 0.04);
    TEST_CLOSE_REL(s.displayPhys().mh0(1), hh(1), 0.00115);
    TEST_CLOSE_REL(s.displayPhys().mh0(2), hh(2), 6.0e-5);
 
-   DoubleVector Ah(ToDoubleVector(m.get_physical().MAh));
+   DoubleVector Ah(ToDoubleVector(m.get_physical().get_MAh()));
    TEST_CLOSE(s.displayPhys().mA0(1), Ah(2), 0.05);
    TEST_CLOSE_REL(s.displayPhys().mA0(1), Ah(2), 6.0e-5);
 
-   const DoubleVector Hpm(ToDoubleVector(m.get_physical().MHpm));
+   const DoubleVector Hpm(ToDoubleVector(m.get_physical().get_MHpm()));
    TEST_CLOSE(s.displayPhys().mHpm, Hpm(2), 0.09);
    TEST_CLOSE_REL(s.displayPhys().mHpm, Hpm(2), 1.3e-4);
 
-   TEST_EQUALITY(0.0, m.get_physical().MVG);
-   TEST_EQUALITY(0.0, m.get_physical().MVP);
+   TEST_EQUALITY(0.0, m.get_physical().get_MVG());
+   TEST_EQUALITY(0.0, m.get_physical().get_MVP());
 
-   TEST_CLOSE(s.displayPhys().mGluino, m.get_physical().MGlu, 1.0e-4);
-   TEST_CLOSE_REL(s.displayPhys().msnu(1), m.get_physical().MSv(0), 0.00013);
-   TEST_CLOSE_REL(s.displayPhys().msnu(2), m.get_physical().MSv(1), 0.00013);
-   TEST_CLOSE_REL(s.displayPhys().msnu(3), m.get_physical().MSv(2), 0.00014);
-   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(1), m.get_physical().MChi(0), 0.0012);
-   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(2), m.get_physical().MChi(1), 0.0004);
-   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(3), m.get_physical().MChi(2), 0.0017);
-   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(4), m.get_physical().MChi(3), 0.0005);
-   TEST_CLOSE_REL(s.displayPhys().mch.apply(fabs)(1), m.get_physical().MCha(0), 0.0011);
-   TEST_CLOSE_REL(s.displayPhys().mch.apply(fabs)(2), m.get_physical().MCha(1), 0.0008);
+   TEST_CLOSE(s.displayPhys().mGluino, m.get_physical().get_MGlu(), 1.0e-4);
+   TEST_CLOSE_REL(s.displayPhys().msnu(1), m.get_physical().get_MSv(0), 0.00013);
+   TEST_CLOSE_REL(s.displayPhys().msnu(2), m.get_physical().get_MSv(1), 0.00013);
+   TEST_CLOSE_REL(s.displayPhys().msnu(3), m.get_physical().get_MSv(2), 0.00014);
+   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(1), m.get_physical().get_MChi(0), 0.0012);
+   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(2), m.get_physical().get_MChi(1), 0.0004);
+   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(3), m.get_physical().get_MChi(2), 0.0017);
+   TEST_CLOSE_REL(s.displayPhys().mneut.apply(fabs)(4), m.get_physical().get_MChi(3), 0.0005);
+   TEST_CLOSE_REL(s.displayPhys().mch.apply(fabs)(1), m.get_physical().get_MCha(0), 0.0011);
+   TEST_CLOSE_REL(s.displayPhys().mch.apply(fabs)(2), m.get_physical().get_MCha(1), 0.0008);
 
-   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(1), m.get_physical().MSe(0), 0.00011);
-   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(2), m.get_physical().MSe(1), 0.0002);
-   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(3), m.get_physical().MSe(2), 0.0002);
-   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(4), m.get_physical().MSe(3), 0.00012);
-   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(5), m.get_physical().MSe(4), 0.00012);
-   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(6), m.get_physical().MSe(5), 0.0001);
+   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(1), m.get_physical().get_MSe(0), 0.00011);
+   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(2), m.get_physical().get_MSe(1), 0.0002);
+   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(3), m.get_physical().get_MSe(2), 0.0002);
+   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(4), m.get_physical().get_MSe(3), 0.00012);
+   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(5), m.get_physical().get_MSe(4), 0.00012);
+   TEST_CLOSE_REL(s.displayPhys().me.flatten().sort()(6), m.get_physical().get_MSe(5), 0.0001);
 
-   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(1), m.get_physical().MSu(0), 0.0001);
-   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(2), m.get_physical().MSu(1), 0.0001);
-   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(3), m.get_physical().MSu(2), 0.00014);
-   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(4), m.get_physical().MSu(3), 0.00014);
-   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(5), m.get_physical().MSu(4), 0.00025);
-   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(6), m.get_physical().MSu(5), 0.00044);
+   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(1), m.get_physical().get_MSu(0), 0.0001);
+   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(2), m.get_physical().get_MSu(1), 0.0001);
+   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(3), m.get_physical().get_MSu(2), 0.00014);
+   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(4), m.get_physical().get_MSu(3), 0.00014);
+   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(5), m.get_physical().get_MSu(4), 0.00025);
+   TEST_CLOSE_REL(s.displayPhys().mu.flatten().sort()(6), m.get_physical().get_MSu(5), 0.00044);
 
-   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(1), m.get_physical().MSd(0), 0.00003);
-   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(2), m.get_physical().MSd(1), 0.00007);
-   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(3), m.get_physical().MSd(2), 0.00007);
-   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(4), m.get_physical().MSd(3), 0.000026);
-   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(5), m.get_physical().MSd(4), 0.000026);
-   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(6), m.get_physical().MSd(5), 0.00005);
+   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(1), m.get_physical().get_MSd(0), 0.00003);
+   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(2), m.get_physical().get_MSd(1), 0.00007);
+   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(3), m.get_physical().get_MSd(2), 0.00007);
+   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(4), m.get_physical().get_MSd(3), 0.000026);
+   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(5), m.get_physical().get_MSd(4), 0.000026);
+   TEST_CLOSE_REL(s.displayPhys().md.flatten().sort()(6), m.get_physical().get_MSd(5), 0.00005);
 
    // test two-loop corrections
    softsusy::numRewsbLoops = 2;
@@ -1164,13 +1169,13 @@ void compare_loop_masses(MssmSoftsusy s, CMSSM<Two_scale> m)
    m.calculate_pole_masses();
    s.physical(2);
 
-   hh = ToDoubleVector(m.get_physical().Mhh);
+   hh = ToDoubleVector(m.get_physical().get_Mhh());
    TEST_CLOSE(s.displayPhys().mh0(1), hh(1), 5.0e-4);
    TEST_CLOSE(s.displayPhys().mh0(2), hh(2), 9.0e-4);
    TEST_CLOSE_REL(s.displayPhys().mh0(1), hh(1), 5.0e-4);
    TEST_CLOSE_REL(s.displayPhys().mh0(2), hh(2), 5.0e-4);
 
-   Ah = ToDoubleVector(m.get_physical().MAh);
+   Ah = ToDoubleVector(m.get_physical().get_MAh());
    TEST_CLOSE(s.displayPhys().mA0(1), Ah(2), 6.0e-3);
    TEST_CLOSE_REL(s.displayPhys().mA0(1), Ah(2), 5.0e-4);
 }
@@ -1470,10 +1475,10 @@ void compare_self_energy_CP_even_higgs(CMSSM<Two_scale> model,
    softSusy.higgs(accuracy, piWWT, pizztMS); // does one iteration
 
    model.set_precision(std::pow(10,-0.1)); // performs 1 iteration
-   model.calculate_Mhh_pole();
+   model.calculate_M2hh_pole();
 
    hh_ss = softSusy.displayPhys().mh0;
-   hh_fs = model.get_physical().Mhh;
+   hh_fs = model.get_physical().get_Mhh();
 
    TEST_CLOSE(hh_ss(1), hh_fs(0), 4.0e-6);
    TEST_CLOSE(hh_ss(2), hh_fs(1), 2.0e-6);
@@ -1521,10 +1526,10 @@ void compare_self_energy_CP_odd_higgs(CMSSM<Two_scale> model,
    softSusy.higgs(accuracy, piWWT, pizztMS); // does one iteration
 
    model.set_precision(std::pow(10,-0.1)); // performs 1 iteration
-   model.calculate_MAh_pole();
+   model.calculate_M2Ah_pole();
 
    Ah_ss = softSusy.displayPhys().mA0;
-   Ah_fs = model.get_physical().MAh;
+   Ah_fs = model.get_physical().get_MAh();
 
    TEST_CLOSE(Ah_ss(1), Ah_fs(1), 4.0e-3);
 }

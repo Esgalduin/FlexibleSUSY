@@ -36,10 +36,10 @@
 #include "slha_io.hpp"
 #include "wrappers.hpp"
 
-#define LOCALPHYSICAL(p) physical.p
+#define LOCALPHYSICAL(p) physical.get_##p
 #define MODELPARAMETER(p) this->p
-#define PHYSICAL_SLHA(p) physical_slha.p
-#define PHYSICAL_SLHA_REAL(p) Re(physical_slha.p)
+#define PHYSICAL_SLHA(p) physical_slha.get_##p
+#define PHYSICAL_SLHA_REAL(p) Re(PHYSICAL_SLHA(p))
 
 namespace flexiblesusy {
 
@@ -73,7 +73,6 @@ public:
    virtual void calculate_spectrum() override;
    virtual void print(std::ostream&) const override;
 
-@slhaPoleMassGetters@
 @slhaPoleMixingMatrixGetters@
 @slhaYukawaGetter@
 @slhaTrilinearCouplingsGetter@

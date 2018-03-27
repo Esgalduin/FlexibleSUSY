@@ -69,9 +69,10 @@ T divide_finite(T a, T b) noexcept {
 double fB(const std::complex<double>& a) noexcept
 {
   using flexiblesusy::fast_log;
+  using std::abs;
   const double x = a.real();
 
-  if (fabs(x) < EPSTOL)
+  if (abs(x) < EPSTOL)
      return -1. - x + sqr(x) * 0.5;
 
   if (is_close(x, 1., EPSTOL))
@@ -329,7 +330,7 @@ double d0(double m1, double m2, double m3, double m4) noexcept
 double d27(double m1, double m2, double m3, double m4) noexcept
 {
   if (is_close(m1, m2, EPSTOL))
-    m1 += TOL * 0.01;
+    m1 += TOL * 0.1;
 
   const double m12 = sqr(m1), m22 = sqr(m2);
 

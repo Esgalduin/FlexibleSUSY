@@ -3,6 +3,7 @@
 #define BOOST_TEST_MODULE test_CMSSM_effective_couplings
 
 #include <boost/test/unit_test.hpp>
+#include <boost/type_index.hpp>
 
 #include "effective_couplings.hpp"
 #include "CMSSM_mass_eigenstates.hpp"
@@ -27,6 +28,7 @@ public:
 
    void do_rg_improve(bool flag) { rg_improve = flag; }
    void set_model(const CMSSM_mass_eigenstates& model_) { model = model_; }
+   const CMSSM_mass_eigenstates& get_model() const { return model; }
 
    std::complex<double> get_eff_CphhVPVP(int);
    std::complex<double> get_eff_CphhVGVG(int);
@@ -245,7 +247,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_VWm_contribution(
    }
 
    const double MVWm = model.get_MVWm();
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MVWm);
 
    return coupling * AS1(tau);
@@ -272,7 +274,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Hpm_contribution(
    }
 
    const double MHpm = model.get_MHpm(1);
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MHpm);
 
    return 0.125 * (Sqr(g2) + 0.6 * Sqr(g1)) * (Sqr(vd) + Sqr(vu))
@@ -306,7 +308,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Cha_contribution(
    }
 
    const auto MCha = model.get_MCha();
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau_light = 0.25 * Sqr(Mhh(idx)) / Sqr(MCha(0));
    const double tau_heavy = 0.25 * Sqr(Mhh(idx)) / Sqr(MCha(1));
 
@@ -360,7 +362,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Su_contribution(
    const Eigen::Matrix<std::complex<double>,2,2> gff =
       mixings * Cff * mixings.transpose();
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau_light = 0.25 * Sqr(Mhh(idx)) / msf12;
    const double tau_heavy = 0.25 * Sqr(Mhh(idx)) / msf22;
 
@@ -414,7 +416,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Sd_contribution(
    const Eigen::Matrix<std::complex<double>,2,2> gff =
       mixings * Cff * mixings.transpose();
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau_light = 0.25 * Sqr(Mhh(idx)) / msf12;
    const double tau_heavy = 0.25 * Sqr(Mhh(idx)) / msf22;
 
@@ -468,7 +470,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Se_contribution(
    const Eigen::Matrix<std::complex<double>,2,2> gff =
       mixings * Cff * mixings.transpose();
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau_light = 0.25 * Sqr(Mhh(idx)) / msf12;
    const double tau_heavy = 0.25 * Sqr(Mhh(idx)) / msf22;
 
@@ -491,7 +493,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Fu_contribution(
       coupling = Sin(alpha) / Sin(beta);
    }
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const auto MFu = model.get_MFu();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MFu(gen));
 
@@ -513,7 +515,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Fd_contribution(
       coupling = Cos(alpha) / Cos(beta);
    }
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const auto MFd = model.get_MFd();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MFd(gen));
 
@@ -534,7 +536,7 @@ std::complex<double> MSSM_loop_decays::get_hhVPVP_Fe_contribution(
       coupling = Cos(alpha) / Cos(beta);
    }
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const auto MFe = model.get_MFe();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MFe(gen));
 
@@ -586,7 +588,7 @@ std::complex<double> MSSM_loop_decays::get_hhVGVG_Su_contribution(
    const Eigen::Matrix<std::complex<double>,2,2> gff =
       mixings * Cff * mixings.transpose();
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau_light = 0.25 * Sqr(Mhh(idx)) / msf12;
    const double tau_heavy = 0.25 * Sqr(Mhh(idx)) / msf22;
 
@@ -639,7 +641,7 @@ std::complex<double> MSSM_loop_decays::get_hhVGVG_Sd_contribution(
    const Eigen::Matrix<std::complex<double>,2,2> gff =
       mixings * Cff * mixings.transpose();
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const double tau_light = 0.25 * Sqr(Mhh(idx)) / msf12;
    const double tau_heavy = 0.25 * Sqr(Mhh(idx)) / msf22;
 
@@ -660,7 +662,7 @@ std::complex<double> MSSM_loop_decays::get_hhVGVG_Fu_contribution(
       coupling = Sin(alpha) / Sin(beta);
    }
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const auto MFu = model.get_MFu();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MFu(gen));
 
@@ -680,7 +682,7 @@ std::complex<double> MSSM_loop_decays::get_hhVGVG_Fd_contribution(
       coupling = Cos(alpha) / Cos(beta);
    }
 
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    const auto MFd = model.get_MFd();
    const double tau = 0.25 * Sqr(Mhh(idx)) / Sqr(MFd(gen));
 
@@ -696,6 +698,9 @@ std::complex<double> MSSM_loop_decays::get_AhVPVP_Cha_contribution() const
 
    const auto ZA = model.get_physical().ZA;
    const auto U = (model.get_UM()).conjugate();
+
+   BOOST_TEST_MESSAGE("type of U = " << boost::typeindex::type_id_with_cvr<decltype(U)>().pretty_name());
+
    const auto V = model.get_UP();
    const std::complex<double> coupling_light
       = (-ZA(1,0) * V(0,0) * U(0,1)
@@ -707,7 +712,7 @@ std::complex<double> MSSM_loop_decays::get_AhVPVP_Cha_contribution() const
       * std::complex<double>(0.,1.);
 
    const auto MCha = model.get_MCha();
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    const double tau_light = 0.25 * Sqr(MAh(1)) / Sqr(MCha(0));
    const double tau_heavy = 0.25 * Sqr(MAh(1)) / Sqr(MCha(1));
 
@@ -725,7 +730,7 @@ std::complex<double> MSSM_loop_decays::get_AhVPVP_Fu_contribution(
    const std::complex<double> coupling = ZA(1,1) / Sin(beta)
       * std::complex<double>(0., 1.);
 
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    const auto MFu = model.get_MFu();
    const double tau = 0.25 * Sqr(MAh(1)) / Sqr(MFu(gen));
 
@@ -742,7 +747,7 @@ std::complex<double> MSSM_loop_decays::get_AhVPVP_Fd_contribution(
    const std::complex<double> coupling = ZA(1,0) / Cos(beta)
       * std::complex<double>(0., 1.);
 
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    const auto MFd = model.get_MFd();
    const double tau = 0.25 * Sqr(MAh(1)) / Sqr(MFd(gen));
 
@@ -758,7 +763,7 @@ std::complex<double> MSSM_loop_decays::get_AhVPVP_Fe_contribution(
    const std::complex<double> coupling = ZA(1,0) / Cos(beta)
       * std::complex<double>(0., 1.);
 
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    const auto MFe = model.get_MFe();
    const double tau = 0.25 * Sqr(MAh(1)) / Sqr(MFe(gen));
 
@@ -773,7 +778,7 @@ std::complex<double> MSSM_loop_decays::get_AhVGVG_Fu_contribution(
    const std::complex<double> coupling = ZA(1,1) / Sin(beta)
       * std::complex<double>(0., 1.);
 
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    const auto MFu = model.get_MFu();
    const double tau = 0.25 * Sqr(MAh(1)) / Sqr(MFu(gen));
 
@@ -788,7 +793,7 @@ std::complex<double> MSSM_loop_decays::get_AhVGVG_Fd_contribution(
    const std::complex<double> coupling = ZA(1,0) / Cos(beta)
       * std::complex<double>(0., 1.);
 
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    const auto MFd = model.get_MFd();
    const double tau = 0.25 * Sqr(MAh(1)) / Sqr(MFd(gen));
 
@@ -797,7 +802,7 @@ std::complex<double> MSSM_loop_decays::get_AhVGVG_Fd_contribution(
 
 std::complex<double> MSSM_loop_decays::get_eff_CphhVPVP(int idx)
 {
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    if (rg_improve && model.get_scale() > Mhh(idx)) {
       model.run_to(Mhh(idx));
    }
@@ -824,7 +829,7 @@ std::complex<double> MSSM_loop_decays::get_eff_CphhVPVP(int idx)
 std::complex<double> MSSM_loop_decays::get_eff_CphhVGVG(int idx)
 {
    const double old_g3 = model.get_g3();
-   const auto Mhh = model.get_physical().Mhh;
+   const auto Mhh = model.get_physical().get_Mhh();
    if (rg_improve && model.get_scale() > Mhh(idx)) {
       model.run_to(Mhh(idx));
    }
@@ -851,7 +856,7 @@ std::complex<double> MSSM_loop_decays::get_eff_CphhVGVG(int idx)
 
 std::complex<double> MSSM_loop_decays::get_eff_CpAhVPVP()
 {
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    if (rg_improve && model.get_scale() > MAh(1)) {
       model.run_to(MAh(1));
    }
@@ -873,7 +878,7 @@ std::complex<double> MSSM_loop_decays::get_eff_CpAhVPVP()
 std::complex<double> MSSM_loop_decays::get_eff_CpAhVGVG()
 {
    const double old_g3 = model.get_g3();
-   const auto MAh = model.get_physical().MAh;
+   const auto MAh = model.get_physical().get_MAh();
    if (rg_improve && model.get_scale() > MAh(1)) {
       model.run_to(MAh(1));
    }
@@ -1106,6 +1111,9 @@ BOOST_AUTO_TEST_CASE( test_LO_pseudoscalar_diphoton_couplings )
 
    const std::complex<double> expected_cpAhVPVP_1
       = mssm_tester.get_eff_CpAhVPVP();
+
+   BOOST_TEST_MESSAGE("expected_cpAhVPVP_1 = " << expected_cpAhVPVP_1);
+   BOOST_TEST_MESSAGE("obtained_cpAhVPVP_1 = " << obtained_cpAhVPVP_1);
 
    BOOST_CHECK_CLOSE_FRACTION(-Re(expected_cpAhVPVP_1),
                               Re(obtained_cpAhVPVP_1), 1.0e-10);

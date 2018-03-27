@@ -27,31 +27,21 @@ namespace flexiblesusy {
 
 namespace standard_model {
 
-Standard_model_physical::Standard_model_physical()
-   :
-    MVG(0), MHp(0), MFv(Eigen::Array<double,3,1>::Zero()), MAh(0), Mhh(0), MVP
-       (0), MVZ(0), MFd(Eigen::Array<double,3,1>::Zero()), MFu(Eigen::Array<double
-       ,3,1>::Zero()), MFe(Eigen::Array<double,3,1>::Zero()), MVWp(0), MVPVZ(
-       Eigen::Array<double,2,1>::Zero())
-
-   , Vd(Eigen::Matrix<std::complex<double>,3,3>::Zero()), Ud(Eigen::Matrix<
-      std::complex<double>,3,3>::Zero()), Vu(Eigen::Matrix<std::complex<double>,3,
-      3>::Zero()), Uu(Eigen::Matrix<std::complex<double>,3,3>::Zero()), Ve(
-      Eigen::Matrix<std::complex<double>,3,3>::Zero()), Ue(Eigen::Matrix<
-      std::complex<double>,3,3>::Zero()), ZZ(Eigen::Matrix<double,2,2>::Zero())
-
-{
-}
+double Standard_model_physical::get_MVG() const { return AbsSqrt(M2VG); }
+double Standard_model_physical::get_MHp() const { return AbsSqrt(M2Hp); }
+double Standard_model_physical::get_MAh() const { return AbsSqrt(M2Ah); }
+double Standard_model_physical::get_Mhh() const { return AbsSqrt(M2hh); }
+double Standard_model_physical::get_MVWp() const { return AbsSqrt(M2VWp); }
+double Standard_model_physical::get_MVP() const { return AbsSqrt(M2VP); }
+double Standard_model_physical::get_MVZ() const { return AbsSqrt(M2VZ); }
 
 void Standard_model_physical::clear()
 {
-   MVG = 0.;
-   MHp = 0.;
+   M2VG = 0.;
+   M2Hp = 0.;
    MFv = Eigen::Matrix<double,3,1>::Zero();
-   MAh = 0.;
-   Mhh = 0.;
-   MVP = 0.;
-   MVZ = 0.;
+   M2Ah = 0.;
+   M2hh = 0.;
    MFd = Eigen::Matrix<double,3,1>::Zero();
    Vd = Eigen::Matrix<std::complex<double>,3,3>::Zero();
    Ud = Eigen::Matrix<std::complex<double>,3,3>::Zero();
@@ -61,10 +51,10 @@ void Standard_model_physical::clear()
    MFe = Eigen::Matrix<double,3,1>::Zero();
    Ve = Eigen::Matrix<std::complex<double>,3,3>::Zero();
    Ue = Eigen::Matrix<std::complex<double>,3,3>::Zero();
-   MVWp = 0.;
-   MVPVZ = Eigen::Matrix<double,2,1>::Zero();
+   M2VWp = 0.;
+   M2VP = 0.;
+   M2VZ = 0.;
    ZZ = Eigen::Matrix<double,2,2>::Zero();
-
 }
 
 /**
@@ -91,7 +81,7 @@ Eigen::ArrayXd Standard_model_physical::get() const
 {
    Eigen::ArrayXd pars(get_masses());
 
-   pars.conservativeResize(127);
+   pars.conservativeResize(131);
 
    pars(19) = Re(Vd(0,0));
    pars(20) = Im(Vd(0,0));
@@ -201,7 +191,10 @@ Eigen::ArrayXd Standard_model_physical::get() const
    pars(124) = Im(Ue(2,1));
    pars(125) = Re(Ue(2,2));
    pars(126) = Im(Ue(2,2));
-
+   pars(127) = ZZ(0,0);
+   pars(128) = ZZ(0,1);
+   pars(129) = ZZ(1,0);
+   pars(130) = ZZ(1,1);
 
    return pars;
 }
@@ -264,6 +257,10 @@ void Standard_model_physical::set(const Eigen::ArrayXd& pars)
    Ue(2,0) = std::complex<double>(pars(121), pars(122));
    Ue(2,1) = std::complex<double>(pars(123), pars(124));
    Ue(2,2) = std::complex<double>(pars(125), pars(126));
+   ZZ(0,0) = pars(127);
+   ZZ(0,1) = pars(128);
+   ZZ(1,0) = pars(129);
+   ZZ(1,1) = pars(130);
 
 }
 
@@ -271,50 +268,50 @@ Eigen::ArrayXd Standard_model_physical::get_masses() const
 {
    Eigen::ArrayXd pars(19);
 
-   pars(0) = MVG;
-   pars(1) = MHp;
+   pars(0) = M2VG;
+   pars(1) = M2Hp;
    pars(2) = MFv(0);
    pars(3) = MFv(1);
    pars(4) = MFv(2);
-   pars(5) = MAh;
-   pars(6) = Mhh;
-   pars(7) = MVP;
-   pars(8) = MVZ;
-   pars(9) = MFd(0);
-   pars(10) = MFd(1);
-   pars(11) = MFd(2);
-   pars(12) = MFu(0);
-   pars(13) = MFu(1);
-   pars(14) = MFu(2);
-   pars(15) = MFe(0);
-   pars(16) = MFe(1);
-   pars(17) = MFe(2);
-   pars(18) = MVWp;
+   pars(5) = M2Ah;
+   pars(6) = M2hh;
+   pars(7) = MFd(0);
+   pars(8) = MFd(1);
+   pars(9) = MFd(2);
+   pars(10) = MFu(0);
+   pars(11) = MFu(1);
+   pars(12) = MFu(2);
+   pars(13) = MFe(0);
+   pars(14) = MFe(1);
+   pars(15) = MFe(2);
+   pars(16) = M2VWp;
+   pars(17) = M2VP;
+   pars(18) = M2VZ;
 
    return pars;
 }
 
 void Standard_model_physical::set_masses(const Eigen::ArrayXd& pars)
 {
-   MVG = pars(0);
-   MHp = pars(1);
+   M2VG = pars(0);
+   M2Hp = pars(1);
    MFv(0) = pars(2);
    MFv(1) = pars(3);
    MFv(2) = pars(4);
-   MAh = pars(5);
-   Mhh = pars(6);
-   MVP = pars(7);
-   MVZ = pars(8);
-   MFd(0) = pars(9);
-   MFd(1) = pars(10);
-   MFd(2) = pars(11);
-   MFu(0) = pars(12);
-   MFu(1) = pars(13);
-   MFu(2) = pars(14);
-   MFe(0) = pars(15);
-   MFe(1) = pars(16);
-   MFe(2) = pars(17);
-   MVWp = pars(18);
+   M2Ah = pars(5);
+   M2hh = pars(6);
+   MFd(0) = pars(7);
+   MFd(1) = pars(8);
+   MFd(2) = pars(9);
+   MFu(0) = pars(10);
+   MFu(1) = pars(11);
+   MFu(2) = pars(12);
+   MFe(0) = pars(13);
+   MFe(1) = pars(14);
+   MFe(2) = pars(15);
+   M2VWp = pars(16);
+   M2VP = pars(17);
+   M2VZ = pars(18);
 
 }
 
@@ -323,17 +320,17 @@ void Standard_model_physical::print(std::ostream& ostr) const
    ostr << "----------------------------------------\n"
            "pole masses:\n"
            "----------------------------------------\n";
-   ostr << "MVG = " << MVG << '\n';
-   ostr << "MHp = " << MHp << '\n';
+   ostr << "M2VG = " << M2VG << '\n';
+   ostr << "M2Hp = " << M2Hp << '\n';
    ostr << "MFv = " << MFv.transpose() << '\n';
-   ostr << "MAh = " << MAh << '\n';
-   ostr << "Mhh = " << Mhh << '\n';
-   ostr << "MVP = " << MVP << '\n';
-   ostr << "MVZ = " << MVZ << '\n';
+   ostr << "M2Ah = " << M2Ah << '\n';
+   ostr << "M2hh = " << M2hh << '\n';
    ostr << "MFd = " << MFd.transpose() << '\n';
    ostr << "MFu = " << MFu.transpose() << '\n';
    ostr << "MFe = " << MFe.transpose() << '\n';
-   ostr << "MVWp = " << MVWp << '\n';
+   ostr << "M2VWp = " << M2VWp << '\n';
+   ostr << "M2VP = " << M2VP << '\n';
+   ostr << "M2VZ = " << M2VZ << '\n';
 
    ostr << "----------------------------------------\n"
            "pole mass mixing matrices:\n"

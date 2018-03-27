@@ -94,13 +94,13 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_self_energy_neutral_higgs )
    s.setPhys(physical); // now modified
 
    m.set_precision(std::pow(10,-0.1)); // performs 1 iteration
-   m.calculate_Mhh_pole();
-   m.calculate_MAh_pole();
+   m.calculate_M2hh_pole();
+   m.calculate_M2Ah_pole();
 
    hh_ss = s.displayPhys().mh0;
-   hh_fs = m.get_physical().Mhh;
+   hh_fs = m.get_physical().get_Mhh();
    Ah_ss = s.displayPhys().mA0;
-   Ah_fs = m.get_physical().MAh;
+   Ah_fs = m.get_physical().get_MAh();
 
    BOOST_CHECK_CLOSE_FRACTION(hh_ss(1), hh_fs(0), 2.0e-04);
    BOOST_CHECK_CLOSE_FRACTION(hh_ss(2), hh_fs(1), 4.0e-04);

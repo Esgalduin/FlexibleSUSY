@@ -67,21 +67,30 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_ewsb_tree_level_via_soft_higgs_masses )
    BOOST_CHECK_SMALL(m.get_ewsb_eq_hh_3(), 1.0e-09);
 }
 
-BOOST_AUTO_TEST_CASE( test_NMSSM_one_loop_tadpoles )
+NMSSM_input_parameters make_input()
 {
    NMSSM_input_parameters input;
-   input.m0 = 250.; // avoids tree-level tachyons
+   input.m0 = 200.;
    input.m12 = 200.;
-   input.TanBeta = 10.;
-   input.Azero = -500.;
+   input.TanBeta = 2.;
+   input.Azero = 10.;
    input.LambdaInput = 0.1;
    input.SignvS = 1;
+
+   return input;
+}
+
+BOOST_AUTO_TEST_CASE( test_NMSSM_one_loop_tadpoles )
+{
+   const NMSSM_input_parameters input = make_input();
    NMSSM<Two_scale> m(input);
    NmssmSoftsusy s;
    setup_NMSSM_const(m, s, input);
 
    s.calcDrBarPars();
    m.calculate_DRbar_masses();
+
+   BOOST_REQUIRE(!m.get_problems().have_running_tachyon());
 
    const double mt = s.displayDrBarPars().mt;
    const double sinthDRbar = s.calcSinthdrbar();
@@ -97,6 +106,18 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_one_loop_tadpoles )
    const double tadpole_ss_2 = s.doCalcTadpole2oneLoop(mt, sinthDRbar);
    const double tadpole_ss_3 = s.doCalcTadpoleSoneLoop(mt, sinthDRbar);
 
+   BOOST_CHECK_CLOSE(vd, s.displayHvev()*Cos(ArcTan(s.displayTanb())), 1.0e-11);
+   BOOST_CHECK_CLOSE(vu, s.displayHvev()*Sin(ArcTan(s.displayTanb())), 1.0e-11);
+   BOOST_CHECK_CLOSE(vS, s.displaySvev(), 1.0e-11);
+
+   BOOST_CHECK_CLOSE(m.get_Lambdax(), s.displayLambda(), 1.0e-11);
+   BOOST_CHECK_CLOSE(m.get_Kappa()  , s.displayKappa() , 1.0e-11);
+   BOOST_CHECK_CLOSE(m.get_g1()     , s.displayGaugeCoupling(1), 1.0e-11);
+   BOOST_CHECK_CLOSE(m.get_g2()     , s.displayGaugeCoupling(2), 1.0e-11);
+   BOOST_CHECK_CLOSE(m.get_TLambdax() , s.displayTrialambda()  , 1.0e-11);
+   BOOST_CHECK_SMALL(s.displaySusyMu(), 1.0e-15);
+   BOOST_CHECK_SMALL(s.displayMupr()  , 1.0e-15);
+
    BOOST_CHECK_SMALL(Im(tadpole_hh_1), 1.0e-12);
    BOOST_CHECK_SMALL(Im(tadpole_hh_2), 1.0e-12);
    BOOST_CHECK_SMALL(Im(tadpole_hh_3), 1.0e-12);
@@ -109,7 +130,7 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_one_loop_tadpoles )
 BOOST_AUTO_TEST_CASE( test_NMSSM_one_loop_ewsb )
 {
    NMSSM_input_parameters input;
-   input.m0 = 250.; // avoids tree-level tachyons
+   input.m0 = 250.;
    input.m12 = 200.;
    input.TanBeta = 10.;
    input.Azero = -500.;
@@ -172,13 +193,7 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_one_loop_ewsb )
 
 BOOST_AUTO_TEST_CASE( test_NMSSM_two_loop_tadpoles )
 {
-   NMSSM_input_parameters input;
-   input.m0 = 250.; // avoids tree-level tachyons
-   input.m12 = 200.;
-   input.TanBeta = 10.;
-   input.Azero = -500.;
-   input.LambdaInput = 0.1;
-   input.SignvS = 1;
+   const NMSSM_input_parameters input = make_input();
    NMSSM<Two_scale> m(input);
    NmssmSoftsusy s;
    setup_NMSSM_const(m, s, input);
@@ -228,7 +243,7 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_two_loop_tadpoles )
 BOOST_AUTO_TEST_CASE( test_NMSSM_two_loop_ewsb )
 {
    NMSSM_input_parameters input;
-   input.m0 = 300.; // avoids tree-level tachyons
+   input.m0 = 300.;
    input.m12 = 200.;
    input.TanBeta = 10.;
    input.Azero = -500.;

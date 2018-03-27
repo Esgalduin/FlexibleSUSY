@@ -19,12 +19,14 @@ BOOST_AUTO_TEST_CASE( test_NMSSM_tree_level_masses )
    input.m0 = 250.;
    input.m12 = 200.;
    input.TanBeta = 10.;
-   input.Azero = -500.;
+   input.Azero = -400.;
    input.LambdaInput = 0.1;
    input.SignvS = 1;
    NMSSM<Two_scale> m;
    NmssmSoftsusy s;
    setup_NMSSM_const(m, s, input);
+   m.set_vS(1000.);
+   s.setSvev(1000.);
 
    m.calculate_DRbar_masses();
    s.calcDrBarPars();

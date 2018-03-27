@@ -246,8 +246,8 @@ void CMSSMMassWInput_weinberg_angle_low_scale_constraint::calculate_DRbar_gauge_
    mW_run = qedqcd.displayPoleMW();
 
    if (model->get_thresholds()) {
-      mZ_run = model->calculate_MVZ_DRbar(qedqcd.displayPoleMZ());
-      mW_run = model->calculate_MVWm_DRbar(qedqcd.displayPoleMW());
+      mZ_run = AbsSqrt(model->calculate_M2VZ_DRbar(Sqr(qedqcd.displayPoleMZ())));
+      mW_run = AbsSqrt(model->calculate_M2VWm_DRbar(Sqr(qedqcd.displayPoleMW())));
    }
 
    const double AlphaS = alpha_s_drbar;
@@ -324,9 +324,9 @@ void CMSSMMassWInput_weinberg_angle_low_scale_constraint::fill_data(
    BOOST_REQUIRE(mz_pole > 0.);
    BOOST_CHECK_EQUAL(scale, mz_pole);
 
-   const double pizztMZ = Re(model->self_energy_VZ_1loop(mz_pole));
+   const double pizztMZ = Re(model->self_energy_VZ_1loop(Sqr(mz_pole)));
    const double piwwt0  = Re(model->self_energy_VWm_1loop(0));
-   const double piwwtMW = Re(model->self_energy_VWm_1loop(mw_pole));
+   const double piwwtMW = Re(model->self_energy_VWm_1loop(Sqr(mw_pole)));
 
    Weinberg_angle::Self_energy_data se_data;
    se_data.scale = scale;
@@ -348,9 +348,9 @@ void CMSSMMassWInput_weinberg_angle_low_scale_constraint::fill_data(
    // check corrected self-energies
    {
       model->MFu(2) = mt_pole;
-      const double pizztMZ_check = Re(model->self_energy_VZ_1loop(mz_pole));
+      const double pizztMZ_check = Re(model->self_energy_VZ_1loop(Sqr(mz_pole)));
       const double piwwt0_check  = Re(model->self_energy_VWm_1loop(0));
-      const double piwwtMW_check = Re(model->self_energy_VWm_1loop(mw_pole));
+      const double piwwtMW_check = Re(model->self_energy_VWm_1loop(Sqr(mw_pole)));
       model->MFu(2) = mt_drbar;
 
       BOOST_CHECK_CLOSE_FRACTION(pizztMZ_check, pizztMZ_corrected, 1.0e-10);
@@ -790,9 +790,9 @@ BOOST_AUTO_TEST_CASE( test_CMSSMMassWInput_spectrum )
    const DoubleVector
       MCha_1l(ToDoubleVector(fs.get_physical().MCha)),
       MChi_1l(ToDoubleVector(fs.get_physical().MChi)),
-      MHpm_1l(ToDoubleVector(fs.get_physical().MHpm)),
-      MAh_1l(ToDoubleVector(fs.get_physical().MAh)),
-      Mhh_1l(ToDoubleVector(fs.get_physical().Mhh));
+      MHpm_1l(ToDoubleVector(fs.get_physical().get_MHpm())),
+      MAh_1l(ToDoubleVector(fs.get_physical().get_MAh())),
+      Mhh_1l(ToDoubleVector(fs.get_physical().get_Mhh()));
    const DoubleVector mch_1l(ss.displayPhys().mch),
       mn_1l(ss.displayPhys().mneut.apply(fabs));
    const double mHpm_1l = ss.displayPhys().mHpm;
@@ -816,7 +816,7 @@ BOOST_AUTO_TEST_CASE( test_CMSSMMassWInput_spectrum )
    BOOST_CHECK_CLOSE_FRACTION(Mhh_1l(2), mH0_1l, 0.004);
 
    // down-type squarks
-   const DoubleVector Sd_1l(ToDoubleVector(fs.get_physical().MSd));
+   const DoubleVector Sd_1l(ToDoubleVector(fs.get_physical().get_MSd()));
    const DoubleVector md_1l(ss.displayPhys().md.flatten().sort());
    BOOST_CHECK_CLOSE_FRACTION(Sd_1l(1), md_1l(1), 0.006);
    BOOST_CHECK_CLOSE_FRACTION(Sd_1l(2), md_1l(2), 0.006);
@@ -826,7 +826,7 @@ BOOST_AUTO_TEST_CASE( test_CMSSMMassWInput_spectrum )
    BOOST_CHECK_CLOSE_FRACTION(Sd_1l(6), md_1l(6), 0.006);
 
    // up-type squarks
-   const DoubleVector Su_1l(ToDoubleVector(fs.get_physical().MSu));
+   const DoubleVector Su_1l(ToDoubleVector(fs.get_physical().get_MSu()));
    const DoubleVector mu_1l(ss.displayPhys().mu.flatten().sort());
    BOOST_CHECK_CLOSE_FRACTION(Su_1l(1), mu_1l(1), 0.006);
    BOOST_CHECK_CLOSE_FRACTION(Su_1l(2), mu_1l(2), 0.006);
@@ -836,7 +836,7 @@ BOOST_AUTO_TEST_CASE( test_CMSSMMassWInput_spectrum )
    BOOST_CHECK_CLOSE_FRACTION(Su_1l(6), mu_1l(6), 0.006);
 
    // sleptons
-   const DoubleVector Se_1l(ToDoubleVector(fs.get_physical().MSe));
+   const DoubleVector Se_1l(ToDoubleVector(fs.get_physical().get_MSe()));
    const DoubleVector me_1l(ss.displayPhys().me.flatten().sort());
    BOOST_CHECK_CLOSE_FRACTION(Se_1l(1), me_1l(1), 0.0005);
    BOOST_CHECK_CLOSE_FRACTION(Se_1l(2), me_1l(2), 0.0008);
@@ -847,7 +847,7 @@ BOOST_AUTO_TEST_CASE( test_CMSSMMassWInput_spectrum )
 
    // sneutrinos
    const DoubleVector msnu_1l(ss.displayPhys().msnu);
-   const DoubleVector Snu_1l(ToDoubleVector(fs.get_physical().MSv));
+   const DoubleVector Snu_1l(ToDoubleVector(fs.get_physical().get_MSv()));
    BOOST_CHECK_CLOSE_FRACTION(Snu_1l(1), msnu_1l(1), 0.0056);
    BOOST_CHECK_CLOSE_FRACTION(Snu_1l(2), msnu_1l(2), 0.0056);
    BOOST_CHECK_CLOSE_FRACTION(Snu_1l(3), msnu_1l(3), 0.0090);
@@ -1035,11 +1035,11 @@ void CMSSMMassWInput_iterative_low_scale_constraint::apply()
       model->set_vu(vu);
 
       model->calculate_DRbar_masses();
-      model->calculate_Mhh_pole();
-      model->calculate_MVZ_pole();
+      model->calculate_M2hh_pole();
+      model->calculate_M2VZ_pole();
 
-      const double mH = model->get_physical().Mhh(0);
-      const double mZ = model->get_physical().MVZ;
+      const double mH = AbsSqrt(model->get_physical().M2hh(0));
+      const double mZ = AbsSqrt(model->get_physical().M2VZ);
 
       #define LowEnergyConstant(p) Electroweak_constants::p
       #define STANDARD_DEVIATION(p) Electroweak_constants::Error_##p

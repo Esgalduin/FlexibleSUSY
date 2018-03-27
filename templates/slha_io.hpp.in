@@ -43,9 +43,9 @@
 #include <boost/fusion/adapted/std_tuple.hpp>
 
 #define Pole(p) physical.p
-#define PHYSICAL(p) model.get_physical().p
-#define PHYSICAL_SLHA(p) model.get_physical_slha().p
-#define LOCALPHYSICAL(p) physical.p
+#define PHYSICAL(p) model.get_physical().get_##p
+#define PHYSICAL_SLHA(p) model.get_physical_slha().get_##p
+#define LOCALPHYSICAL(p) physical.get_##p
 #define MODEL model
 #define MODELPARAMETER(p) model.get_##p()
 #define EXTRAPARAMETER(p) model.get_##p()

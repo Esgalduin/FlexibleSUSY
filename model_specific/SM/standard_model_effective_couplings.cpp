@@ -20,6 +20,7 @@
 
 #include "effective_couplings.hpp"
 #include "standard_model.hpp"
+#include "raii.hpp"
 #include "wrappers.hpp"
 
 namespace flexiblesusy {
@@ -31,7 +32,8 @@ using namespace effective_couplings;
 #define MODELPARAMETER(parameter) model.get_##parameter()
 #define DERIVEDPARAMETER(parameter) model.##parameter()
 #define PHASE(parameter) model.get_##parameter()
-#define PHYSICAL(parameter) model.get_physical().parameter
+#define PHYSICAL(parameter) model.get_physical().get_##parameter()
+#define PHYSICALSTRUCT model.get_physical()
 
 Standard_model_effective_couplings::Standard_model_effective_couplings(
    const Standard_model& model_,
@@ -53,16 +55,17 @@ void Standard_model_effective_couplings::calculate_effective_couplings()
    const double scale = model.get_scale();
    const Eigen::ArrayXd saved_parameters(model.get());
 
-   const double saved_mt = PHYSICAL(MFu(2));
-   PHYSICAL(MFu(2)) = qedqcd.displayPoleMt();
+   {
+      const auto saved_mt = make_raii_save(PHYSICALSTRUCT.MFu(2));
+      PHYSICALSTRUCT.MFu(2) = qedqcd.displayPoleMt();
 
-   const auto Mhh = PHYSICAL(Mhh);
-   run_SM_strong_coupling_to(sm, 0.5 * Mhh);
-   calculate_eff_CphhVPVP();
-   run_SM_strong_coupling_to(sm, Mhh);
-   calculate_eff_CphhVGVG();
+      const auto Mhh = PHYSICAL(Mhh);
+      run_SM_strong_coupling_to(sm, 0.5 * Mhh);
+      calculate_eff_CphhVPVP();
+      run_SM_strong_coupling_to(sm, Mhh);
+      calculate_eff_CphhVGVG();
+   }
 
-   PHYSICAL(MFu(2)) = saved_mt;
    model.set_scale(scale);
    model.set(saved_parameters);
 

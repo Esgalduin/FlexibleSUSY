@@ -25,9 +25,9 @@
 #include "logger.hpp"
 #include "numerics2.hpp"
 #include "config.h"
-#include "numerics.h"
 #include "error.hpp"
 #include "pv.hpp"
+#include "pv2.hpp"
 
 #include <limits>
 #include <cmath>
@@ -131,8 +131,8 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
    const double mz         = sm_parameters.mz_pole;
    const double gfermi     = sm_parameters.fermi_constant;
 
-   pizzt_MZ = calculate_self_energy_@VectorZ@(mz);
-   piwwt_MW = calculate_self_energy_@VectorW@(mw);
+   pizzt_MZ = calculate_self_energy_@VectorZ@(Sqr(mz));
+   piwwt_MW = calculate_self_energy_@VectorW@(Sqr(mw));
    piwwt_0  = calculate_self_energy_@VectorW@(0.);
 
    double rhohat_tree = calculate_rho_hat_tree();
@@ -420,17 +420,17 @@ double CLASSNAME::B1(double p2, double m12, double m22) const noexcept
 
 double CLASSNAME::C0(double m12, double m22, double m32) const noexcept
 {
-   return softsusy::c0(std::sqrt(m12), std::sqrt(m22), std::sqrt(m32));
+   return c0(m12, m22, m32);
 }
 
 double CLASSNAME::D0(double m12, double m22, double m32, double m42) const noexcept
 {
-   return softsusy::d0(std::sqrt(m12), std::sqrt(m22), std::sqrt(m32), std::sqrt(m42));
+   return d0(m12, m22, m32, m42);
 }
 
 double CLASSNAME::D27(double m12, double m22, double m32, double m42) const noexcept
 {
-   return softsusy::d27(std::sqrt(m12), std::sqrt(m22), std::sqrt(m32), std::sqrt(m42));
+   return d27(m12, m22, m32, m42);
 }
 
 /**
@@ -477,11 +477,11 @@ double CLASSNAME::rho_2(double r)
  * Calculates 1-loop transverse Z boson self-energy
  * including the correction from usage of pole instead of DRbar top-quark mass.
  *
- * @param p momentum
+ * @param p2 squared momentum
  *
  * @return 1-loop transverse Z boson self-energy
  */
-double CLASSNAME::calculate_self_energy_@VectorZ@(double p) const
+double CLASSNAME::calculate_self_energy_@VectorZ@(double p2) const
 {
    const double mt      = sm_parameters.mt_pole;
    const double mtDRbar = @GetTopMass@;
@@ -491,8 +491,8 @@ double CLASSNAME::calculate_self_energy_@VectorZ@(double p) const
 
    if (model->get_thresholds() > 1) {
       pizzt_corrected =
-         pizzt - calculate_self_energy_@VectorZ@_top(p, mtDRbar)
-               + calculate_self_energy_@VectorZ@_top(p, mt);
+         pizzt - calculate_self_energy_@VectorZ@_top(p2, mtDRbar)
+               + calculate_self_energy_@VectorZ@_top(p2, mt);
    }
 
    return pizzt_corrected;
@@ -502,11 +502,11 @@ double CLASSNAME::calculate_self_energy_@VectorZ@(double p) const
  * Calculates 1-loop transverse W boson self-energy
  * including the correction from usage of pole instead of DRbar top-quark mass.
  *
- * @param p momentum
+ * @param p2 squared momentum
  *
  * @return 1-loop transverse W boson self-energy
  */
-double CLASSNAME::calculate_self_energy_@VectorW@(double p) const
+double CLASSNAME::calculate_self_energy_@VectorW@(double p2) const
 {
    const double mt      = sm_parameters.mt_pole;
    const double mtDRbar = @GetTopMass@;
@@ -516,8 +516,8 @@ double CLASSNAME::calculate_self_energy_@VectorW@(double p) const
 
    if (model->get_thresholds() > 1) {
       piwwt_corrected =
-         piwwt - calculate_self_energy_@VectorW@_top(p, mtDRbar)
-               + calculate_self_energy_@VectorW@_top(p, mt);
+         piwwt - calculate_self_energy_@VectorW@_top(p2, mtDRbar)
+               + calculate_self_energy_@VectorW@_top(p2, mt);
    }
 
    return piwwt_corrected;
@@ -526,12 +526,12 @@ double CLASSNAME::calculate_self_energy_@VectorW@(double p) const
 /**
  * Calculates 1-loop top-quark contribution to Z boson self-energy.
  *
- * @param p momentum
+ * @param p2 squared momentum
  * @param mt top-quark mass
  *
  * @return 1-loop top-quark contribution to Z boson self-energy
  */
-double CLASSNAME::calculate_self_energy_@VectorZ@_top(double p, double mt) const
+double CLASSNAME::calculate_self_energy_@VectorZ@_top(double p2, double mt) const
 {
    const double q  = model->get_scale();
    const double Nc = 3.0;
@@ -546,8 +546,8 @@ double CLASSNAME::calculate_self_energy_@VectorZ@_top(double p, double mt) const
 
    const double self_energy_z_top =
       Nc * Sqr(g2) / cw2 * oneOver16PiSqr *
-      (softsusy::hfn(p, mt, mt, q) * (Sqr(guL) + Sqr(guR)) -
-       4.0 * guL * guR * Sqr(mt) * softsusy::b0(p, mt, mt, q));
+      (h0(p2, mt*mt, mt*mt, q*q) * (Sqr(guL) + Sqr(guR)) -
+       4.0 * guL * guR * Sqr(mt) * b0(p2, mt*mt, mt*mt, q*q));
 
    return self_energy_z_top;
 }
@@ -555,12 +555,12 @@ double CLASSNAME::calculate_self_energy_@VectorZ@_top(double p, double mt) const
 /**
  * Calculates 1-loop top-quark contribution to W boson self-energy.
  *
- * @param p momentum
+ * @param p2 squared momentum
  * @param mt top-quark mass
  *
  * @return 1-loop top-quark contribution to W boson self-energy
  */
-double CLASSNAME::calculate_self_energy_@VectorW@_top(double p, double mt) const
+double CLASSNAME::calculate_self_energy_@VectorW@_top(double p2, double mt) const
 {
    const double q  = model->get_scale();
    const double mb = @GetBottomMass@;
@@ -568,7 +568,7 @@ double CLASSNAME::calculate_self_energy_@VectorW@_top(double p, double mt) const
    @DefSMleftCoupling@
 
    const double self_energy_w_top =
-      0.5 * Nc * softsusy::hfn(p, mt, mb, q) * Sqr(g2) * oneOver16PiSqr;
+      0.5 * Nc * h0(p2, mt*mt, mb*mb, q*q) * Sqr(g2) * oneOver16PiSqr;
 
    return self_energy_w_top;
 }

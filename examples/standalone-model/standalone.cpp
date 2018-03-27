@@ -129,8 +129,8 @@ void self_energy_example()
    mssm.calculate_DRbar_masses();
    // INFO(mssm);
 
-   double p = Electroweak_constants::MZ;
-   double self_energy_VZ = Re(mssm.self_energy_VZ_1loop(p));
+   double p = Electroweak_constants::MZ, p2 = p*p;
+   double self_energy_VZ = Re(mssm.self_energy_VZ_1loop(p2));
 
    double vertex_barFe_Fe_VZ_PR = mssm.CpbarFeFeVZPR(0, 0);
    double vertex_barFe_Fe_VZ_PL = mssm.CpbarFeFeVZPL(0, 0);

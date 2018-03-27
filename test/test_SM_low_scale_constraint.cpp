@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_low_scale_constraint )
 
    for (int i = 0; i < 3; i++) {
       for (int k = 0; k < 3; k++) {
-         BOOST_CHECK_CLOSE_FRACTION(m.get_Yu(i,k), -sm.get_Yu(i,k), eps);
+         BOOST_CHECK_CLOSE_FRACTION(m.get_Yu(i,k), sm.get_Yu(i,k), eps);
          BOOST_CHECK_CLOSE_FRACTION(m.get_Yd(i,k), sm.get_Yd(i,k), eps);
          BOOST_CHECK_CLOSE_FRACTION(m.get_Ye(i,k), sm.get_Ye(i,k), eps);
       }

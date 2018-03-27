@@ -32,7 +32,7 @@ double delta_mh_3loop_at_at_as_sm(
 
 /// SM Higgs self-energy 3-loop, only O(alpha_t^3)
 double delta_mh_3loop_at_at_at_sm(
-   double scale, double mt, double yt, double mh);
+   double scale, double mt, double yt, double mh2);
 
 } // namespace sm_threeloophiggs
 } // namespace flexiblesusy

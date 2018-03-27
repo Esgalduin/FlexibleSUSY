@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( test_low_energy_constraint )
    const double fs_mt = m.calculate_MFu_DRbar(qedqcd.displayPoleMt(), 2);
    const double fs_mb = m.calculate_MFd_DRbar(qedqcd.displayMass(mBottom), 2);
    const double fs_me = m.calculate_MFe_DRbar(qedqcd.displayMass(mTau), 2);
-   const double fs_MZ = m.calculate_MVZ_DRbar(Electroweak_constants::MZ);
+   const double fs_MZ = AbsSqrt(m.calculate_M2VZ_DRbar(Sqr(Electroweak_constants::MZ)));
    const double fs_old_vd = m.get_vd();
    const double fs_old_vu = m.get_vu();
    // const double fs_old_vev = Sqrt(Sqr(fs_old_vu) + Sqr(fs_old_vd));
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( test_low_energy_constraint )
    const double fs_new_vev = Sqrt(Sqr(fs_new_vu) + Sqr(fs_new_vd));
 
    BOOST_CHECK_CLOSE_FRACTION(fs_mt, ss_mt, 9.5e-5);
-   BOOST_CHECK_CLOSE_FRACTION(fs_mb, ss_mb, 3.0e-15);
+   BOOST_CHECK_CLOSE_FRACTION(fs_mb, ss_mb, 2.0e-12);
    BOOST_CHECK_CLOSE_FRACTION(fs_me, ss_me, 9.0e-4); // no tan(beta) resummation in SOFTSUSY
    BOOST_CHECK_CLOSE_FRACTION(fs_MZ, ss_MZ, 4.5e-10);
    BOOST_CHECK_CLOSE_FRACTION(fs_new_vev, ss_new_vev, 4.5e-10);

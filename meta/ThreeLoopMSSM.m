@@ -74,7 +74,7 @@ ToSARAHNamingConvention[] := {
     Global`Yb -> SARAH`DownYukawa,
     Ye -> SARAH`ElectronYukawa,
     M1 -> Parameters`GetParameterFromDescription["Bino Mass parameter"],
-    M2 -> Parameters`GetParameterFromDescription["Wino Mass parameter"],
+    FlexibleSUSY`M2 -> Parameters`GetParameterFromDescription["Wino Mass parameter"],
     M3 -> Parameters`GetParameterFromDescription["Gluino Mass parameter"],
     Global`Mu -> Parameters`GetParameterFromDescription["Mu-parameter"],
     Global`BMu-> Parameters`GetParameterFromDescription["Bmu-parameter"],

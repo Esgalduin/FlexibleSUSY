@@ -22,12 +22,12 @@ LIBFLEXI_SRC := \
 		$(DIR)/gsl_vector.cpp \
 		$(DIR)/lowe.cpp \
 		$(DIR)/sfermions.cpp \
-		$(DIR)/numerics.cpp \
 		$(DIR)/numerics2.cpp \
 		$(DIR)/physical_input.cpp \
 		$(DIR)/pmns.cpp \
 		$(DIR)/problems.cpp \
 		$(DIR)/pv.cpp \
+		$(DIR)/pv2.cpp \
 		$(DIR)/rkf_integrator.cpp \
 		$(DIR)/scan.cpp \
 		$(DIR)/slha_io.cpp \
@@ -79,13 +79,13 @@ LIBFLEXI_HDR := \
 		$(DIR)/mathlink_utils.hpp \
 		$(DIR)/minimizer.hpp \
 		$(DIR)/model.hpp \
-		$(DIR)/numerics.h \
 		$(DIR)/numerics2.hpp \
 		$(DIR)/physical_input.hpp \
 		$(DIR)/pmns.hpp \
 		$(DIR)/pp_map.hpp \
 		$(DIR)/problems.hpp \
 		$(DIR)/pv.hpp \
+		$(DIR)/pv2.hpp \
 		$(DIR)/raii.hpp \
 		$(DIR)/rg_flow.hpp \
 		$(DIR)/rk.hpp \

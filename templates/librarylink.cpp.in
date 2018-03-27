@@ -55,7 +55,7 @@
 
 #define INPUTPARAMETER(p) input.p
 #define MODELPARAMETER(p) model.get_##p()
-#define PHYSICALPARAMETER(p) model.get_physical().p
+#define PHYSICALPARAMETER(p) model.get_physical().get_##p()
 #define OBSERVABLE(o) observables.o
 
 namespace flexiblesusy {

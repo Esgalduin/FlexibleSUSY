@@ -85,8 +85,8 @@ void setup_data(const CMSSM_mass_eigenstates& model,
    data.msve_drbar  = msve;
    data.msvm_drbar  = msvm;
 
-   const double pizztMZ = Re(model.self_energy_VZ_1loop(mz_pole));
-   const double piwwtMW = Re(model.self_energy_VWm_1loop(mw_pole));
+   const double pizztMZ = Re(model.self_energy_VZ_1loop(Sqr(mz_pole)));
+   const double piwwtMW = Re(model.self_energy_VWm_1loop(Sqr(mw_pole)));
    const double piwwt0  = Re(model.self_energy_VWm_1loop(0.));
 
    Weinberg_angle::Self_energy_data se_data;
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( test_delta_vb )
    CMSSM_weinberg_angle wein(&model, sm_parameters);
    const double delta_vb_2 = wein.calculate_delta_vb(outrho, outsin);
 
-   BOOST_CHECK_CLOSE_FRACTION(delta_vb_1, delta_vb_2, 6.0e-9);
+   BOOST_CHECK_CLOSE_FRACTION(delta_vb_1, delta_vb_2, 1.0e-7);
 }
 
 BOOST_AUTO_TEST_CASE( test_delta_r )
@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_CASE( test_delta_r )
    sm_parameters.alpha_s = 0.1176;
    CMSSM_weinberg_angle wein(&model, sm_parameters);
    // initialize self-energies
-   wein.pizzt_MZ = wein.calculate_self_energy_VZ(Electroweak_constants::MZ);
-   wein.piwwt_MW = wein.calculate_self_energy_VWm(Electroweak_constants::MW);
+   wein.pizzt_MZ = wein.calculate_self_energy_VZ(Sqr(Electroweak_constants::MZ));
+   wein.piwwt_MW = wein.calculate_self_energy_VWm(Sqr(Electroweak_constants::MW));
    wein.piwwt_0  = wein.calculate_self_energy_VWm(0.);
    const double delta_r_2 = wein.calculate_delta_r_hat(outrho, outsin);
 

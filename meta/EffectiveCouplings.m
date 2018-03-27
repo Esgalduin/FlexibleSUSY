@@ -456,7 +456,7 @@ CreateEffectiveCouplingsCalculation[couplings_List] :=
                      body = body <> "model.calculate_DRbar_masses();\n"
                                  <> "copy_mixing_matrices_from_model();\n";
                     ];
-                  result = result <> savedMass <> body <> Utils`StringJoinWithSeparator[CallEffectiveCouplingCalculation[#]& /@ couplingsForParticles[[i,2]], "\n"] <> "\n\n";
+                  result = result <> savedMass <> body <> Utils`StringJoinWithSeparator[CallEffectiveCouplingCalculation[#]& /@ couplingsForParticles[[i,2]], "\n"] <> "\n";
                   ,
                   If[start <= dim,
                      body = RunToDecayingParticleScale[mass <> "(gO1)"];
@@ -467,22 +467,23 @@ CreateEffectiveCouplingsCalculation[couplings_List] :=
                      result = result <> savedMass
                                      <> "for (int gO1 = " <> ToString[start-1] <> "; gO1 < " <> ToString[dim] <> "; ++gO1) {\n";
                      body = body <> Utils`StringJoinWithSeparator[CallEffectiveCouplingCalculation[#]& /@ couplingsForParticles[[i,2]], "\n"] <> "\n";
-                     result = result <> TextFormatting`IndentText[body] <> "}\n\n";
+                     result = result <> TextFormatting`IndentText[body] <> "}\n";
                     ];
                  ];
               ];
 
            result = "const double scale = model.get_scale();\nconst Eigen::ArrayXd saved_parameters(model.get());\n\n"
-                    <> "const double saved_mt = PHYSICAL("
-                    <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]]
-                    <> ");\nPHYSICAL("
-                    <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]]
-                    <> ") = qedqcd.displayPoleMt();\n\n"
-                    <> result;
-           result = result <> "PHYSICAL("
-                           <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]]
-                           <> ") = saved_mt;\n";
-           result = result <> "model.set_scale(scale);\nmodel.set(saved_parameters);\n";
+                    <> "{\n"
+                    <> IndentText[
+                       "const auto saved_mt = make_raii_save(PHYSICALSTRUCT."
+                       <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]]
+                       <> ");\nPHYSICALSTRUCT."
+                       <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[]]]
+                       <> " = qedqcd.displayPoleMt();\n\n"
+                       <> result
+                    ]
+                    <> "\n}\n\n"
+                    <> "model.set_scale(scale);\nmodel.set(saved_parameters);\n";
 
            result
           ];
@@ -545,8 +546,10 @@ CreateLocalConstRefsIgnoringMixings[expr_, mixings_List] :=
     Module[{symbols, poleMasses},
            symbols = Parameters`FindAllParameters[expr];
            poleMasses = {
-               Cases[expr, FlexibleSUSY`Pole[FlexibleSUSY`M[a_]]     /; MemberQ[Parameters`GetOutputParameters[],FlexibleSUSY`M[a]] :> FlexibleSUSY`M[a], {0,Infinity}],
-               Cases[expr, FlexibleSUSY`Pole[FlexibleSUSY`M[a_[__]]] /; MemberQ[Parameters`GetOutputParameters[],FlexibleSUSY`M[a]] :> FlexibleSUSY`M[a], {0,Infinity}]
+               Cases[expr, FlexibleSUSY`Pole[FlexibleSUSY`M[a_]]      /; MemberQ[Parameters`GetAllMassOutputParameters[],FlexibleSUSY`M[a]] :> FlexibleSUSY`M[a], {0,Infinity}],
+               Cases[expr, FlexibleSUSY`Pole[FlexibleSUSY`M[a_[__]]]  /; MemberQ[Parameters`GetAllMassOutputParameters[],FlexibleSUSY`M[a]] :> FlexibleSUSY`M[a], {0,Infinity}],
+               Cases[expr, FlexibleSUSY`Pole[FlexibleSUSY`M2[a_]]     /; MemberQ[Parameters`GetAllMassOutputParameters[],FlexibleSUSY`M2[a]] :> FlexibleSUSY`M2[a], {0,Infinity}],
+               Cases[expr, FlexibleSUSY`Pole[FlexibleSUSY`M2[a_[__]]] /; MemberQ[Parameters`GetAllMassOutputParameters[],FlexibleSUSY`M2[a]] :> FlexibleSUSY`M2[a], {0,Infinity}]
                         };
            symbols = DeleteDuplicates[Flatten[symbols]];
            symbols = Complement[symbols, mixings];

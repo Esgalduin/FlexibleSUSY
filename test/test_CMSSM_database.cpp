@@ -129,24 +129,24 @@ void test_parameter_equality(const T& a, const P& b, double eps)
 template <class T, class P>
 void test_mass_equality(const T& a, const P& b, double eps)
 {
-   TEST_CLOSE(a.Mhh, b.Mhh, eps);
-   TEST_CLOSE(a.MAh, b.MAh, eps);
-   TEST_CLOSE(a.MHpm, b.MHpm, eps);
+   TEST_CLOSE(a.M2hh, b.M2hh, eps);
+   TEST_CLOSE(a.M2Ah, b.M2Ah, eps);
+   TEST_CLOSE(a.M2Hpm, b.M2Hpm, eps);
    TEST_CLOSE(a.MCha, b.MCha, eps);
    TEST_CLOSE(a.MChi, b.MChi, eps);
    TEST_CLOSE(a.MGlu, b.MGlu, eps);
-   TEST_CLOSE(a.MSu, b.MSu, eps);
-   TEST_CLOSE(a.MSd, b.MSd, eps);
-   TEST_CLOSE(a.MSe, b.MSe, eps);
-   TEST_CLOSE(a.MSv, b.MSv, eps);
+   TEST_CLOSE(a.M2Su, b.M2Su, eps);
+   TEST_CLOSE(a.M2Sd, b.M2Sd, eps);
+   TEST_CLOSE(a.M2Se, b.M2Se, eps);
+   TEST_CLOSE(a.M2Sv, b.M2Sv, eps);
    TEST_CLOSE(a.MFu, b.MFu, eps);
    TEST_CLOSE(a.MFd, b.MFd, eps);
    TEST_CLOSE(a.MFe, b.MFe, eps);
    TEST_CLOSE(a.MFv, b.MFv, eps);
-   TEST_CLOSE(a.MVP, b.MVP, eps);
-   TEST_CLOSE(a.MVG, b.MVG, eps);
-   TEST_CLOSE(a.MVWm, b.MVWm, eps);
-   TEST_CLOSE(a.MVZ, b.MVZ, eps);
+   TEST_CLOSE(a.M2VP, b.M2VP, eps);
+   TEST_CLOSE(a.M2VG, b.M2VG, eps);
+   TEST_CLOSE(a.M2VWm, b.M2VWm, eps);
+   TEST_CLOSE(a.M2VZ, b.M2VZ, eps);
 
    TEST_CLOSE(a.ZH, b.ZH, eps);
    TEST_CLOSE(a.ZA, b.ZA, eps);

@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( test_ReA0 )
    BOOST_CHECK_EQUAL(ReA0(0., scale2), 0.);
 }
 
-BOOST_AUTO_TEST_CASE( test_ReB0 )
+BOOST_AUTO_TEST_CASE( test_ReB0_limits )
 {
    BOOST_CHECK_EQUAL(ReB0(0., 0., 0., scale2), 0.);
 
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( test_ReB0 )
 
    BOOST_CHECK_CLOSE(ReB0(p2, p2, 0., scale2), 2. - log(p2/scale2), 0.005);
    BOOST_CHECK_CLOSE(ReB0(0., p2, p2, scale2), 0. - log(p2/scale2), 0.005);
-   BOOST_CHECK_EQUAL(ReB0(p2, 0., p2, scale2), ReB0(p2, p2, 0., scale2));
+   BOOST_CHECK_CLOSE(ReB0(p2, 0., p2, scale2), ReB0(p2, p2, 0., scale2), 1e-09);
 }
 
 BOOST_AUTO_TEST_CASE( test_ReB1 )

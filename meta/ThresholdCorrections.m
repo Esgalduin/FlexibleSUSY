@@ -26,7 +26,6 @@ CalculateGaugeCouplings::usage="";
 CalculateDeltaAlphaEm::usage="";
 CalculateDeltaAlphaS::usage="";
 CalculateThetaW::usage="";
-GetParameter::usage="";
 SetDRbarYukawaCouplingTop::usage="";
 SetDRbarYukawaCouplingBottom::usage="";
 SetDRbarYukawaCouplingElectron::usage="";
@@ -73,6 +72,20 @@ GetLorentzRepresentationFactor[particle_] :=
 GetMultiplicityForUnbrokenGroups[particle_, group_] :=
     Times @@ Cases[SARAH`getIndizesWI[particle], {Except[SARAH`generation | group], i_} :> i];
 
+CalcThresholdLog[prefactor_, particle_] /; TreeMasses`IsFermion[particle] :=
+    prefactor Global`FiniteLog[Abs[TreeMasses`GetMass[particle]/Global`currentScale]];
+
+CalcThresholdLog[prefactor_, particle_] :=
+    1/2 prefactor Global`FiniteLog[Abs[TreeMasses`GetMass[particle]/Global`currentScale^2]];
+
+CalcThresholdLogs[prefactor_, particle_] :=
+    If[GetDimension[particle] == 1,
+       CalcThresholdLog[prefactor, particle]
+       ,
+       Sum[CalcThresholdLog[prefactor, particle[i-1]],
+           {i,TreeMasses`GetDimensionStartSkippingSMGoldstones[particle],GetDimension[particle]}]
+      ];
+
 (* Calculate threshold correction for a gauge coupling from SM
    (MS-bar) to a given renormalization scheme in the given model. *)
 CalculateCoupling[{coupling_, name_, group_}, scheme_] :=
@@ -91,11 +104,7 @@ CalculateCoupling[{coupling_, name_, group_}, scheme_] :=
                     ];
                If[!NumericQ[prefactor], prefactor = 0];
                (* sum over generations *)
-               If[GetDimension[particle] == 1,
-                  result -= prefactor Global`FiniteLog[Abs[FlexibleSUSY`M[particle]/Global`currentScale]];,
-                  result -= Sum[prefactor Global`FiniteLog[Abs[FlexibleSUSY`M[particle][i-1]/Global`currentScale]],
-                                {i,TreeMasses`GetDimensionStartSkippingSMGoldstones[particle],GetDimension[particle]}];
-                 ];
+               result -= CalcThresholdLogs[prefactor, particle];
               ];
            conversion = Switch[scheme,
                                FlexibleSUSY`DRbar, DRbarConversion[group],
@@ -175,14 +184,14 @@ pars.yb   = model->get_" <> CConversion`RValueToCFormString[Parameters`GetThirdG
 pars.mt   = model->get_" <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[],True,True]] <> ";
 pars.mb   = model->get_" <> CConversion`RValueToCFormString[TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMBottomQuarkMultiplet[],True,True]] <> ";
 pars.mg   = model->get_" <> CConversion`RValueToCFormString[FlexibleSUSY`M[SARAH`Gluino]] <> "();
-pars.mst1 = mst_1;
-pars.mst2 = mst_2;
-pars.msb1 = msb_1;
-pars.msb2 = msb_2;
-pars.msd1 = msd_1;
-pars.msd2 = msd_2;
-pars.xt   = Sin(2*theta_t) * (Sqr(mst_1) - Sqr(mst_2)) / (2. * pars.mt);
-pars.xb   = Sin(2*theta_b) * (Sqr(msb_1) - Sqr(msb_2)) / (2. * pars.mb);
+pars.mst1 = AbsSqrt(mst_1);
+pars.mst2 = AbsSqrt(mst_2);
+pars.msb1 = AbsSqrt(msb_1);
+pars.msb2 = AbsSqrt(msb_2);
+pars.msd1 = AbsSqrt(msd_1);
+pars.msd2 = AbsSqrt(msd_2);
+pars.xt   = Sin(2*theta_t) * (Abs(mst_1) - Abs(mst_2)) / (2. * pars.mt);
+pars.xb   = Sin(2*theta_b) * (Abs(msb_1) - Abs(msb_2)) / (2. * pars.mb);
 pars.mw   = model->get_" <> CConversion`ToValidCSymbolString[FlexibleSUSY`M[SARAH`VectorW]] <> "();
 pars.mz   = model->get_" <> CConversion`ToValidCSymbolString[FlexibleSUSY`M[SARAH`VectorZ]] <> "();
 pars.mh   = model->get_" <> CConversion`ToValidCSymbolString[FlexibleSUSY`M[SARAH`HiggsBoson]] <>"(0);
@@ -416,30 +425,6 @@ SetDRbarYukawaCouplingFermion[fermion_, yukawa_, mass_, settings_] :=
              ];
            ""
           ];
-
-MultiplyBy[factor_ /; factor == 1] := "";
-
-MultiplyBy[factor_] :=
-    " * " <> CConversion`RValueToCFormString[factor];
-
-GetParameter[par_[idx1_,idx2_], factor_:1] :=
-    "MODEL->get_" <> CConversion`RValueToCFormString[par] <>
-    "(" <> CConversion`RValueToCFormString[idx1] <> "," <>
-    CConversion`RValueToCFormString[idx2] <> ")" <>
-    MultiplyBy[factor];
-
-GetParameter[FlexibleSUSY`M[par_], factor_:1] :=
-    "MODEL->get_" <> CConversion`RValueToCFormString[FlexibleSUSY`M[par]] <> "()" <>
-    MultiplyBy[factor];
-
-GetParameter[par_[idx_], factor_:1] :=
-    "MODEL->get_" <> CConversion`RValueToCFormString[par] <>
-    "(" <> CConversion`RValueToCFormString[idx] <> ")" <>
-    MultiplyBy[factor];
-
-GetParameter[par_, factor_:1] :=
-    "MODEL->get_" <> CConversion`RValueToCFormString[par] <> "()" <>
-    MultiplyBy[factor];
 
 CalculateThetaWFromFermiConstant[] :=
     Module[{},

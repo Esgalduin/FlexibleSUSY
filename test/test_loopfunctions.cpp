@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE( test_B0 )
 
    BOOST_CHECK_CLOSE(model.B0(p2, p2, 0.), 2. - log(p2/scale2), 0.005);
    BOOST_CHECK_CLOSE(model.B0(0., p2, p2), 0. - log(p2/scale2), 0.005);
-   BOOST_CHECK_EQUAL(model.B0(p2, 0., p2), model.B0(p2 , p2 , 0.));
+   BOOST_CHECK_CLOSE(model.B0(p2, 0., p2), model.B0(p2 , p2 , 0.), 1e-09);
 }
 
 BOOST_AUTO_TEST_CASE( test_B1 )

@@ -207,10 +207,10 @@ void @ModelName@_low_scale_constraint<Two_scale>::calculate_threshold_correction
    mW_run = mw_pole;
 
    if (model->get_thresholds() && model->get_threshold_corrections().mz > 0)
-      mZ_run = model->calculate_M@VectorZ@_DRbar(mz_pole);
+      mZ_run = AbsSqrt(model->calculate_M2@VectorZ@_DRbar(Sqr(mz_pole)));
 
    if (model->get_thresholds() && model->get_threshold_corrections().mw > 0)
-      mW_run = model->calculate_M@VectorW@_DRbar(mw_pole);
+      mW_run = AbsSqrt(model->calculate_M2@VectorW@_DRbar(Sqr(mw_pole)));
 
    AlphaS = alpha_s_drbar;
    e_run = e_drbar;

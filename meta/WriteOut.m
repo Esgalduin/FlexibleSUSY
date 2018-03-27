@@ -186,6 +186,14 @@ WriteSLHAMass[p:TreeMasses`FSMassMatrix[_,massESSymbols_List,_]] :=
            StringJoin[WriteSLHAMass /@ massMatrices]
           ];
 
+ToMassStr[p_] :=
+    Module[{m},
+           m = "LOCALPHYSICAL(" <> CConversion`RValueToCFormString[TreeMasses`GetMass[p]] <> ")";
+           If[TreeMasses`IsFermion[p], m,
+              "SignedAbsSqrt(" <> m <> ")"
+             ]
+          ];
+
 WriteSLHAMass[massMatrix_TreeMasses`FSMassMatrix] :=
     Module[{result = "", eigenstateName, eigenstateNameStr, massNameStr,
             pdgList, pdg, dim, i},
@@ -204,18 +212,18 @@ WriteSLHAMass[massMatrix_TreeMasses`FSMassMatrix] :=
               pdg = Abs[pdgList[[1]]];
               If[pdg != 0,
                  eigenstateNameStr = CConversion`RValueToCFormString[eigenstateName];
-                 massNameStr = CConversion`RValueToCFormString[FlexibleSUSY`M[eigenstateName]];
+                 massNameStr = ToMassStr[eigenstateName];
                  result = "<< FORMAT_MASS(" <> ToString[pdg] <>
-                          ", LOCALPHYSICAL(" <> massNameStr <> "), \"" <> eigenstateNameStr <> "\")\n";
+                          ", " <> massNameStr <> ", \"" <> eigenstateNameStr <> "\")\n";
                 ];
               ,
               For[i = 1, i <= dim, i++,
                   pdg = Abs[pdgList[[i]]];
                   If[pdg != 0,
                      eigenstateNameStr = CConversion`RValueToCFormString[eigenstateName] <> "(" <> ToString[i] <> ")";
-                     massNameStr = CConversion`RValueToCFormString[FlexibleSUSY`M[eigenstateName[i-1]]];
+                     massNameStr = ToMassStr[eigenstateName[i-1]];
                      result = result <> "<< FORMAT_MASS(" <> ToString[pdg] <>
-                              ", LOCALPHYSICAL(" <> massNameStr <> "), \"" <> eigenstateNameStr <> "\")\n";
+                              ", " <> massNameStr <> ", \"" <> eigenstateNameStr <> "\")\n";
                     ];
                  ];
              ];
@@ -738,9 +746,12 @@ ReadSLHAPhysicalMixingMatrixBlock[{parameter_, blockName_}, struct_String:"PHYSI
            "}\n"
           ];
 
+ConvertToMass2[p_, str_String] /; IsFermion[p] := str;
+ConvertToMass2[p_, str_String] := "SignedAbsSqr(" <> str <> ")";
+
 ReadSLHAPhysicalMass[particle_,struct_String:"PHYSICAL"] :=
     Module[{result = "", mass, massStr, dim, pdgList, pdg, pdgStr, i},
-           mass = FlexibleSUSY`M[particle];
+           mass = TreeMasses`GetMass[particle];
            massStr = CConversion`ToValidCSymbolString[mass];
            dim = TreeMasses`GetDimension[particle];
            pdgList = SARAH`getPDGList[particle];
@@ -751,8 +762,9 @@ ReadSLHAPhysicalMass[particle_,struct_String:"PHYSICAL"] :=
               pdg = Abs[pdgList[[1]]];
               pdgStr = ToString[pdg];
               If[pdg != 0,
-                 result = struct <> "(" <> massStr <>
-                          ") = slha_io.read_entry(\"MASS\", " <> pdgStr <> ");\n";
+                 result = struct <> "(" <> massStr <> ") = " <>
+                          ConvertToMass2[particle, "slha_io.read_entry(\"MASS\", " <> pdgStr <> ")"] <>
+                          ";\n";
                 ];
               ,
               For[i = 1, i <= dim, i++,
@@ -760,8 +772,9 @@ ReadSLHAPhysicalMass[particle_,struct_String:"PHYSICAL"] :=
                   pdgStr = ToString[pdg];
                   If[pdg != 0,
                      result = result <>
-                              struct <> "(" <> massStr <> ")(" <> ToString[i-1] <>
-                              ") = slha_io.read_entry(\"MASS\", " <> pdgStr <> ");\n";
+                              struct <> "(" <> massStr <> ")(" <> ToString[i-1] <> ") = " <>
+                              ConvertToMass2[particle, "slha_io.read_entry(\"MASS\", " <> pdgStr <> ")"] <>
+                              ";\n";
                     ];
                  ];
              ];

@@ -108,11 +108,11 @@ BOOST_AUTO_TEST_CASE( test_CMSSM_higgs_iteration )
       model.set_vu(vu);
 
       model.calculate_DRbar_masses();
-      model.calculate_Mhh_pole();
-      model.calculate_MVZ_pole();
+      model.calculate_M2hh_pole();
+      model.calculate_M2VZ_pole();
 
-      const double mH = model.get_physical().Mhh(1);
-      const double mZ = model.get_physical().MVZ;
+      const double mH = AbsSqrt(model.get_physical().M2hh(1));
+      const double mZ = AbsSqrt(model.get_physical().M2VZ);
 
       return Sqr(LowEnergyConstant(MZ) - mZ)/Sqr(STANDARD_DEVIATION(MZ))
          + Sqr(LowEnergyConstant(MH) - mH)/Sqr(STANDARD_DEVIATION(MH));
@@ -130,11 +130,11 @@ BOOST_AUTO_TEST_CASE( test_CMSSM_higgs_iteration )
 
    // check how close we got
    model.calculate_DRbar_masses();
-   model.calculate_Mhh_pole();
-   model.calculate_MVZ_pole();
+   model.calculate_M2hh_pole();
+   model.calculate_M2VZ_pole();
 
    // const double mH = model.get_physical().Mhh(1);
-   const double mZ = model.get_physical().MVZ;
+   const double mZ = AbsSqrt(model.get_physical().M2VZ);
 
    // BOOST_CHECK_CLOSE_FRACTION(mH, 125., 0.400);
    BOOST_CHECK_CLOSE_FRACTION(mZ, 91. , 0.003);

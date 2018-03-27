@@ -190,9 +190,9 @@ void MSSMcbs_low_scale_constraint<Two_scale>::calculate_DRbar_gauge_couplings()
 
    // interface variables
    MZDRbar
-      = model->calculate_MVZ_DRbar(Electroweak_constants::MZ);
+      = AbsSqrt(model->calculate_M2VZ_DRbar(Sqr(Electroweak_constants::MZ)));
    const double MWDRbar
-      = model->calculate_MVWm_DRbar(Electroweak_constants::MW);
+      = AbsSqrt(model->calculate_M2VWm_DRbar(Sqr(Electroweak_constants::MW)));
    const double AlphaS = alpha_s_drbar;
    const double EDRbar = e_drbar;
 

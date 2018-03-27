@@ -557,6 +557,17 @@ Derived SignedAbsSqrt(const Eigen::ArrayBase<Derived>& m)
    return m.unaryExpr([](double a) { return SignedAbsSqrt(a); });
 }
 
+inline double SignedAbsSqr(double a) noexcept
+{
+   return Sign(a) * AbsSqr(a);
+}
+
+template <typename Derived>
+Derived SignedAbsSqr(const Eigen::ArrayBase<Derived>& m)
+{
+   return m.unaryExpr([](double a) { return SignedAbsSqr(a); });
+}
+
 template <class T, typename = typename std::enable_if<std::is_floating_point<T>::value,T>::type>
 T Sqrt(T a) noexcept
 {

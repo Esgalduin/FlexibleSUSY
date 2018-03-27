@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_CMSSM_slha_reading )
    model.set_vu(vu);
    model.set_vd(vd);
 
-   model.get_physical_slha().Mhh = Mhh;
+   model.get_physical_slha().M2hh = Sqr(Mhh);
    model.get_physical_slha().ZH  = ZH;
    model.get_physical_slha().MChi = MChi;
    model.get_physical_slha().ZN   = ZN;
@@ -113,16 +113,16 @@ BOOST_AUTO_TEST_CASE( test_CMSSM_slha_reading )
          BOOST_CHECK_EQUAL(model.get_Ye(i,k), 0.);
       }
    }
-   BOOST_CHECK_EQUAL(model.get_physical_slha().Mhh(0), 0.);
-   BOOST_CHECK_EQUAL(model.get_physical_slha().Mhh(1), 0.);
+   BOOST_CHECK_EQUAL(model.get_physical_slha().get_Mhh(0), 0.);
+   BOOST_CHECK_EQUAL(model.get_physical_slha().get_Mhh(1), 0.);
    BOOST_CHECK_EQUAL(model.get_physical_slha().ZH(0,0), 0.);
    BOOST_CHECK_EQUAL(model.get_physical_slha().ZH(0,1), 0.);
    BOOST_CHECK_EQUAL(model.get_physical_slha().ZH(1,0), 0.);
    BOOST_CHECK_EQUAL(model.get_physical_slha().ZH(1,1), 0.);
-   BOOST_CHECK_EQUAL(model.get_physical_slha().MChi(0), 0.);
-   BOOST_CHECK_EQUAL(model.get_physical_slha().MChi(1), 0.);
-   BOOST_CHECK_EQUAL(model.get_physical_slha().MChi(2), 0.);
-   BOOST_CHECK_EQUAL(model.get_physical_slha().MChi(3), 0.);
+   BOOST_CHECK_EQUAL(model.get_physical_slha().get_MChi(0), 0.);
+   BOOST_CHECK_EQUAL(model.get_physical_slha().get_MChi(1), 0.);
+   BOOST_CHECK_EQUAL(model.get_physical_slha().get_MChi(2), 0.);
+   BOOST_CHECK_EQUAL(model.get_physical_slha().get_MChi(3), 0.);
    BOOST_CHECK_EQUAL(model.get_physical_slha().ZN.cwiseAbs().maxCoeff(), 0.);
 
    // read from SLHA file
@@ -155,32 +155,32 @@ BOOST_AUTO_TEST_CASE( test_CMSSM_slha_reading )
       }
    }
 
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().Mhh(0), Mhh(0), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().Mhh(1), Mhh(1), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().get_Mhh(0), Mhh(0), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().get_Mhh(1), Mhh(1), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().ZH(0,0), ZH(0,0), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().ZH(0,1), ZH(0,1), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().ZH(1,0), ZH(1,0), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().ZH(1,1), ZH(1,1), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().MChi(0), MChi(0), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().MChi(1), MChi(1), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().MChi(2), MChi(2), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().MChi(3), MChi(3), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().get_MChi(0), MChi(0), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().get_MChi(1), MChi(1), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().get_MChi(2), MChi(2), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical_slha().get_MChi(3), MChi(3), 1.0e-8);
    for (int i = 0; i < 4; i++)
       for (int k = 0; k < 4; k++) {
          BOOST_CHECK_CLOSE_FRACTION(Re(model.get_physical_slha().ZN(i,k)), Re(ZN(i,k)), 1.0e-8);
          BOOST_CHECK_CLOSE_FRACTION(Im(model.get_physical_slha().ZN(i,k)), Im(ZN(i,k)), 1.0e-8);
       }
 
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().Mhh(0), Mhh(0), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().Mhh(1), Mhh(1), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().get_Mhh(0), Mhh(0), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().get_Mhh(1), Mhh(1), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical().ZH(0,0), ZH(0,0), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical().ZH(0,1), ZH(0,1), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical().ZH(1,0), ZH(1,0), 1.0e-8);
    BOOST_CHECK_CLOSE_FRACTION(model.get_physical().ZH(1,1), ZH(1,1), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().MChi(0), Abs(MChi(0)), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().MChi(1), Abs(MChi(1)), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().MChi(2), Abs(MChi(2)), 1.0e-8);
-   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().MChi(3), Abs(MChi(3)), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().get_MChi(0), Abs(MChi(0)), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().get_MChi(1), Abs(MChi(1)), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().get_MChi(2), Abs(MChi(2)), 1.0e-8);
+   BOOST_CHECK_CLOSE_FRACTION(model.get_physical().get_MChi(3), Abs(MChi(3)), 1.0e-8);
    for (int i = 0; i < 4; i++)
       for (int k = 0; k < 4; k++) {
          if (MChi(i) < 0.) {

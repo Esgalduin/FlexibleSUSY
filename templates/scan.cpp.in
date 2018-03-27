@@ -92,7 +92,7 @@ template <class solver_type>
 
    @ModelName@_scan_result result;
    result.problems = spectrum_generator.get_problems();
-   result.higgs = pole_masses.M@HiggsBoson_0@;
+   result.higgs = AbsSqrt(pole_masses.M2@HiggsBoson_0@);
 
    return result;
 }
