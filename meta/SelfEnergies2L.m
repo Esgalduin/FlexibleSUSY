@@ -186,7 +186,7 @@ Calc1L2LTadShiftSSS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfuncti
 
     prefactor = 4*0.5*diag[[5]]*diag[[6]]*couplings*massshift//.{Symbol["generation"]->SARAH`gI4}; (* SARAH diag basefactor: 4 *)
 
-    loopfunction =-Symbol["BB"][Mass2[loopfield[{SARAH`gI4}]],Mass2[loopfield[{SARAH`gI4}]]]; (* -BB is P_{SS} *)
+    loopfunction =-Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI4}]]]; (* -BB is P_{SS} *)
 
     If[nField == 1, loopfunction=loopfunction//.{x_[{SARAH`gI4}]->x}];
     tempexpr = prefactor*loopfunction;
@@ -204,8 +204,8 @@ Calc1L2LTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfuncti
     prefactors = -4*diag[[5]]*diag[[6]]*couplings*{AbsSqrt[Re[massshift]],
                                                   massshift*SARAH`Mass[loopfield[{SARAH`gI4}]]}/.{Symbol["generation"]->SARAH`gI4};
 
-    loopfunctions = {-Symbol["A0"][Mass2[loopfield[{SARAH`gI4}]]],
-                    -Symbol["BB"][Mass2[loopfield[{SARAH`gI4}]],Mass2[loopfield[{SARAH`gI4}]]]};
+    loopfunctions = {-Symbol["A0"][SARAH`Mass2[loopfield[{SARAH`gI4}]]],
+                    -Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI4}]]]};
 
     If[nField == 1, loopfunctions = loopfunctions /. {x_[{SARAH`gI4}]->x}];
     tempexpr = Plus @@ (prefactors * loopfunctions);
@@ -241,8 +241,8 @@ Calc1L2LSEShiftSSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunct
   prefactors = 2*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]/.{Symbol["generation"]->SARAH`gI4},
                                                 massshifts[[2]]/.{Symbol["generation"]->SARAH`gI5}};
 
-  loopfunctions = {-Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                 -Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+  loopfunctions = {-Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                 -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
 
   If[nFields[[1]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI4}]->x}];
   If[nFields[[2]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI5}]->x}];
@@ -262,7 +262,7 @@ Calc1L2LSEShiftSSSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunc
 
     prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]/.{Symbol["generation"]->SARAH`gI4}};
 
-    loopfunctions = {-Symbol["BB"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]]};
+    loopfunctions = {-Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]]};
 
     If[nFields[[1]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
     tempexpr=Plus @@ (prefactors*loopfunctions);
@@ -278,25 +278,25 @@ Calc1L2LSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfu
      nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
      couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
-     prefactors = diag[[5]]*diag[[6]]*couplings*{-2*AbsSqrt[Re[massshifts[[1]]]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]], (* the first 4 parts correspond to the -2*m1*m2*B(p2,m12,m22) part of the SE *)
-                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*AbsSqrt[Re[massshifts[[2]]]],
-                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshifts[[1]],
-                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*massshifts[[2]],
-                                                +massshifts[[1]],  (* these last parts correspond to the +G0(p2,m12,m22) part of the SE *)
-                                                +massshifts[[2]],
-                                                -(massshifts[[1]]+massshifts[[2]]),
-                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p"]^2)*massshifts[[1]],
-                                                -(Mass2[loopfields[[1]][{SARAH`gI4}]] + Mass2[loopfields[[2]][{SARAH`gI5}]]-Symbol["p"]^2)*massshifts[[2]]};
+     prefactors = diag[[5]]*diag[[6]]*couplings*{-2*massshifts[[1]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]], (* the first 4 parts correspond to the -2*m1*m2*B(p2,m12,m22) part of the SE *)
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*massshifts[[2]],
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*2*massshifts[[1]]*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]],
+                                                -2*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]*2*massshifts[[2]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]],
+                                                +2*massshifts[[1]]*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]],  (* these last parts correspond to the +G0(p2,m12,m22) part of the SE *)
+                                                +2*massshifts[[2]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]],
+                                                -(2*massshifts[[1]]*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]]+2*massshifts[[2]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]),
+                                                -(SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]] + SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]-SARAH`p^2)*2*massshifts[[1]]*SARAH`Mass[loopfields[[1]][{SARAH`gI4}]],
+                                                -(SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]] + SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]-SARAH`p^2)*2*massshifts[[2]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]};
 
-     loopfunctions = {+Symbol["BBs"][Symbol["p"]^2, Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                      +Symbol["BBs"][Symbol["p"]^2, Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                      -Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                      -Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                      -Symbol["BB"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                      -Symbol["BB"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                      +Symbol["BBs"][Symbol["p"]^2, Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                      -Symbol["CCtilde"][Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                      -Symbol["CCtilde"][Mass2[loopfields[[1]][{SARAH`gI4}]],Mass2[loopfields[[2]][{SARAH`gI5}]],Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+     loopfunctions = {+Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      +Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      -Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                      -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      -Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                      -Symbol["BB"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      +Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                      -Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                      -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
 
      If[nFields[[1]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
      If[nFields[[2]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI5}]->x}];
@@ -351,6 +351,15 @@ ReduceExplicitGenIndices[] := Module[{generationMatrices = First /@ Select[SARAH
                                      matx_[a_Integer, b_Integer] /; MemberQ[generationMatrices, matx] -> matx[a - 1, b - 1]}
    ];
 
+ReplaceSARAHMassHeads[] :=
+    {
+        SARAH`Mass2[p_] /; TreeMasses`IsFermion[p] :> FlexibleSUSY`M[p]^2,
+        SARAH`Mass -> FlexibleSUSY`M,
+        SARAH`Mass2 -> FlexibleSUSY`M2,
+        SARAH`p^2 -> FlexibleSUSY`p2
+    };
+
+
 (* creates expressions for shifts of 1L selfenergies and tadpoles through
    1L corrections to the EWSB parameters. The sign is opposite to that of
    the values given by CalculatePi2S in SPheno. The signs used here should be
@@ -393,8 +402,8 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
        tadsnPointform = Thread[SelfEnergies`TadpoleShift1L[tadpolefields,0,tadpoleshifts]]/.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
        SEnPointform = Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyfields,0,SEshifts]]/.tadpoleReplacementRules[nHiggs,tadHiggsassoc,tad1Lexpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
-       tadsnPointform = tadsnPointform /. ReduceExplicitGenIndices[];
-       SEnPointform = SEnPointform /. ReduceExplicitGenIndices[];
+       tadsnPointform = tadsnPointform /. ReduceExplicitGenIndices[] /. ReplaceSARAHMassHeads[];
+       SEnPointform = SEnPointform /. ReduceExplicitGenIndices[] /. ReplaceSARAHMassHeads[];
 
        nPointform=Join[nPointform,AppendShiftFieldIndices[tadsnPointform,SARAH`gO1],AppendShiftFieldIndices[SEnPointform,SARAH`gO1,SARAH`gO2]];,
        Print["More than one tadpole present, throwing the towel, no tadpole shifts were calculated. Fix SelfEnergies2L to handle this case."];
