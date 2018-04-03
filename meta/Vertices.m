@@ -314,9 +314,9 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
     {vertex, lorentz} = FindVertexWithLorentzStructure[vertices, lorentzTag];
     strippedIndices = Complement[Flatten[FieldIndexList /@ fields],
 				 Flatten[FieldIndexList /@ fieldsInRotatedCp]];
+    vertex = ResolveColorFactor[vertex, fields, cpPattern, nPointFunctions[[All,2]]];
     vertex = StripGroupStructure[
-	ResolveColorFactor[
-	    vertex, fields, cpPattern, nPointFunctions[[All,2]]],
+	   ContractFourScalarColorIndices[vertex,cp,fieldsInRotatedCp,strippedIndices],
 	strippedIndices];
     contraction = Block[{
 	    SARAH`sum
@@ -332,6 +332,66 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
     -I factor TreeMasses`ReplaceDependencies[contraction] /.
 	Parameters`ApplyGUTNormalization[]
 ];
+
+ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+   UnsameQ[Length[rotatedfields],4] := vertex;
+
+ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+   UnsameQ[GetFieldType /@ rotatedfields, {S,S,S,S}}]  := vertex;
+
+ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+   SameQ[Or[IsUnrotated /@ GetParticleList[cp]], True]  := vertex;
+
+ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+   SameQ[ContainsAll[indices,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}],False] := vertex;
+
+ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] := Module[{
+   fourrotatedfieldsQ = !Or[IsUnrotated /@ GetParticleList[cp]],
+   fourscalarsQ = SameQ[GetFieldType /@ rotatedfields,{S,S,S,S}],
+   fourcolordfieldsQ = ContainsAll[indices,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}],
+   indexList = GetParticleList[cp] /. {field_[{x_}]->x}
+   },
+   If[fourrotatedfieldsQ && fourscalarsQ && fourcolordfieldsQ,
+      (* the contraction is always going to be ct1,ct3 and ct2,ct4 *)
+
+      vertex /.
+      ,
+      vertex
+   ];
+];
+
+FindColorContractions[indexList_] :=
+  Module[{flatindices = Flatten[indexList], duplicates,},
+   duplicates =
+    Select[GatherBy[Range @ Length[flatindices],
+      flatindices[[#]] &], (Length[#] === 2) &];
+   If[Length[duplicates] === 0,
+    Print["Problem in determining color contraction for SSSS coupling \
+with indices ", indexList, ". No Contraction found."]];
+   If[Length[duplicates] === 1,
+    duplicates =
+     AppendTo[duplicates,
+      Complement[{1, 2, 3, 4}, duplicates[[1]]]]];
+   If[Length[duplicates] =!= 1,
+    Print["Problem in determining color contraction for SSSS coupling \
+with indices ", indexList, ". This error should not occur."]];
+   duplicates
+   ];
+
+MakeSARAHDelta[indlist_] :=
+ Symbol["SARAH`Delta"][Symbol["SARAH`ct" <> ToString[indlist[[1]]]],
+  Symbol["SARAH`ct" <> ToString[indlist[[2]]]]]
+
+DeleteOppositeContractionRules[contList_] :=
+  Module[{deletelist = {},
+    contListplusreverse =
+     Replace[contList,
+      indlist_List :> Sequence[indlist, Reverse[indlist]], {1}]},
+   deletelist =
+    Complement[Permutations[{1, 2, 3, 4}, {2}], contListplusreverse];
+   DeleteDuplicates[
+    Fold[Append[#1, MakeSARAHDelta[#2] :> 0] &, {}, deletelist]]
+   ];
 
 SARAHVertex[fieldsInRotatedCp_List] := Module[{
 	sarahVertex = SARAH`Vertex @ StripFieldIndices[fieldsInRotatedCp],
