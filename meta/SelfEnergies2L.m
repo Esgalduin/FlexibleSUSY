@@ -105,16 +105,16 @@ UnrotateRules[]:=Module[{rules={}},
 simpleUnrotateRules[]:={Symbol["U"<>ToString[SARAH`HiggsBoson]][x_]->SARAH`HiggsBoson[x],Symbol["U"<>ToString[SARAH`PseudoScalar]][x_]->SARAH`PseudoScalar[x]};
 
 
-AddSEMomDep[] := {Symbol["WfSSSS"][masses___] -> Symbol["WfSSSS"][p^2,masses],  Symbol["XfSSS"][masses___] -> Symbol["XfSSS"][p^2,masses],  Symbol["YfSSSS"][masses___] -> Symbol["YfSSSS"][p^2,masses],
-                  Symbol["SfSSS"][masses___] -> Symbol["SfSSS"][p^2,masses],  Symbol["UfSSSS"][masses___] -> Symbol["UfSSSS"][p^2,masses],  Symbol["VfSSSSS"][masses___] -> Symbol["VfSSSSS"][p^2,masses],
-                  Symbol["WfSSSV"][masses___] -> Symbol["WfSSSV"][p^2,masses],  Symbol["MfSSSSV"][masses___] -> Symbol["MfSSSSV"][p^2,masses], Symbol["WfSSFF"][masses___] -> Symbol["WfSSFF"][p^2,masses],
-                  Symbol["WfSSFbFb"][masses___] -> Symbol["WfSSFbFb"][p^2,masses],  Symbol["MfFbFbFbFbS"][masses___] -> Symbol["MfFbFbFbFbS"][p^2,masses],  Symbol["MfFFbFbFS"][masses___] -> Symbol["MfFFbFbFS"][p^2,masses],
-                  Symbol["MfFFbFFbS"][masses___] -> Symbol["MfFFbFFbS"][p^2,masses],  Symbol["MfFFFbFbS"][masses___] -> Symbol["MfFFFbFbS"][p^2,masses],  Symbol["MfFFFFS"][masses___] -> Symbol["MfFFFFS"][p^2,masses],
-                  Symbol["MfSFbSFbFb"][masses___] -> Symbol["MfSFbSFbFb"][p^2,masses],  Symbol["MfSFSFbF"][masses___] -> Symbol["MfSFSFbF"][p^2,masses], Symbol["MfSFSFFb"][masses___] -> Symbol["MfSFSFFb"][p^2,masses],
-                  Symbol["VfSSSFbFb"][masses___] -> Symbol["VfSSSFbFb"][p^2,masses],  Symbol["VfSSSFF"][masses___] -> Symbol["VfSSSFF"][p^2,masses],  Symbol["VfFbFbFbFbS"][masses___] -> Symbol["VfFbFbFbFbS"][p^2,masses],
-                  Symbol["VfFbFFbFS"][masses___] -> Symbol["VfFbFFbFS"][p^2,masses],  Symbol["VfFbFFFbS"][masses___] -> Symbol["VfFbFFFbS"][p^2,masses],  Symbol["VfFFbFbFS"][masses___] -> Symbol["VfFFbFbFS"][p^2,masses],
-                  Symbol["VfFFFbFbS"][masses___] -> Symbol["VfFFFbFbS"][p^2,masses],  Symbol["VfFFFFS"][masses___] -> Symbol["VfFFFFS"][p^2,masses],  Symbol["GfFFV"][masses___] -> Symbol["GfFFV"][p^2,masses],
-                  Symbol["GfFbFbV"][masses___] -> Symbol["GfFbFbV"][p^2,masses],Symbol["ZfSSSS"][masses___] -> Symbol["ZfSSSS"][p^2,masses],Symbol["MfSSSSS"][masses___] -> Symbol["MfSSSSS"][p^2,masses]};
+AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  Symbol["XfSSS"][masses__] -> Symbol["XfSSS"][p^2,masses],  Symbol["YfSSSS"][masses__] -> Symbol["YfSSSS"][p^2,masses],
+                  Symbol["SfSSS"][masses__] -> Symbol["SfSSS"][p^2,masses],  Symbol["UfSSSS"][masses__] -> Symbol["UfSSSS"][p^2,masses],  Symbol["VfSSSSS"][masses__] -> Symbol["VfSSSSS"][p^2,masses],
+                  Symbol["WfSSSV"][masses__] -> Symbol["WfSSSV"][p^2,masses],  Symbol["MfSSSSV"][masses__] -> Symbol["MfSSSSV"][p^2,masses], Symbol["WfSSFF"][masses__] -> Symbol["WfSSFF"][p^2,masses],
+                  Symbol["WfSSFbFb"][masses__] -> Symbol["WfSSFbFb"][p^2,masses],  Symbol["MfFbFbFbFbS"][masses__] -> Symbol["MfFbFbFbFbS"][p^2,masses],  Symbol["MfFFbFbFS"][masses__] -> Symbol["MfFFbFbFS"][p^2,masses],
+                  Symbol["MfFFbFFbS"][masses__] -> Symbol["MfFFbFFbS"][p^2,masses],  Symbol["MfFFFbFbS"][masses__] -> Symbol["MfFFFbFbS"][p^2,masses],  Symbol["MfFFFFS"][masses__] -> Symbol["MfFFFFS"][p^2,masses],
+                  Symbol["MfSFbSFbFb"][masses__] -> Symbol["MfSFbSFbFb"][p^2,masses],  Symbol["MfSFSFbF"][masses__] -> Symbol["MfSFSFbF"][p^2,masses], Symbol["MfSFSFFb"][masses__] -> Symbol["MfSFSFFb"][p^2,masses],
+                  Symbol["VfSSSFbFb"][masses__] -> Symbol["VfSSSFbFb"][p^2,masses],  Symbol["VfSSSFF"][masses__] -> Symbol["VfSSSFF"][p^2,masses],  Symbol["VfFbFbFbFbS"][masses__] -> Symbol["VfFbFbFbFbS"][p^2,masses],
+                  Symbol["VfFbFFbFS"][masses__] -> Symbol["VfFbFFbFS"][p^2,masses],  Symbol["VfFbFFFbS"][masses__] -> Symbol["VfFbFFFbS"][p^2,masses],  Symbol["VfFFbFbFS"][masses__] -> Symbol["VfFFbFbFS"][p^2,masses],
+                  Symbol["VfFFFbFbS"][masses__] -> Symbol["VfFFFbFbS"][p^2,masses],  Symbol["VfFFFFS"][masses__] -> Symbol["VfFFFFS"][p^2,masses],  Symbol["GfFFV"][masses__] -> Symbol["GfFFV"][p^2,masses],
+                  Symbol["GfFbFbV"][masses__] -> Symbol["GfFbFbV"][p^2,masses],Symbol["ZfSSSS"][masses__] -> Symbol["ZfSSSS"][p^2,masses],Symbol["MfSSSSS"][masses__] -> Symbol["MfSSSSS"][p^2,masses]};
 
 (* result as from CalculatePi2S in SPheno except for a global (-1),
    to be consistent with FS 1L expressions. See comment at function Make1L2LShifts

@@ -314,10 +314,12 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
     {vertex, lorentz} = FindVertexWithLorentzStructure[vertices, lorentzTag];
     strippedIndices = Complement[Flatten[FieldIndexList /@ fields],
 				 Flatten[FieldIndexList /@ fieldsInRotatedCp]];
-    vertex = ResolveColorFactor[vertex, fields, cpPattern, nPointFunctions[[All,2]]];
-    vertex = StripGroupStructure[
-	   ContractFourScalarColorIndices[vertex,cp,fieldsInRotatedCp,strippedIndices],
-	strippedIndices];
+    If[lorentzTag === L2,
+      vertex = ContractFourScalarColorIndices[vertex],
+      vertex = StripGroupStructure[
+                  ResolveColorFactor[vertex, fields, cpPattern, nPointFunctions[[All,2]]],
+               strippedIndices];
+    ];
     contraction = Block[{
 	    SARAH`sum
 	    (* corrupts a polynomial (monomial + monomial + ...) summand *)
@@ -435,6 +437,9 @@ ReleaseHold[Block[{
 
 FindVertexWithLorentzStructure[vertices_List, lorentz_Integer] :=
     vertices[[lorentz]];
+
+FindVertexWithLorentzStructure[vertices_List, lorentz_] /; SameQ[lorentz,L2] :=
+    vertices[[1]];
 
 FindVertexWithLorentzStructure[vertices_List, lorentz_] :=
     SingleCase[vertices, {_, str_ /; !FreeQ[str, lorentz]}];
