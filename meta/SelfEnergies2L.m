@@ -118,20 +118,20 @@ AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  S
 
 GetFieldType[x_] := SARAH`getType[x, False, FlexibleSUSY`FSEigenstates];
 
+ReFields[part_] := part /. {Symbol["bar"][x_] -> x, Symbol["conj"][x_] -> x, Symbol["Conj"][x_] -> x};
+
 AllInternalFieldsQ[fieldslist_List] := ContainsNone[fieldslist /. {fd_[{indx__}] -> indx},{SARAH`gE1,SARAH`gE2}];
 
-FourScalarFieldsQ[fieldslist_List] := (Length[fieldslist] === 4) && (GetFieldType /@ fieldslist {S,S,S,S});
-
-RealParticles[part_] := part /.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+FourScalarFieldsQ[fieldslist_List] := (Length[fieldslist] === 4) && (GetFieldType /@ fieldslist === {S,S,S,S});
 
 AllUnbrokenIndicesQ[fieldslist_List,unbrokesymmetries_List] :=
    Module[{modelParticles = SARAH`Particles[FlexibleSUSY`FSEigenstates],fieldIndices,indextypelist},
-   fieldIndices = Map[Function[par,Select[modelParticles,#[[1]] === par &]], RealParticles[fieldslist] /. {x_[{__}] -> x} ][[All, 1, 5]];
+   fieldIndices = Map[Function[par,Select[modelParticles,#[[1]] === par &]], ReFields[fieldslist] /. {y_[{__}] -> y}][[All, 1, 5]];
    indextypelist = (Transpose /@ fieldIndices)[[All, 1]];
    Or @@ Map[Function[indtype, And @@ (MemberQ[#, indtype] & /@ indextypelist)], unbrokesymmetries]
 ];
 
-(* code for finding unbroken symmetries inpsired by SPhenoCoupling.m *)
+(* code for finding unbroken symmetries inspired by SPhenoCoupling.m *)
 MarkColorSummableScalarVertices[] :=
    Module[{unbrokesymmetries = SARAH`Gauge[[#, 3]]& /@ (Position[SARAH`SGauge /. A_[{b__}] -> A, #][[1, 1]] & /@
    Select[SARAH`SGauge /. A_[{b__}] -> A, FreeQ[Particles[FlexibleSUSY`FSEigenstates], #] == False &])},
