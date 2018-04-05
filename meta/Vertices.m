@@ -315,7 +315,7 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
     strippedIndices = Complement[Flatten[FieldIndexList /@ fields],
 				 Flatten[FieldIndexList /@ fieldsInRotatedCp]];
     If[lorentzTag === L2,
-      vertex = ContractFourScalarColorIndices[vertex],
+      vertex = ContractFourScalarIndices[vertex,cp,fieldsInRotatedCp,strippedIndices],
       vertex = StripGroupStructure[
                   ResolveColorFactor[vertex, fields, cpPattern, nPointFunctions[[All,2]]],
                strippedIndices];
@@ -335,19 +335,19 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
 	Parameters`ApplyGUTNormalization[]
 ];
 
-ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+ContractFourScalarIndices[vertex_,cp_,rotatedfields_,indices_] /;
    UnsameQ[Length[rotatedfields],4] := vertex;
 
-ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
-   UnsameQ[GetFieldType /@ rotatedfields, {S,S,S,S}}]  := vertex;
+ContractFourScalarIndices[vertex_,cp_,rotatedfields_,indices_] /;
+   UnsameQ[GetFieldType /@ rotatedfields, {S,S,S,S}]  := vertex;
 
-ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+ContractFourScalarIndices[vertex_,cp_,rotatedfields_,indices_] /;
    SameQ[Or[IsUnrotated /@ GetParticleList[cp]], True]  := vertex;
 
-ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] /;
+ContractFourScalarIndices[vertex_,cp_,rotatedfields_,indices_] /;
    SameQ[ContainsAll[indices,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}],False] := vertex;
 
-ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] := Module[{
+ContractFourScalarIndices[vertex_,cp_,rotatedfields_,indices_] := Module[{
    fourrotatedfieldsQ = !Or[IsUnrotated /@ GetParticleList[cp]],
    fourscalarsQ = SameQ[GetFieldType /@ rotatedfields,{S,S,S,S}],
    fourcolordfieldsQ = ContainsAll[indices,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}],
@@ -356,14 +356,14 @@ ContractFourScalarColorIndices[vertex_,cp_,rotatedfields_,indices_] := Module[{
    If[fourrotatedfieldsQ && fourscalarsQ && fourcolordfieldsQ,
       (* the contraction is always going to be ct1,ct3 and ct2,ct4 *)
 
-      vertex /.
+      vertex
       ,
       vertex
    ];
 ];
 
 FindColorContractions[indexList_] :=
-  Module[{flatindices = Flatten[indexList], duplicates,},
+  Module[{flatindices = Flatten[indexList], duplicates},
    duplicates =
     Select[GatherBy[Range @ Length[flatindices],
       flatindices[[#]] &], (Length[#] === 2) &];

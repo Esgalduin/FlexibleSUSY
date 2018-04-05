@@ -116,6 +116,29 @@ AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  S
                   Symbol["VfFFFbFbS"][masses__] -> Symbol["VfFFFbFbS"][p^2,masses],  Symbol["VfFFFFS"][masses__] -> Symbol["VfFFFFS"][p^2,masses],  Symbol["GfFFV"][masses__] -> Symbol["GfFFV"][p^2,masses],
                   Symbol["GfFbFbV"][masses__] -> Symbol["GfFbFbV"][p^2,masses],Symbol["ZfSSSS"][masses__] -> Symbol["ZfSSSS"][p^2,masses],Symbol["MfSSSSS"][masses__] -> Symbol["MfSSSSS"][p^2,masses]};
 
+GetFieldType[x_] := SARAH`getType[x, False, FlexibleSUSY`FSEigenstates];
+
+AllInternalFieldsQ[fieldslist_List] := ContainsNone[fieldslist /. {fd_[{indx__}] -> indx},{SARAH`gE1,SARAH`gE2}];
+
+FourScalarFieldsQ[fieldslist_List] := (Length[fieldslist] === 4) && (GetFieldType /@ fieldslist {S,S,S,S});
+
+RealParticles[part_] := part /.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+
+AllUnbrokenIndicesQ[fieldslist_List,unbrokesymmetries_List] :=
+   Module[{modelParticles = SARAH`Particles[FlexibleSUSY`FSEigenstates],fieldIndices,indextypelist},
+   fieldIndices = Map[Function[par,Select[modelParticles,#[[1]] === par &]], RealParticles[fieldslist] /. {x_[{__}] -> x} ][[All, 1, 5]];
+   indextypelist = (Transpose /@ fieldIndices)[[All, 1]];
+   Or @@ Map[Function[indtype, And @@ (MemberQ[#, indtype] & /@ indextypelist)], unbrokesymmetries]
+];
+
+(* code for finding unbroken symmetries inpsired by SPhenoCoupling.m *)
+MarkColorSummableScalarVertices[] :=
+   Module[{unbrokesymmetries = SARAH`Gauge[[#, 3]]& /@ (Position[SARAH`SGauge /. A_[{b__}] -> A, #][[1, 1]] & /@
+   Select[SARAH`SGauge /. A_[{b__}] -> A, FreeQ[Particles[FlexibleSUSY`FSEigenstates], #] == False &])},
+   {Cp[fieldlist__] /; And[FourScalarFieldsQ[List[fieldlist]],AllInternalFieldsQ[List[fieldlist]],AllUnbrokenIndicesQ[List[fieldlist],unbrokesymmetries]] -> Cp[fieldlist][Symbol["L2"]]}
+   ];
+
+
 (* result as from CalculatePi2S in SPheno except for a global (-1),
    to be consistent with FS 1L expressions. See comment at function Make1L2LShifts
    at the bottom. *)
@@ -123,7 +146,7 @@ ConvertSarah2LDiagramList[tad_List, head_:Total] :=
     head[SumTadpoleType /@ tad]*(-1) //. {
         (m : (SARAH`Mass | SARAH`Mass2))[(SARAH`bar | Susyno`LieGroups`conj)[p_], idx___] :> m[p, idx],
         (m : (SARAH`Mass | SARAH`Mass2))[p_, idx__] :> m[p[{idx}]],
-        C[p__] :> Cp[p]} //. {Symbol["i1"]->SARAH`gI1, Symbol["i2"]->SARAH`gI2, Symbol["i3"]->SARAH`gI3,
+        C[p__] :> Cp[p]} /. MarkColorSummableScalarVertices[] //. {Symbol["i1"]->SARAH`gI1, Symbol["i2"]->SARAH`gI2, Symbol["i3"]->SARAH`gI3,
         Symbol["i4"]->SARAH`gI4,Symbol["i5"]->SARAH`gI5,Symbol["i6"]->SARAH`gI6} //. UnrotateRules[] /. AddSEMomDep[];
 
 
