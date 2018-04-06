@@ -118,7 +118,7 @@ AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  S
 
 GetFieldType[x_] := SARAH`getType[x, False, FlexibleSUSY`FSEigenstates];
 
-ReFields[part_] := part /. {Symbol["bar"][x_] -> x, Symbol["conj"][x_] -> x, Symbol["Conj"][x_] -> x};
+ReFields[part_] := part /. {SARAH`bar[x_] -> x, Susyno`LieGroups`conj[x_] -> x, SARAH`Conj[x_] -> x};
 
 AllInternalFieldsQ[fieldslist_List] := ContainsNone[fieldslist /. {fd_[{indx__}] -> indx},{SARAH`gE1,SARAH`gE2}];
 
@@ -146,8 +146,8 @@ ConvertSarah2LDiagramList[tad_List, head_:Total] :=
     head[SumTadpoleType /@ tad]*(-1) //. {
         (m : (SARAH`Mass | SARAH`Mass2))[(SARAH`bar | Susyno`LieGroups`conj)[p_], idx___] :> m[p, idx],
         (m : (SARAH`Mass | SARAH`Mass2))[p_, idx__] :> m[p[{idx}]],
-        C[p__] :> Cp[p]} /. MarkColorSummableScalarVertices[] //. {Symbol["i1"]->SARAH`gI1, Symbol["i2"]->SARAH`gI2, Symbol["i3"]->SARAH`gI3,
-        Symbol["i4"]->SARAH`gI4,Symbol["i5"]->SARAH`gI5,Symbol["i6"]->SARAH`gI6} //. UnrotateRules[] /. AddSEMomDep[];
+        C[p__] :> Cp[p]} /. MarkColorSummableScalarVertices[] /. {Symbol["i1"]->SARAH`gI1, Symbol["i2"]->SARAH`gI2, Symbol["i3"]->SARAH`gI3,
+        Symbol["i4"]->SARAH`gI4,Symbol["i5"]->SARAH`gI5,Symbol["i6"]->SARAH`gI6} /. UnrotateRules[] /. AddSEMomDep[];
 
 
 

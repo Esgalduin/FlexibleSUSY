@@ -316,7 +316,7 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
 				 Flatten[FieldIndexList /@ fieldsInRotatedCp]];
     If[lorentzTag === L2,
       vertex = StripGroupStructure[
-                  ContractFourScalarIndices[vertex,cp,fields,fieldsInRotatedCp,strippedIndices],
+                  ContractFourScalarIndices[vertex,fields,strippedIndices],
                strippedIndices];,
       vertex = StripGroupStructure[
                   ResolveColorFactor[vertex, fields, cpPattern, nPointFunctions[[All,2]]],
@@ -338,22 +338,25 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
 ];
 
 (* recreating functionality of sumOverNonAbelianIndicesPOLE in SARAH/Package/SPheno/SPhenoCoupling.m *)
-ContractFourScalarIndices[vertex_, cp_, fields_, rotatedfields_, indices_] :=
+ContractFourScalarIndices[vertex_, fields_, indices_] :=
    Module[{contractions = FindContractions[fields], deltacontractions, sumparameters, result},
-   deltacontractions = MakeSARAHDeltaContraction[fields, indices, contractions]
+   deltacontractions = MakeSARAHDeltaContraction[fields, indices, contractions];
    sumparameters = Flatten[Table[
          DeleteCases[SARAH`getIndizesWI[fields[[i]]],Alternatives[{generation,_},{lorentz,4}]] /. SARAH`subGC[i] /. SARAH`subIndFinal[i,i],
          {i,1,4}],1];
-   result = Fold[Sum,vertex,sumparameters];
+   result = Simplify[Fold[Sum,deltacontractions*vertex,sumparameters]];
+   (* todo: implement the sums in case of fSU3 or lam presence in vertex, as done in sumOverNonAbelianIndicesPOLE *)
+   result
 ];
 
+
 FindContractions[fieldlist_] :=
-  Module[{remainingfields, firstcontraction, secondcontraction,
-          fieldlistindfree = fieldlist /. {fd_[{__}] -> fd}},
+  Module[{remainingfields, firstcontraction, secondcontraction,fieldlistindfree = fieldlist /. {fd_[{__}] -> fd}}
+  ,
    firstcontraction = {1,FirstPosition[Rest[fieldlistindfree],SARAH`AntiField[fieldlistindfree[[1]]]][[1]] + 1};
    secondcontraction = Complement[{1, 2, 3, 4}, firstcontraction];
    If[SARAH`AntiField[fieldlistindfree[[secondcontraction[[1]]]]] =!= fieldlistindfree[[secondcontraction[[2]]]],
-      Print["Problem in FindContraction with fields ", fieldlist,". No second contraction available."]];
+      Print["Problem in FindContraction with fields ", fieldlist,". No second contraction available."];];
    {firstcontraction, secondcontraction}
    ];
 
@@ -363,11 +366,11 @@ ReFields[part_] := part /. {Symbol["bar"][x_] -> x, Symbol["conj"][x_] -> x, Sym
 
 MakeSARAHDeltaContraction[fields_, indices_, contractions_] :=
   Module[{fieldindices = ReFields[fields] /. {y_[{indi__}] -> {indi}}, vertexindices, indicessarah = SARAH`getIndizesWI /@ ReFields[fields],genandlorindexpos},
-   genandlorindexpos = Map[Join[Sequence @@ #] &,Function[partindicessarah, Position[partindicessarah, Alternatives[{generation, _}, {lorentz, 4}]]] /@ indicessarah, {1}]
-   fieldindices = MapThread[Delete, {fieldindices,generationindexpos}];
+   genandlorindexpos = Map[Join[Sequence @@ #] &,Function[partindicessarah, Position[partindicessarah, Alternatives[{generation, _}, {lorentz, 4}]]] /@ indicessarah, {1}];
+   fieldindices = MapThread[Delete, {fieldindices,genandlorindexpos}];
    (* this deletion of generation indices is probably unnecessary, since in the next line, we only consider
       indices, that would be stripped by FlexibleSUSY *)
-   vertexindices = Map[Function[contrindex,Select[fieldindices[[contrindex]], MemberQ[indices, #] &]],contractions, {2}]; \
+   vertexindices = Map[Function[contrindex,Select[fieldindices[[contrindex]], MemberQ[indices, #] &]],contractions, {2}];
    (* contractions have the form {{1,3},{2,4}}
       and vertexindices {{{ct1, ht1}, {ct3, ht3}}, {{ct2, ht2}, {ct4, ht4}}},
       where ct and ht are indices of broken gauge groups
