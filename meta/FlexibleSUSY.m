@@ -2587,7 +2587,7 @@ FSCheckFlags[] :=
               References`AddReference["Bednyakov:2010ni"];
              ];
 
-           If[FlexibleSUSY`UseHiggs2LoopSM || FlexibleSUSY`FlexibleEFTHiggs,
+           If[FlexibleSUSY`UseHiggs2LoopSM,
               Print["Adding 2-loop SM Higgs mass contributions from ",
                     "[arxiv:1205.6497, arxiv:1407.4336]"];
               References`AddReference["Degrassi:2012ry"];
