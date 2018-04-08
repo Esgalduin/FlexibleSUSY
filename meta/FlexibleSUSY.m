@@ -199,7 +199,7 @@ IMEXTPAR = {};
 
 (* 2L flags*)
 UseSARAH2Loop = True;
-Exclude1L2LFermionShifts = True;
+Exclude1L2LFermionShifts = False;
 Exclude1L2LAhShiftSSSS = False;
 
 UseConsistentEWSBSolution = True;
