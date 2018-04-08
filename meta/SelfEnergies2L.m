@@ -127,7 +127,7 @@ FourScalarFieldsQ[fieldslist_List] := (Length[fieldslist] === 4) && (GetFieldTyp
 AllUnbrokenIndicesQ[fieldslist_List,unbrokesymmetries_List] :=
    Module[{modelParticles = SARAH`Particles[FlexibleSUSY`FSEigenstates],fieldIndices,indextypelist},
    fieldIndices = Map[Function[par,Select[modelParticles,#[[1]] === par &]], ReFields[fieldslist] /. {y_[{__}] -> y}][[All, 1, 5]];
-   indextypelist = (Transpose /@ fieldIndices)[[All, 1]];
+   indextypelist = (Transpose /@ (fieldIndices/. {{} -> {{noIndex, 1}}}))[[All, 1]];
    Or @@ Map[Function[indtype, And @@ (MemberQ[#, indtype] & /@ indextypelist)], unbrokesymmetries]
 ];
 
