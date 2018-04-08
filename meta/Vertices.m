@@ -375,7 +375,7 @@ MakeSARAHDeltaContraction[fields_, indices_, contractions_] :=
       and vertexindices {{{ct1, ht1}, {ct3, ht3}}, {{ct2, ht2}, {ct4, ht4}}},
       where ct and ht are indices of broken gauge groups
       which we need to sum over *)
-   Times @@ Flatten[MapThread[MakeSARAHDelta] /@ vertexindices]
+   Times @@ Flatten[MapThread[MakeSARAHDelta,#] & /@ vertexindices]
 ];
 
 
