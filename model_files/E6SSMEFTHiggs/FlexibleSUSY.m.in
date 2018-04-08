@@ -175,7 +175,8 @@ LowScale = LowEnergyConstant[MZ];
 
 LowScaleFirstGuess = LowEnergyConstant[MZ];
 
-UseHiggs2LoopNMSSM = True;
+UseHiggs2LoopNMSSM = False;
+UseSARAH2Loop = True;
 EffectiveMu =  \[Lambda] vs / Sqrt[2];
 EffectiveMASqr = T[\[Lambda]] vs / Sqrt[2] (vu^2 + vd^2) / (vu vd);
 

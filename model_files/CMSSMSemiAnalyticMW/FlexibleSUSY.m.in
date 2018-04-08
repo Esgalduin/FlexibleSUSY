@@ -103,7 +103,8 @@ InitialGuessAtLowScale = {
 
 InitialGuessAtHighScale = {};
 
-UseHiggs2LoopMSSM = True;
+UseHiggs2LoopMSSM = False;
+UseSARAH2Loop = True;
 EffectiveMu = \[Mu];
 UseMSSM3LoopRGEs = True;
 

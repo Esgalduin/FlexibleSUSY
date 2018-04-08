@@ -53,7 +53,8 @@ InitialGuessAtHighScale = {
 };
 
 UseSM3LoopRGEs = True;
-UseHiggs2LoopSM = True;
+UseHiggs2LoopSM = False;
+UseSARAH2Loop = True;
 UseHiggs3LoopSM = True;
 
 DefaultPoleMassPrecision = MediumPrecision;

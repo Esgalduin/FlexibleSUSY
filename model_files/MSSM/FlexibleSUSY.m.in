@@ -84,11 +84,12 @@ InitialGuessAtHighScale = {
    {B[\[Mu]], 0.0}
 };
 
-UseHiggs2LoopMSSM = True;
+UseHiggs2LoopMSSM = False;
+UseSARAH2Loop = True;
 EffectiveMu = \[Mu];
 UseMSSM3LoopRGEs = True;
 
-UseSARAH2Loop = False;
+
 
 PotentialLSPParticles = { Chi, Sv, Su, Sd, Se, Cha, Glu };
 

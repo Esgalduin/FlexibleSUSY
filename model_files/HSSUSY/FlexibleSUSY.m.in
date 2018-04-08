@@ -201,7 +201,8 @@ MediumPoleMassPrecision  = {};
 LowPoleMassPrecision     = {};
 
 OnlyLowEnergyFlexibleSUSY = False;
-UseHiggs2LoopSM = True;
+UseHiggs2LoopSM = False;
+UseSARAH2Loop = True;
 UseHiggs3LoopSM = True;
 UseHiggs4LoopSM = True;
 UseSM3LoopRGEs = True;

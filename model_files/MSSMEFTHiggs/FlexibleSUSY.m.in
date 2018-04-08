@@ -124,7 +124,8 @@ LowScale = LowEnergyConstant[MZ];
 LowScaleFirstGuess = LowEnergyConstant[MZ];
 
 
-UseHiggs2LoopMSSM = True;
+UseHiggs2LoopMSSM = False;
+UseSARAH2Loop = True;
 EffectiveMu = \[Mu];
 
 PotentialLSPParticles = { Chi, Sv, Su, Sd, Se, Cha, Glu };
