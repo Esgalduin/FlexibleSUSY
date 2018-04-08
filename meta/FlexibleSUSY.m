@@ -1276,7 +1276,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
             independentEwsbEquations, higgsToEWSBEqAssociation,
             calculateOneLoopTadpolesNoStruct = "", calculateTwoLoopTadpolesNoStruct = "",
             ewsbInitialGuess = "", solveEwsbTreeLevel = "", solveEwsbConsistent = "", setTreeLevelSolution = "", EWSBSolvers = "",
-            setEWSBSolution = "", fillArrayWithEWSBParameters = "",
+            setConsistentSolution = "", setEWSBSolution = "", fillArrayWithEWSBParameters = "",
             solveEwsbWithTadpoles = "", getEWSBParametersFromVector = "",
             setEWSBParametersFromLocalCopies = "", applyEWSBSubstitutions = "",
             setModelParametersFromEWSB = ""},
@@ -1340,8 +1340,8 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
             ewsbEquationsTreeLevel,
             independentEwsbEquations, higgsToEWSBEqAssociation,
             calculateOneLoopTadpolesNoStruct = "", calculateTwoLoopTadpolesNoStruct = "",
-            ewsbInitialGuess = "", solveEwsbTreeLevel = "", setTreeLevelSolution = "", EWSBSolvers = "",
-            setEWSBSolution = "", fillArrayWithEWSBParameters = "",
+            ewsbInitialGuess = "", solveEwsbTreeLevel = "", solveEwsbConsistent = "", setTreeLevelSolution = "", EWSBSolvers = "",
+            setConsistentSolution = "", setEWSBSolution = "", fillArrayWithEWSBParameters = "",
             solveEwsbWithTadpoles = "", getEWSBParametersFromVector = "",
             setEWSBParametersFromLocalCopies = "", applyEWSBSubstitutions = "",
             setModelParametersFromEWSB = ""},
@@ -1362,9 +1362,11 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
               calculateTwoLoopTadpolesNoStruct = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "+", "model."];
              ];
            ewsbInitialGuess             = EWSB`FillInitialGuessArray[parametersFixedByEWSB, ewsbInitialGuessValues];
-           solveEwsbTreeLevel = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
-           solveEwsbTreeLevel = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbTreeLevel, solutions];
-           setTreeLevelSolution = SemiAnalytic`SetTreeLevelEWSBSolution[ewsbSolution, solutions, additionalEwsbSubs];
+           solveEwsbTreeLevel           = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
+           solveEwsbConsistent          = EWSB`CreateConsistentEwsbSolver[ewsbSolution];
+           solveEwsbTreeLevel           = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbTreeLevel, solutions];
+           setTreeLevelSolution         = SemiAnalytic`SetTreeLevelEWSBSolution[ewsbSolution, solutions, additionalEwsbSubs];
+           setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
            solveEwsbWithTadpoles        = EWSB`CreateEwsbSolverWithTadpoles[ewsbSolution];
            solveEwsbWithTadpoles        = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbWithTadpoles, solutions];
            EWSBSolvers                  = EWSB`CreateEWSBRootFinders[allowedEwsbSolvers];
@@ -1382,7 +1384,9 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
                             "@numberOfEWSBEquations@"-> ToString[TreeMasses`GetDimension[SARAH`HiggsBoson]],
                             "@ewsbInitialGuess@"       -> IndentText[ewsbInitialGuess],
                             "@solveEwsbTreeLevel@"           -> IndentText[WrapLines[solveEwsbTreeLevel]],
+                            "@solveEwsbConsistent@"          -> IndentText[WrapLines[solveEwsbConsistent]],
                             "@setTreeLevelSolution@"         -> IndentText[WrapLines[setTreeLevelSolution]],
+                            "@setConsistentSolution@"        -> IndentText[WrapLines[setConsistentSolution]],
                             "@EWSBSolvers@"                  -> IndentText[IndentText[EWSBSolvers]],
                             "@fillArrayWithEWSBParameters@"  -> IndentText[fillArrayWithEWSBParameters],
                             "@solveEwsbWithTadpoles@"        -> IndentText[WrapLines[solveEwsbWithTadpoles]],

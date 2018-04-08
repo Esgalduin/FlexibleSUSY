@@ -57,10 +57,12 @@ public:
    virtual void set_loop_order(int l) override { loop_order = l; }
    virtual void set_number_of_iterations(int n) override { number_of_iterations = n; }
    virtual void set_precision(double p) override { precision = p; }
+   virtual void set_solve_consistently(bool c) { solve_consistently = c; }
 
    virtual int get_loop_order() const override { return loop_order; }
    virtual int get_number_of_iterations() const override { return number_of_iterations; }
    virtual double get_precision() const override { return precision; }
+   virtual bool get_solve_consistently() const override { return solve_consistently; }
 
    void set_semi_analytic_solutions(@ModelName@_semi_analytic_solutions*);
 
@@ -78,6 +80,7 @@ private:
    int number_of_iterations{100}; ///< maximum number of iterations
    int loop_order{2};             ///< loop order to solve EWSB at
    double precision{1.e-5};       ///< precision goal
+   bool solve_consistently{false}; ///< use consistent ewsb solution
    @ModelName@_semi_analytic_solutions* solutions{nullptr}; ///< semi-analytic solutions calculator
 
    void set_ewsb_solution(@ModelName@_mass_eigenstates&, const EWSB_solver*);
@@ -87,9 +90,11 @@ private:
    int solve_iteratively(@ModelName@_mass_eigenstates&);
    int solve_iteratively_at(@ModelName@_mass_eigenstates&, int);
    int solve_iteratively_with(@ModelName@_mass_eigenstates&, EWSB_solver*, const EWSB_vector_t&);
+   int solve_consistently_at(@ModelName@_mass_eigenstates&, int );
 
    EWSB_vector_t initial_guess(const @ModelName@_mass_eigenstates&) const;
    EWSB_vector_t tadpole_equations(const @ModelName@_mass_eigenstates&) const;
+   EWSB_vector_t tadpole_equations_loop(const @ModelName@_mass_eigenstates& ) const;
    EWSB_vector_t ewsb_step(const @ModelName@_mass_eigenstates&) const;
 };
 
