@@ -42,27 +42,10 @@ MultLF[{factor_, func_, chiralities_List}, particles_List, expr_] :=
 MultiplyLoopFunction[loopfuncs_List, particles_List, expr_] :=
     Total[MultLF[#, particles, expr]& /@ loopfuncs];
 
-(* check for ambiguous contraction of indices *)
-IsAmbiguousContraction[indices_List] :=
-    Or @@ ((#[[2]] > 2)& /@
-           Tally[First /@ (DeleteCases[indices, {_, SARAH`gE1 | SARAH`gE2}] /.
-                           SARAH`bar -> Identity /. Susyno`LieGroups`conj -> Identity)]);
-
-(* one or more fields with indices appear more once *)
-IsAmbiguousIndex[indices_List] :=
-    Or @@ ((#[[2]] > 1)& /@ Tally[First /@ indices]);
 
 DistributeIndices[{}, coupling_] := coupling;
-DistributeIndices[indices_List, c : C[particles__]] :=
-    If[IsAmbiguousIndex[indices],
-       (* replace indices in order from indices list *)
-       Assert[First /@ indices === {particles}];
-       C[Sequence @@
-         MapThread[(#1 /. #2)&, {{particles}, (Rule[#1, AppendIndex[#1, #2]]& @@@ indices)}]]
-       ,
-       (* use one common replacement rule for all fields *)
-       c /. (Rule[#1, AppendIndex[#1, #2]]& @@@ indices)
-    ];
+DistributeIndices[indices_List, c : C[particles__]] := ReplaceFirst[c, Rule[#1, AppendIndex[#1, #2]]& @@@ indices];
+
 
 (* multiplies all given couplings *)
 MultiplyCouplings[lst_List] := DistributeIndices @@@ lst;
@@ -117,6 +100,10 @@ AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  S
                   Symbol["GfFbFbV"][masses__] -> Symbol["GfFbFbV"][p^2,masses],Symbol["ZfSSSS"][masses__] -> Symbol["ZfSSSS"][p^2,masses],Symbol["MfSSSSS"][masses__] -> Symbol["MfSSSSS"][p^2,masses]};
 
 GetFieldType[x_] := SARAH`getType[x, False, FlexibleSUSY`FSEigenstates];
+
+ReplaceFirst[expr_, rule_Rule] := ReplacePart[expr, (FirstPosition[expr, #1] -> #2) &[Sequence @@ rule]];
+
+ReplaceFirst[expr_,rules_List] := Fold[ReplaceFirst,expr,rules];
 
 ReFields[part_] := part /. {SARAH`bar[x_] -> x, Susyno`LieGroups`conj[x_] -> x, SARAH`Conj[x_] -> x};
 
