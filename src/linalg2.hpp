@@ -1622,7 +1622,7 @@ void fs_diagonalize_hermitian
  * @param m matrix
  */
 template <typename Derived>
-void Symmetrize(Eigen::MatrixBase<Derived>& m) noexcept
+void AverageSymmetrize(Eigen::MatrixBase<Derived>& m) noexcept
 {
    static_assert(Eigen::MatrixBase<Derived>::RowsAtCompileTime ==
                  Eigen::MatrixBase<Derived>::ColsAtCompileTime,

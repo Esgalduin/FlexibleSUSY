@@ -576,7 +576,7 @@ for (int i = 0; i < " <> ToString[dim] <> "; i++)
  for (int k = i; k < " <> ToString[dim] <> "; k++)
     " <> sym <> "(i, k) = " <> name <> "(p2, i, k);
 
-Symmetrize(" <> sym <> ");
+AverageSymmetrize(" <> sym <> ");
 "
         ];
 
