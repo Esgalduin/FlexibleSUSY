@@ -77,7 +77,7 @@ private:
    int number_of_iterations{100}; ///< maximum number of iterations
    int loop_order{2};             ///< loop order to solve EWSB at
    double precision{1.e-5};       ///< precision goal
-   bool solve_consistently{false}; ///< use consistent ewsb solution
+   bool solve_consistently{@ewsbSolveConsistently@}; ///< use consistent ewsb solution
 
    void set_ewsb_solution(@ModelName@_mass_eigenstates&, const EWSB_solver*);
    template <typename It> void set_best_ewsb_solution(@ModelName@_mass_eigenstates&, It, It);

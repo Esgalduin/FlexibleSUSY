@@ -1725,7 +1725,6 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@convertMixingsToHKConvention@"   -> IndentText[convertMixingsToHKConvention],
                             "@ewsbSolverHeaders@"            -> ewsbSolverHeaders,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
-                            "@ewsbSolveConsistently@"-> If[FlexibleSUSY`UseConsistentEWSBSolution === True, "true", "false"],
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
                             Sequence @@ GeneralReplacementRules[]
                           } ];

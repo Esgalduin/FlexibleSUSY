@@ -381,16 +381,9 @@ int CLASSNAME::solve_ewsb_one_loop()
          this->ewsb_solver->set_precision(old_precision);
       });
 
-   const bool old_solve_consistently = ewsb_solver->get_solve_consistently();
-   const auto save_solve_consistently = make_raii_guard(
-      [this, old_solve_consistently] () {
-         this->ewsb_solver->set_solve_consistently(old_solve_consistently);
-      });
-
    ewsb_solver->set_loop_order(1);
    ewsb_solver->set_number_of_iterations(get_number_of_ewsb_iterations());
    ewsb_solver->set_precision(ewsb_iteration_precision);
-   ewsb_solver->set_solve_consistently(ewsb_solve_consistently);
 
    return ewsb_solver->solve(*this);
 }
@@ -422,16 +415,10 @@ int CLASSNAME::solve_ewsb()
          this->ewsb_solver->set_precision(old_precision);
       });
 
-   const bool old_solve_consistently = ewsb_solver->get_solve_consistently();
-   const auto save_solve_consistently = make_raii_guard(
-      [this, old_solve_consistently] () {
-         this->ewsb_solver->set_solve_consistently(old_solve_consistently);
-      });
 
    ewsb_solver->set_loop_order(ewsb_loop_order);
    ewsb_solver->set_number_of_iterations(get_number_of_ewsb_iterations());
    ewsb_solver->set_precision(ewsb_iteration_precision);
-   ewsb_solver->set_solve_consistently(ewsb_solve_consistently);
 
    return ewsb_solver->solve(*this);
 }
