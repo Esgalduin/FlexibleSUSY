@@ -1161,7 +1161,7 @@ SetConsistentSolution[ewsbSolution_, substitutions_List:{}, struct_String:"model
                        If[substitutions === {}, "",
                           IndentText[WrapLines[SetModelParametersFromEWSB[parametersFixedByEWSB, substitutions, struct]]]
                          ] <>
-                       IndentText["model.calculate_DRbar_masses();\nmodel.get_problems().unflag_no_ewsb();\n"] <>
+                       IndentText["model.get_problems().unflag_no_ewsb();\n"] <>
                        "} else {\n" <>
                        IndentText["error = EWSB_solver::FAIL;\nmodel.get_problems().flag_no_ewsb();\n"] <>
                        "}";
