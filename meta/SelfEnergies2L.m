@@ -103,7 +103,7 @@ GetFieldType[x_] := SARAH`getType[x, False, FlexibleSUSY`FSEigenstates];
 
 ReplaceFirst[expr_, rule_Rule] := ReplacePart[expr, (FirstPosition[expr, #1] -> #2) &[Sequence @@ rule]];
 
-ReplaceFirst[expr_,rules_List] := Fold[ReplaceFirst,expr,rules];
+ReplaceFirst[expr_, rules_List] := Fold[ReplaceFirst, expr, rules];
 
 ReFields[part_] := part /. {SARAH`bar[x_] -> x, Susyno`LieGroups`conj[x_] -> x, SARAH`Conj[x_] -> x};
 
@@ -268,7 +268,7 @@ Calc1L2LSEShiftSSSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunc
     nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
     couplings= diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI4};
-    If[MatchQ[couplings, x_[{SARAH`gO1}]],couplings = ReplacePart[couplings, FirstPosition[couplings, gO1] -> SARAH`gO2];];
+    If[MatchQ[couplings, x_[{SARAH`gO1}]],couplings = ReplaceFirst[couplings,SARAH`gO1->SARAH`gO2];];
 
     prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]/.{Symbol["generation"]->SARAH`gI4}};
 
