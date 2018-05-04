@@ -421,19 +421,14 @@ Module[{gaugelesssub,relevantTadpoles,tad1Lexpr,SE1Lexpr,treelevelsolution,higgs
      nPointform
 ];
 
-CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",goldstones=SARAH`GoldstoneGhost,goldstonemasses,
+CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
    couplingnames = Symbol[SymbolName[#]]& /@ brokencouplings},
-   goldstonemasses = SARAH`Mass2[#]& /@ (Transpose[goldstones][[2]] /. {field_[{Ind_}] -> field[Ind-1]}) ;
 
    For[nm = 1,nm <= Length[couplingnames], nm++,
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";
    ];
 
    output = output <> "solve_ewsb_tree_level();\ncalculate_DRbar_masses();\n";
-
-   For[nm = 1,nm <= Length[goldstonemasses], nm++,
-      output = output <> CConversion`RValueToCFormString[goldstonemasses[[nm]]] <> " = 0;\n";
-   ];
 
    output
 ];

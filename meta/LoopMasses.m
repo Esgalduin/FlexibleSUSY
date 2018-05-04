@@ -536,7 +536,9 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
                        calcHigherLoopHiggsContributions <> "\n" <>
                        "for (int es = 0; es < " <> dimStr <> "; ++es) {\n" <>
                        IndentText["const double p2 = " <> momentum <> "(es);\n" <>
-                                  selfEnergyMatrixCType <> " self_energy = " <> CastIfReal[selfEnergyFunction <> "(p2)", selfEnergyMatrixType] <> ";\n" <>
+                                  "auto model_cons = *this;\n" <>
+                                  "if(ewsb_solve_consistently) {model_cons.solve_ewsb_tree_level();}\n" <>
+                                  selfEnergyMatrixCType <> " self_energy = " <> CastIfReal["model_cons." <> selfEnergyFunction <> "(p2)", selfEnergyMatrixType] <> ";\n" <>
                                   addHigherLoopHiggsContributions <>
                                   "const " <> selfEnergyMatrixCType <> " M_loop(M_tree - self_energy" <>
                                   If[tadpoleMatrix == "", "", " + tadpoles"] <> ");\n" <>

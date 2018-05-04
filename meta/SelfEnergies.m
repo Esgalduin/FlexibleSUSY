@@ -567,6 +567,19 @@ Hermitianize(" <> sym <> ");
 "
           ];
 
+FillSymmetricSelfEnergyMatrix[nPointFunction_, sym_String, loops_] :=
+  Module[{dim, name},
+         dim = GetDimension[GetField[nPointFunction]];
+         name = CreateFunctionName[nPointFunction, loops];
+         "\
+for (int i = 0; i < " <> ToString[dim] <> "; i++)
+ for (int k = i; k < " <> ToString[dim] <> "; k++)
+    " <> sym <> "(i, k) = " <> name <> "(p2, i, k);
+
+AverageSymmetrize(" <> sym <> ");
+"
+        ];
+
 FillGeneralSelfEnergyFunction[nPointFunction_, sym_String, loops_] :=
     Module[{dim, name},
            dim = GetDimension[GetField[nPointFunction]];
@@ -580,7 +593,9 @@ for (int i = 0; i < " <> ToString[dim] <> "; i++)
 
 FillSelfEnergyMatrix[nPointFunction_, sym_String, loops_] :=
     Module[{particle = GetField[nPointFunction]},
-           Which[(IsScalar[particle] || IsVector[particle]) && SelfEnergyIsSymmetric[particle],
+           Which[(particle === SARAH`HiggsBoson || particle === SARAH`PseudoScalar) && loops === 2,
+                 FillSymmetricSelfEnergyMatrix[nPointFunction, sym, loops],
+                 (IsScalar[particle] || IsVector[particle]) && SelfEnergyIsSymmetric[particle],
                  FillHermitianSelfEnergyMatrix[nPointFunction, sym, loops],
                  True,
                  FillGeneralSelfEnergyFunction[nPointFunction, sym, loops]
