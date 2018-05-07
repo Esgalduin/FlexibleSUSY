@@ -1726,6 +1726,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@ewsbSolverHeaders@"            -> ewsbSolverHeaders,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
+                            "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
           ];
