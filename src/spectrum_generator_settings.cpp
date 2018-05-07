@@ -54,7 +54,8 @@ const std::array<std::string, Spectrum_generator_settings::NUMBER_OF_OPTIONS> de
    "Higgs 3-loop corrections O(alpha_b alpha_s^2)",
    "Higgs 3-loop corrections O(alpha_t^2 alpha_s)",
    "Higgs 3-loop corrections O(alpha_t^3)",
-   "Higgs 4-loop corrections O(alpha_t alpha_s^3)"
+   "Higgs 4-loop corrections O(alpha_t alpha_s^3)",
+   "enable consistent EWSB solution"
 };
 } // anonymous namespace
 

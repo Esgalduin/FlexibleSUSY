@@ -112,6 +112,8 @@ public:
    void print(std::ostream& out = std::cerr) const override;
    void set_precision(double);
    double get_precision() const;
+   void set_ewsb_solve_consistently(bool);
+   bool get_ewsb_solve_consistently() const;
 
 @lspGetters@
 @massGetters@
@@ -148,6 +150,7 @@ public:
 private:
    int ewsb_loop_order{2};           ///< loop order for EWSB
    int pole_mass_loop_order{2};      ///< loop order for pole masses
+   bool ewsb_solve_consistently{@ewsbSolveConsistently@}; ///< flag, whether ewsb equations are to be solved consistently
    bool calculate_sm_pole_masses{false};  ///< switch to calculate the pole masses of the Standard Model particles
    bool calculate_bsm_pole_masses{true};  ///< switch to calculate the pole masses of the BSM particles
    bool force_output{false};              ///< switch to force output of pole masses
