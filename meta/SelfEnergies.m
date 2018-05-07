@@ -593,7 +593,8 @@ for (int i = 0; i < " <> ToString[dim] <> "; i++)
 
 FillSelfEnergyMatrix[nPointFunction_, sym_String, loops_] :=
     Module[{particle = GetField[nPointFunction]},
-           Which[(particle === SARAH`HiggsBoson || particle === SARAH`PseudoScalar) && loops === 2,
+           Print[particle];
+           Which[((particle /. f[__]->f) === SARAH`HiggsBoson || (particle /. f[__]->f) === SARAH`PseudoScalar) && loops === 2,
                  FillSymmetricSelfEnergyMatrix[nPointFunction, sym, loops],
                  (IsScalar[particle] || IsVector[particle]) && SelfEnergyIsSymmetric[particle],
                  FillHermitianSelfEnergyMatrix[nPointFunction, sym, loops],
