@@ -573,7 +573,7 @@ FillSymmetricSelfEnergyMatrix[nPointFunction_, sym_String, loops_] :=
          name = CreateFunctionName[nPointFunction, loops];
          "\
 for (int i = 0; i < " <> ToString[dim] <> "; i++)
- for (int k = i; k < " <> ToString[dim] <> "; k++)
+ for (int k = 0; k < " <> ToString[dim] <> "; k++)
     " <> sym <> "(i, k) = " <> name <> "(p2, i, k);
 
 AverageSymmetrize(" <> sym <> ");

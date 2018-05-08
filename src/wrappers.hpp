@@ -650,6 +650,24 @@ void Symmetrize(Eigen::MatrixBase<Derived>& m)
          m(i,k) = m(k,i);
 }
 
+/**
+ * Symmetrizes matrix, by averaging the upper and lower triangle
+ *
+ * @param m matrix
+ */
+template <typename Derived>
+void AverageSymmetrize(Eigen::MatrixBase<Derived>& m) noexcept
+{
+   static_assert(Eigen::MatrixBase<Derived>::RowsAtCompileTime ==
+                 Eigen::MatrixBase<Derived>::ColsAtCompileTime,
+                 "AverageSymmetrize is only defined for squared matrices");
+   for (int i = 0; i < Eigen::MatrixBase<Derived>::RowsAtCompileTime; i++)
+      for (int k = 0; k < i; k++) {
+         m(i,k) = (m(i,k)+m(k,i))/2.0;
+         m(k,i) = m(i,k);
+      }
+}
+
 #define UNITMATRIX(rows)             Eigen::Matrix<double,rows,rows>::Identity()
 #define ZEROMATRIX(rows,cols)        Eigen::Matrix<double,rows,cols>::Zero()
 #define ZEROTENSOR3(d1,d2,d3)        ZeroTensor3<double,d1,d2,d3>()

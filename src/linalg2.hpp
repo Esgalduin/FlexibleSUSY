@@ -1616,23 +1616,6 @@ void fs_diagonalize_hermitian
     fs_diagonalize_hermitian_errbd(m, w, 0, &w_errbd);
 }
 
-/**
- * Symmetrizes matrix, by averaging the upper and lower triangle
- *
- * @param m matrix
- */
-template <typename Derived>
-void AverageSymmetrize(Eigen::MatrixBase<Derived>& m) noexcept
-{
-   static_assert(Eigen::MatrixBase<Derived>::RowsAtCompileTime ==
-                 Eigen::MatrixBase<Derived>::ColsAtCompileTime,
-                 "Hermitianize is only defined for squared matrices");
-   auto m_temp = m;
-   for (int i = 0; i < Eigen::MatrixBase<Derived>::RowsAtCompileTime; i++)
-      for (int k = 0; k < i; k++)
-         m(i,k) = (m_temp(i,k)+m_temp(k,i))/2.0;
-}
-
 } // namespace flexiblesusy
 
 #endif // linalg2_hpp
