@@ -19,6 +19,14 @@
    ====================================================================
 
 *)
+If[$VersionNumber <= 9.,
+   Unprotect[Extract];
+   Extract[expr_, {All,1,1}] := First[First[#]]& /@ expr;
+   Protect[Extract];
+   Unprotect[FirstPosition];
+   FirstPosition[expr_,pattern_] := First[Position[expr,pattern]];
+   Protect[FirstPosition];
+  ];
 
 BeginPackage["FlexibleSUSY`",
              {"SARAH`",
