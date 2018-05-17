@@ -5,6 +5,9 @@
 *.d
 *.x
 *.mod
+*.dat
+*.log
+*.nb
 
 config/config.h
 config/version
@@ -77,3 +80,4 @@ test/*.xml
 test/LesHouches.out.*
 test/test_*.callgrind.out*
 test/test_*.out.*
+test/SM/*

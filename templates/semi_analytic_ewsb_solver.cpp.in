@@ -224,6 +224,7 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
    int error = EWSB_solver::SUCCESS;
 
    model.solve_ewsb_tree_level(); // need to make sure our parameters are at tree-level
+   model.calculate_DRbar_masses();
 
    // this is set during model creation, so that consistent solution cannot be attempted,
    // if we were unable to calculate shifts
