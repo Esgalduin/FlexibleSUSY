@@ -695,7 +695,7 @@ ColorIndexRange[colorIndex_, fields_] :=
 	{color, n_} :> n];
 
 UnresolvedColorFactorFreeQ[cpPattern_, exprs_] := Module[{
-	fstPos = First@Position[exprs, cpPattern],
+	fstPos = FirstPosition[exprs, cpPattern],
 	cpInstance,
 	exprInstance
     },
