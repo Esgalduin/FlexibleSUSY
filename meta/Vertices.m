@@ -698,12 +698,17 @@ UnresolvedColorFactorFreeQ[cpPattern_, exprs_] := Module[{
    positions = Position[exprs, cpPattern],
    fstPos, fstAllPositions, cpInstance, exprInstance
     },
-    fstPos = First@positions;
-    fstAllPositions = Select[positions, First[#] === First[fstPos] &];
-    cpInstance = Extract[exprs, fstPos];
-    exprInstance = Extract[exprs, Take[fstPos, 1]];
-    If[Head[exprInstance] === Plus, exprInstance = Plus @@ (exprInstance[[#]]& /@ fstAllPositions[[All,2]]);];
-    FreeQ[Coefficient[exprInstance //. SARAH`sum[__, ex_] :> ex, cpInstance], C]
+    If[FreeQ[exprs,cpPattern],
+       True
+       ,
+       fstPos = First@positions;
+       fstAllPositions = Select[positions, First[#] === First[fstPos] &];
+       cpInstance = Extract[exprs, fstPos];
+       exprInstance = Extract[exprs, Take[fstPos, 1]];
+       If[Head[exprInstance] === Plus, exprInstance = Plus @@ (exprInstance[[#]]& /@ fstAllPositions[[All,2]]);];
+       (* FreeQ[Coefficient[exprInstance //. SARAH`sum[__, ex_] :> ex, cpInstance], C] *)
+       SameQ[exprInstance, exprInstance /. Symbol["C"] -> 0]
+    ]
 ];
 
 (* CHECK: are the following right semantics of SARAH indices? *)
