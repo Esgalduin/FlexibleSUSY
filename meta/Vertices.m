@@ -106,9 +106,9 @@ SortCps[nPointFunctions_List] := Module[{
    	Print["sort and replace..."];
 
       result = Fold[Module[{sortedCp = SortCp[#2]},k++;
-   		    Utils`UpdateProgressBar[k, Length[relevantcpls]];
+		    Utils`UpdateProgressBar[k, Length[relevantcpls]];
       	    If[sortedCp =!= #2, #1 /. #2 -> sortedCp, #1]] &,
-      	    nPointFunctions, relevantcpls];
+	    nPointFunctions, relevantcpls];
 
       Utils`StopProgressBar[Length[relevantcpls]];
       ,
@@ -695,14 +695,15 @@ ColorIndexRange[colorIndex_, fields_] :=
 	{color, n_} :> n];
 
 UnresolvedColorFactorFreeQ[cpPattern_, exprs_] := Module[{
-	fstPos = FirstPosition[exprs, cpPattern],
-	cpInstance,
-	exprInstance
+   positions = Position[exprs, cpPattern],
+   fstPos, fstAllPositions, cpInstance, exprInstance
     },
+    fstPos = First@positions;
+    fstAllPositions = Select[positions, First[#] === First[fstPos] &];
     cpInstance = Extract[exprs, fstPos];
     exprInstance = Extract[exprs, Take[fstPos, 1]];
-    FreeQ[Coefficient[exprInstance //. SARAH`sum[__, ex_] :> ex, cpInstance],
-	  C]
+    If[Head[exprInstance] === Plus, exprInstance = Plus @@ (exprInstance[[#]]& /@ fstAllPositions[[All,2]]);];
+    FreeQ[Coefficient[exprInstance //. SARAH`sum[__, ex_] :> ex, cpInstance], C]
 ];
 
 (* CHECK: are the following right semantics of SARAH indices? *)
