@@ -104,8 +104,6 @@ SortCps[nPointFunctions_List] := Module[{
    	Print["sort and replace..."];
 
       sortCplsRules = If[# =!= SortCp[#], Rule[#,SortCp[#]], Nothing]& /@ relevantCpls;
-      Print["Coupling sorting rules: "];
-      Print[sortCplsRules];
       result = Timing[nPointFunctions /. Dispatch[sortCplsRules]];
       Print["Coupling sorting rules applied in ", result[[1]], " seconds."];
       ,
