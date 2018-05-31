@@ -1283,7 +1283,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
             ewsbEquationsTreeLevel, independentEwsbEquationsTreeLevel,
             independentEwsbEquations, higgsToEWSBEqAssociation,
             calculateOneLoopTadpolesNoStruct = "", calculateTwoLoopTadpolesNoStruct = "",
-            ewsbInitialGuess = "", solveEwsbTreeLevel = "", solveEwsbConsistent = "", setTreeLevelSolution = "", EWSBSolvers = "",
+            ewsbInitialGuess = "", solveEwsbTreeLevel = "", setTreeLevelSolution = "", EWSBSolvers = "",
             setConsistentSolution = "", setEWSBSolution = "", fillArrayWithEWSBParameters = "",
             solveEwsbWithTadpoles = "", getEWSBParametersFromVector = "",
             setEWSBParametersFromLocalCopies = "", applyEWSBSubstitutions = "",
@@ -1304,9 +1304,12 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
            If[SARAH`UseHiggs2LoopMSSM === True || FlexibleSUSY`UseHiggs2LoopNMSSM === True,
               calculateTwoLoopTadpolesNoStruct = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "+", "model."];
              ];
+           If[FlexibleSUSY`UseSARAH2Loop === True,
+              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.calculate_DRbar_masses();\n";
+              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", "model_gl."];
+             ];
            ewsbInitialGuess             = EWSB`FillInitialGuessArray[parametersFixedByEWSB, ewsbInitialGuessValues];
            solveEwsbTreeLevel           = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
-           solveEwsbConsistent          = EWSB`CreateConsistentEwsbSolver[ewsbSolution];
            setTreeLevelSolution         = EWSB`SetTreeLevelSolution[ewsbSolution, ewsbSubstitutions];
            setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
            EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers, Except[FlexibleSUSY`ConsistentSolver]]];
@@ -1325,7 +1328,6 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
                             "@numberOfEWSBEquations@"-> ToString[TreeMasses`GetDimension[SARAH`HiggsBoson]],
                             "@ewsbInitialGuess@"       -> IndentText[ewsbInitialGuess],
                             "@solveEwsbTreeLevel@"           -> IndentText[WrapLines[solveEwsbTreeLevel]],
-                            "@solveEwsbConsistent@"          -> IndentText[WrapLines[solveEwsbConsistent]],
                             "@setTreeLevelSolution@"         -> IndentText[WrapLines[setTreeLevelSolution]],
                             "@setConsistentSolution@"        -> IndentText[WrapLines[setConsistentSolution]],
                             "@EWSBSolvers@"                  -> IndentText[IndentText[EWSBSolvers]],
@@ -1348,7 +1350,7 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
             ewsbEquationsTreeLevel,
             independentEwsbEquations, higgsToEWSBEqAssociation,
             calculateOneLoopTadpolesNoStruct = "", calculateTwoLoopTadpolesNoStruct = "",
-            ewsbInitialGuess = "", solveEwsbTreeLevel = "", solveEwsbConsistent = "", setTreeLevelSolution = "", EWSBSolvers = "",
+            ewsbInitialGuess = "", solveEwsbTreeLevel = "",  setTreeLevelSolution = "", EWSBSolvers = "",
             setConsistentSolution = "", setEWSBSolution = "", fillArrayWithEWSBParameters = "",
             solveEwsbWithTadpoles = "", getEWSBParametersFromVector = "",
             setEWSBParametersFromLocalCopies = "", applyEWSBSubstitutions = "",
@@ -1369,9 +1371,12 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
            If[SARAH`UseHiggs2LoopMSSM === True || FlexibleSUSY`UseHiggs2LoopNMSSM === True,
               calculateTwoLoopTadpolesNoStruct = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "+", "model."];
              ];
+           If[FlexibleSUSY`UseSARAH2Loop === True,
+              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.calculate_DRbar_masses();\n";
+              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", "model_gl."];
+             ];
            ewsbInitialGuess             = EWSB`FillInitialGuessArray[parametersFixedByEWSB, ewsbInitialGuessValues];
            solveEwsbTreeLevel           = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
-           solveEwsbConsistent          = EWSB`CreateConsistentEwsbSolver[ewsbSolution];
            solveEwsbTreeLevel           = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbTreeLevel, solutions];
            setTreeLevelSolution         = SemiAnalytic`SetTreeLevelEWSBSolution[ewsbSolution, solutions, additionalEwsbSubs];
            setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
@@ -1392,7 +1397,6 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
                             "@numberOfEWSBEquations@"-> ToString[TreeMasses`GetDimension[SARAH`HiggsBoson]],
                             "@ewsbInitialGuess@"       -> IndentText[ewsbInitialGuess],
                             "@solveEwsbTreeLevel@"           -> IndentText[WrapLines[solveEwsbTreeLevel]],
-                            "@solveEwsbConsistent@"          -> IndentText[WrapLines[solveEwsbConsistent]],
                             "@setTreeLevelSolution@"         -> IndentText[WrapLines[setTreeLevelSolution]],
                             "@setConsistentSolution@"        -> IndentText[WrapLines[setConsistentSolution]],
                             "@EWSBSolvers@"                  -> IndentText[IndentText[EWSBSolvers]],
@@ -3674,9 +3678,10 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                    ];
               Print["   };\n"];
               If[FlexibleSUSY`UseConsistentEWSBSolution === True,
-                 Print["Error: The consistent EWSB solution method can only be used",
+                 Print["Warning: The consistent EWSB solution method can only be used",
                         " if an analytic tree-level solution is available."];
-                 Quit[1];
+                 Print["The iterative algorithm will only deliver accurate results"];
+                 Print[" at 2-loop level, if the model has no CP violation."]
               ];
              ];
            solverEwsbSolvers = SelectValidEWSBSolvers[solverEwsbSolutions, FlexibleSUSY`FSEWSBSolvers];

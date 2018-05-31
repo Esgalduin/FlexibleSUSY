@@ -279,25 +279,6 @@ Eigen::Matrix<double,CLASSNAME::number_of_ewsb_equations,1> CLASSNAME::tadpole_e
    return tadpole;
 }
 
-/**
- * Method which calculates the tadpoles at the current loop order without the
- * tree-level part
- * @return array of tadpoles
- */
-Eigen::Matrix<double,CLASSNAME::number_of_ewsb_equations,1> CLASSNAME::tadpole_equations_loop() const
-{
-   Eigen::Matrix<double,number_of_ewsb_equations,1> tadpole(
-      Eigen::Matrix<double,number_of_ewsb_equations,1>::Zero());
-
-   if (ewsb_loop_order > 0) {
-@calculateOneLoopTadpoles@
-      if (ewsb_loop_order > 1) {
-@calculateTwoLoopTadpoles@
-      }
-   }
-
-   return tadpole;
-}
 
 /**
  * This function returns the vector of tadpoles, each divided by the

@@ -52,9 +52,6 @@ to C form";
 CreateTreeLevelEwsbSolver::usage="Converts tree-level EWSB solutions
 to C form";
 
-CreateConsistentEwsbSolver::usage="Creates C function solving EWSB eq.
-consistently";
-
 CreateEWSBRootFinders::usage="Creates comma separated list of GSL root
 finders";
 
@@ -1099,42 +1096,6 @@ SolveEWSBIgnoringFailures[loops_Integer] :=
            warning = "#ifdef ENABLE_VERBOSE\n" <> IndentText[warning] <> "#endif";
            IndentText[result] <> warning
           ];
-
-CreateConsistentEwsbSolver[solution_List] :=
-    Module[{result = "",
-        i, par, expr, parStr, decls = "", reducedSolution,
-        type},
-       reducedSolution = solution;
-       If[reducedSolution =!= {},
-          (* create local const refs to input parameters appearing
-             in the solution *)
-          reducedSolution = ReplaceFixedParametersBySymbolsInTarget[reducedSolution];
-          result = Parameters`CreateLocalConstRefs[RemoveFixedParameters[reducedSolution]] <> "\n";
-          (* save old parameters *)
-          For[i = 1, i <= Length[reducedSolution], i++,
-              par  = reducedSolution[[i,1]];
-              type = CConversion`CreateCType[CConversion`GetScalarElementType[Parameters`GetType[par]]];
-              parStr = CConversion`ToValidCSymbolString[par];
-              result = result <> type <> " " <> parStr <> ";\n";
-             ];
-          result = result <> "\n";
-          (* write solution *)
-          For[i = 1, i <= Length[reducedSolution], i++,
-              par  = reducedSolution[[i,1]];
-              expr = reducedSolution[[i,2]] /. {Symbol["tadpole"][d_]->Symbol["loopTadpoles"][d-1]} /. {x_[nm_]/;SameQ[x,Symbol["loopTadpoles"]]->HoldForm[x[[nm]]]};
-              type = CConversion`GetScalarElementType[Parameters`GetType[par]];
-              result = result <> CConversion`ToValidCSymbolString[par] <> " = " <>
-                       CConversion`CastTo[CConversion`RValueToCFormString[expr], type] <> ";\n";
-             ];
-          result = result <> "\n";
-          ,
-          Print["Error: no analytic EWSB solution given while creating consistent EWSB solver."];
-          Print["   This should have been caught before this point, i.e. you should never see "];
-          Print["   this message. Tell someone to fix this."];
-          Quit[1];
-         ];
-       Return[result];
-      ];
 
 SetConsistentSolution[ewsbSolution_, substitutions_List:{}, struct_String:"model."] :=
     Module[{i, parametersFixedByEWSB, par, parStr, body = "", result = ""},
