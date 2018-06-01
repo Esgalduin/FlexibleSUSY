@@ -1375,7 +1375,7 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
              ];
            If[FlexibleSUSY`UseSARAH2Loop === True,
               calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.calculate_DRbar_masses();\n";
-              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", "model_gl."];
+              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", ""];
              ];
            ewsbInitialGuess             = EWSB`FillInitialGuessArray[parametersFixedByEWSB, ewsbInitialGuessValues];
            solveEwsbTreeLevel           = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
