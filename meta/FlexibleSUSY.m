@@ -3688,7 +3688,8 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                  Print["Warning: The consistent EWSB solution method can only be used",
                         " if an analytic tree-level solution is available."];
                  Print["The iterative algorithm will only deliver accurate results"];
-                 Print[" at 2-loop level, if the model has no CP violation."]
+                 Print[" at 2-loop level, if the model has no CP violation."];
+                 FlexibleSUSY`UseConsistentEWSBSolution = False;
               ];
              ];
            solverEwsbSolvers = SelectValidEWSBSolvers[solverEwsbSolutions, FlexibleSUSY`FSEWSBSolvers];
