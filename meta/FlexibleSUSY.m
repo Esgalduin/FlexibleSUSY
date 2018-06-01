@@ -3685,10 +3685,10 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                    ];
               Print["   };\n"];
               If[FlexibleSUSY`UseConsistentEWSBSolution === True,
-                 Print["Warning: The consistent EWSB solution method can only be used",
-                        " if an analytic tree-level solution is available."];
-                 Print["The iterative algorithm will only deliver accurate results"];
-                 Print[" at 2-loop level, if the model has no CP violation."];
+                 Print["Warning: The consistent EWSB solution method can only be used"];
+                 Print["   if an analytic tree-level solution is available."];
+                 Print["   The iterative algorithm will only deliver accurate results"];
+                 Print["   at 2-loop level, if the model is without CP violation."];
                  FlexibleSUSY`UseConsistentEWSBSolution = False;
               ];
              ];
