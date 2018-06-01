@@ -212,6 +212,8 @@ Exclude1L2LAhShiftSSSS = False;
 
 UseConsistentEWSBSolution = True;
 
+UseSemiAnalyticBVPSolver = False;
+
 (* Standard Model input parameters (SLHA input parameters) *)
 (* {parameter, {"block", entry}, type}                     *)
 SMINPUTS = {
@@ -1546,6 +1548,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
            If[FlexibleSUSY`UseHiggs3LoopMSSM === True,
               {threeLoopSelfEnergyPrototypes, threeLoopSelfEnergyFunctions} = SelfEnergies`CreateThreeLoopSelfEnergiesMSSM[{SARAH`HiggsBoson}];
               threeLoopHiggsHeaders = threeLoopHiggsHeaders <> "\
+#include \"sfermions.hpp\"
 #ifdef ENABLE_HIMALAYA
 #include \"HierarchyCalculator.hpp\"
 #endif
@@ -2540,7 +2543,7 @@ FSCheckLoopCorrections[eigenstates_] :=
 FSCheckFlags[] :=
     Module[{},
            If[FlexibleSUSY`UseHiggs3LoopMSSM === True,
-              SARAH`UseHiggs2LoopMSSM = True;
+              (* SARAH`UseHiggs2LoopMSSM = True; *)
               FlexibleSUSY`UseMSSMYukawa2Loop = True;
               FlexibleSUSY`UseMSSMAlphaS2Loop = True;
               FlexibleSUSY`UseMSSM3LoopRGEs = True;
@@ -2564,6 +2567,10 @@ FSCheckFlags[] :=
 
            If[FlexibleSUSY`FlexibleEFTHiggs,
               References`AddReference["Athron:2016fuq"];
+             ];
+
+           If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver],
+              FlexibleSUSY`UseSemiAnalyticBVPSolver = True;
              ];
 
            If[FlexibleSUSY`UseYukawa3LoopQCD || FlexibleSUSY`FlexibleEFTHiggs,
