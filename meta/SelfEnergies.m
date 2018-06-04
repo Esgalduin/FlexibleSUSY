@@ -623,7 +623,7 @@ CreateNPointFunctionMatrix[nPointFunction_, loops_] :=
           ];
 
 CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
-    Module[{prototypes = "", defs = "", vertexFunctionNames = {}, p, d, l,
+    Module[{prototypes = "", defs = "", prototypes2L = {}, defs2L = {}, vertexFunctionNames = {}, p, d, l,
             relevantVertexRules},
            (* create coupling functions for all vertices in the list *)
            Print["Converting vertex functions ..."];
@@ -647,6 +647,9 @@ CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
            Utils`StopProgressBar[Length[nPointFunctions]];
            {prototypes, defs}
           ];
+
+MaxLoopOrder[nPointFunctions_List] := Max[nPointFunctions/. {NPHead_[_, NPs__] /; NPointFunctionQ[NPHead[]] :>
+   Length[List[NPs]]}];
 
 FillArrayWithLoopTadpoles[loopLevel_, higgsAndIdx_List, arrayName_String, sign_String:"-", struct_String:""] :=
     Module[{body = "", v, field, idx, head, functionName},

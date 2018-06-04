@@ -430,7 +430,7 @@ CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";
    ];
 
-   output = output <> "solve_ewsb_tree_level();\ncalculate_DRbar_masses();\n";
+   output = output <> "if(solve_ewsb_consistently){solve_ewsb_tree_level();}\ncalculate_DRbar_masses();\n";
 
    output
 ];

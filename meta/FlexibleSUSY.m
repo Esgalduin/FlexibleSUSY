@@ -1436,7 +1436,7 @@ CreateDefaultEWSBSolverConstructor[solvers_List] :=
 WriteModelClass[massMatrices_List, ewsbEquations_List,
                 parametersFixedByEWSB_List, ewsbSubstitutions_List,
                 nPointFunctions_List, vertexRules_List, phases_List,
-                files_List, diagonalizationPrecision_List] :=
+                files_List, templatefile_, makefileModuleTemplates_List , diagonalizationPrecision_List] :=
     Module[{ewsbEquationsTreeLevel, independentEwsbEquationsTreeLevel,
             independentEwsbEquations,
             massGetters = "", k,
@@ -1745,6 +1745,11 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
+                          If[FlexibleSUSY`UseSARAH2Loop === True,
+                             Print["Creating makefile module for the two loop nPoint functions ..."];
+                             WriteMakefileModule[singleBetaFunctionsDefsFiles,
+                                                 makefileModuleTemplates];
+                          ];
           ];
 
 WriteBVPSolverTemplates[files_List] :=
@@ -3768,6 +3773,9 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                             {FileNameJoin[{$flexiblesusyTemplateDir, "physical.cpp.in"}],
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_physical.cpp"}]}
                            },
+                           "two_loop_.cpp.in",
+                           {{FileNameJoin[{$flexiblesusyTemplateDir, "npointfunctions_twoloop.mk.in"}],
+                            FileNameJoin[{FSOutputDir, "npointfunctions_twoloop.mk"}]}},
                            diagonalizationPrecision];
 
            PrintHeadline["Creating SLHA model"];
