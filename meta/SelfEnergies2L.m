@@ -318,6 +318,8 @@ Calc1L2LSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfu
 ];
 
 GetTadpolesfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]==0,Print["No nPointFunctions available."];{},Cases[nPointFunctions,_SelfEnergies`Tadpole]];
+GetHiggsSEfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]==0,Print["No nPointFunctions available."];{},Cases[nPointFunctions,SelfEnergies`SelfEnergy[SARAH`Pseudoscalar]]];
+
 
 (* replaces tadpole[i] expressions with the explicit 1-loop tadpole expression *)
 tadpoleReplacementRules[n_, assoc_, tadexpr_] :=
@@ -349,11 +351,11 @@ AppendShiftFieldIndicesTo[f_[field_, ex___], idx__] :=
      ];
 
 (* these are the fields, whose selfenergies will get a shift due to the 1L tadpoles *)
-RelevantFieldsSelfEnergies:={ToExpression["U"<>ToString[SARAH`HiggsBoson]],
+RelevantFieldsSelfEnergies[] := {ToExpression["U"<>ToString[SARAH`HiggsBoson]],
                         ToExpression["U"<>ToString[SARAH`PseudoScalar]],
                         SARAH`HiggsBoson,SARAH`PseudoScalar};
 
-GetHiggsSelfEnergy[energies_List]:=Select[energies,MemberQ[RelevantFieldsSelfEnergies,GetnPointField[#]]&];
+GetHiggsSelfEnergy[energies_List]:=Select[energies,MemberQ[RelevantFieldsSelfEnergies[],GetnPointField[#]]&];
 
 ReduceExplicitGenIndices[] := Module[{generationMatrices = First /@ Select[SARAH`parameters, (SequenceCount[Flatten[#], {generation, generation}] === 1) &]},
                                     {matx_[a_Symbol, b_Integer] /; MemberQ[generationMatrices, matx] -> matx[a, b - 1],
