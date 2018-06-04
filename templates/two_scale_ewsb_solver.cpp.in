@@ -255,10 +255,6 @@ CLASSNAME::EWSB_vector_t CLASSNAME::tadpole_equations(const @ModelName@_mass_eig
 }
 
 
-CLASSNAME::EWSB_vector_t CLASSNAME::tadpole_equations_loop(const @ModelName@_mass_eigenstates& model) const
-{
-   return model.tadpole_equations_loop();
-}
 /**
  * Calculates EWSB output parameters including loop-corrections.
  *

@@ -1101,16 +1101,6 @@ SetConsistentSolution[ewsbSolution_, substitutions_List:{}, struct_String:"model
     Module[{i, parametersFixedByEWSB, par, parStr, body = "", result = ""},
            If[ewsbSolution =!= {},
               parametersFixedByEWSB = #[[1]]& /@ ewsbSolution;
-              result = result <> "const bool is_finite = ";
-              For[i = 1, i <= Length[parametersFixedByEWSB], i++,
-                  par    = parametersFixedByEWSB[[i]];
-                  parStr = CConversion`ToValidCSymbolString[par];
-                  result = result <> "IsFinite(" <> parStr <> ")";
-                  If[i != Length[parametersFixedByEWSB],
-                     result = result <> " && ";
-                    ];
-                 ];
-              result = result <> ";\n\n";
               For[i = 1, i <= Length[parametersFixedByEWSB], i++,
                   par    = parametersFixedByEWSB[[i]];
                   parStr = CConversion`ToValidCSymbolString[par];

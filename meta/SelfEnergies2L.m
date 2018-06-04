@@ -318,7 +318,7 @@ Calc1L2LSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfu
 ];
 
 GetTadpolesfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]==0,Print["No nPointFunctions available."];{},Cases[nPointFunctions,_SelfEnergies`Tadpole]];
-GetHiggsSEfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]==0,Print["No nPointFunctions available."];{},Cases[nPointFunctions,SelfEnergies`SelfEnergy[SARAH`Pseudoscalar]]];
+GetHiggsSEfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]==0,Print["No nPointFunctions available."];{},Cases[nPointFunctions,_SelfEnergies`FSSelfEnergy[SARAH`Pseudoscalar, __]]];
 
 
 (* replaces tadpole[i] expressions with the explicit 1-loop tadpole expression *)
@@ -430,7 +430,7 @@ CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";
    ];
 
-   output = output <> "if(solve_ewsb_consistently){solve_ewsb_tree_level();}\ncalculate_DRbar_masses();\n";
+   output = output <> "if(ewsb_solve_consistently){solve_ewsb_tree_level();}\ncalculate_DRbar_masses();\n";
 
    output
 ];
