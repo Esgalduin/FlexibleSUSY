@@ -66,6 +66,8 @@ public:
    void unflag_all_non_perturbative_parameters();
    void unflag_no_sinThetaW_convergence();
 
+   void set_suppress_running_tachyon_warning(bool value);
+
    bool is_bad_mass(int particle) const;
    bool is_running_tachyon(int particle) const;
    bool is_pole_tachyon(int particle) const;
@@ -98,6 +100,7 @@ public:
    std::vector<int> get_pole_tachyons() const;
    std::vector<int> get_failed_pole_mass_convergence() const;
 
+
 private:
    struct NonPerturbativeValue {
       NonPerturbativeValue() = default;
@@ -119,6 +122,7 @@ private:
    bool failed_ewsb_tree_level{false}; ///< no tree-level EWSB
    bool non_perturbative{false};       ///< non-perturbative running
    bool failed_sinThetaW_convergence{false}; ///< sinThetaW-parameter not converged
+   bool suppress_running_tachyon_warning{false}; ///< if true, suppresses output of running tachyon warning
 
    std::string get_parameter_name(int) const; ///< returns parameter name
 };

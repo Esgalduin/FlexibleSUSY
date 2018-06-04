@@ -217,7 +217,7 @@ void Problems::flag_running_tachyon(int particle, bool flag)
 {
    running_tachyons.at(particle) = flag;
 #if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
-   if (flag)
+   if (flag && !suppress_running_tachyon_warning)
       WARNING("running " << particle_names->get(particle) << " tachyon");
 #endif
 }
@@ -431,6 +431,11 @@ std::vector<int> Problems::get_pole_tachyons() const
 std::vector<int> Problems::get_failed_pole_mass_convergence() const
 {
    return failed_pole_mass_convergence;
+}
+
+void Problems::set_suppress_running_tachyon_warning(bool value)
+{
+   suppress_running_tachyon_warning = value;
 }
 
 std::ostream& operator<<(std::ostream& ostr, const Problems& problems)
