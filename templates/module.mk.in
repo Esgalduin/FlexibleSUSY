@@ -21,9 +21,13 @@ MOD@CLASSNAME@_LIB := $(foreach M,$(MOD@CLASSNAME@_MOD),model_specific/$M/libmod
 @CLASSNAME@_FlexibleEFTHiggs_MK := \
 		$(DIR)/FlexibleEFTHiggs.mk
 
+@CLASSNAME@_NPOINT_MK := \
+		$(DIR)/npointfunctions.mk
+
 @CLASSNAME@_INCLUDE_MK := \
 		$(@CLASSNAME@_SUSY_BETAS_MK) \
-		$(@CLASSNAME@_SOFT_BETAS_MK)
+		$(@CLASSNAME@_SOFT_BETAS_MK) \
+		$(@CLASSNAME@_NPOINT_MK)
 
 @CLASSNAME@_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.@CLASSNAME@_generated \
@@ -113,6 +117,7 @@ ifneq ($(MAKECMDGOALS),release)
 ifneq ($(MAKECMDGOALS),doc)
 -include $(@CLASSNAME@_SUSY_BETAS_MK)
 -include $(@CLASSNAME@_SOFT_BETAS_MK)
+-include $(@CLASSNAME@_NPOINT_MK)
 -include $(@CLASSNAME@_FlexibleEFTHiggs_MK)
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),distclean)
@@ -123,6 +128,8 @@ ifeq ($(findstring doc-,$(MAKECMDGOALS)),)
 $(@CLASSNAME@_SUSY_BETAS_MK): run-metacode-$(MODNAME)
 		@$(CONVERT_DOS_PATHS) $@
 $(@CLASSNAME@_SOFT_BETAS_MK): run-metacode-$(MODNAME)
+		@$(CONVERT_DOS_PATHS) $@
+$(@CLASSNAME@_NPOINT_MK): run-metacode-$(MODNAME)
 		@$(CONVERT_DOS_PATHS) $@
 $(@CLASSNAME@_FlexibleEFTHiggs_MK): run-metacode-$(MODNAME)
 		@$(CONVERT_DOS_PATHS) $@

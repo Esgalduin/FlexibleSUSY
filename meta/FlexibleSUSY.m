@@ -739,7 +739,7 @@ WriteRGEClass[betaFun_List, anomDim_List, files_List,
           singleBetaFunctionsDefsFiles = BetaFunction`CreateSingleBetaFunctionDefs[betaFun, templateFile, sarahTraces];
           Print["Creating makefile module for the beta functions ..."];
           WriteMakefileModule[singleBetaFunctionsDefsFiles,
-                              makefileModuleTemplates];
+                              makefileModuleTemplates, "@generatedBetaFunctionModules@"];
          ];
 
 WriteInputParameterClass[inputParameters_List, files_List] :=
@@ -1450,6 +1450,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             massCalculationPrototypes = "", massCalculationFunctions = "",
             calculateAllMasses = "",
             selfEnergyPrototypes = "", selfEnergyFunctions = "",
+            singleNPointFunctionsDefsFiles = "", vertexFunctions = "",
             twoLoopTadpolePrototypes = "", twoLoopTadpoleFunctions = "",
             twoLoopSelfEnergyPrototypes = "", twoLoopSelfEnergyFunctions = "",
             threeLoopSelfEnergyPrototypes = "", threeLoopSelfEnergyFunctions = "",
@@ -1573,7 +1574,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               {secondGenerationHelperPrototypes, secondGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[2];
               {thirdGenerationHelperPrototypes, thirdGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[3];
              ];
-           {selfEnergyPrototypes, selfEnergyFunctions} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
+           {selfEnergyPrototypes, selfEnergyFunctions, vertexFunctions} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
            phasesDefinition             = Phases`CreatePhasesDefinition[phases];
            phasesGetterSetters          = Phases`CreatePhasesGetterSetters[phases];
            If[Parameters`GetExtraParameters[] =!= {},
@@ -1694,7 +1695,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@massCalculationFunctions@"  -> WrapLines[massCalculationFunctions],
                             "@calculateAllMasses@"        -> IndentText[calculateAllMasses],
                             "@selfEnergyPrototypes@"      -> IndentText[selfEnergyPrototypes],
-                            "@selfEnergyFunctions@"       -> selfEnergyFunctions,
+                            "@selfEnergyFunctions@"       -> StringJoin[vertexFunctions,Cases[selfEnergyFunctions, {_,1,_,x_} -> x]],
                             "@twoLoopTadpolePrototypes@"  -> IndentText[twoLoopTadpolePrototypes],
                             "@twoLoopTadpoleFunctions@"   -> twoLoopTadpoleFunctions,
                             "@twoLoopSelfEnergyPrototypes@" -> IndentText[twoLoopSelfEnergyPrototypes],
@@ -1745,11 +1746,10 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
-                          If[FlexibleSUSY`UseSARAH2Loop === True,
-                             Print["Creating makefile module for the two loop nPoint functions ..."];
-                             WriteMakefileModule[singleBetaFunctionsDefsFiles,
-                                                 makefileModuleTemplates];
-                          ];
+           singleNPointFunctionsDefsFiles = SelfEnergies`CreateSingleNPointFunctionDefs[Cases[selfEnergyFunctions, {_,Except[1],_,x_}],templatefile];
+           Print["Creating makefile module for higher loop order n-point functions ..."];
+           WriteMakefileModule[singleNPointFunctionsDefsFiles,
+                               makefileModuleTemplates, "@generatedLoopModules@"];
           ];
 
 WriteBVPSolverTemplates[files_List] :=
@@ -2195,11 +2195,11 @@ WriteSLHAInputFile[inputParameters_List, files_List] :=
                           } ];
           ];
 
-WriteMakefileModule[rgeFile_List, files_List] :=
+WriteMakefileModule[File_List, files_List,replaceText_String] :=
     Module[{concatenatedFileList},
-           concatenatedFileList = "\t" <> Utils`StringJoinWithSeparator[rgeFile, " \\\n\t"];
+           concatenatedFileList = "\t" <> Utils`StringJoinWithSeparator[File, " \\\n\t"];
            WriteOut`ReplaceInFiles[files,
-                          { "@generatedBetaFunctionModules@" -> concatenatedFileList,
+                          { replaceText -> concatenatedFileList,
                             Sequence @@ GeneralReplacementRules[]
                           } ];
           ];
@@ -3773,9 +3773,9 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
                             {FileNameJoin[{$flexiblesusyTemplateDir, "physical.cpp.in"}],
                              FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_physical.cpp"}]}
                            },
-                           "two_loop_.cpp.in",
-                           {{FileNameJoin[{$flexiblesusyTemplateDir, "npointfunctions_twoloop.mk.in"}],
-                            FileNameJoin[{FSOutputDir, "npointfunctions_twoloop.mk"}]}},
+                           "npoint_function_.cpp.in",
+                           {{FileNameJoin[{$flexiblesusyTemplateDir, "npointfunctions.mk.in"}],
+                            FileNameJoin[{FSOutputDir, "npointfunctions.mk"}]}},
                            diagonalizationPrecision];
 
            PrintHeadline["Creating SLHA model"];

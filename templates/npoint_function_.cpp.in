@@ -33,8 +33,6 @@
 #include "thread_pool.hpp"
 #include "functors.hpp"
 
-@ewsbSolverHeaders@
-@twoLoopHiggsHeaders@
 
 #include <array>
 #include <cmath>
@@ -55,6 +53,6 @@ namespace flexiblesusy {
 #define EXTRAPARAMETER(parameter) model.get_##parameter()
 
 
-@twoLoopnPointFunction@
+@nPointFunction@
 
 } // namespace flexiblesusy

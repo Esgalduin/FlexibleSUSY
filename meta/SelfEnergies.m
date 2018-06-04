@@ -87,6 +87,9 @@ definitions for three-loop Higgs self-energies in split-SUSY";
 
 SelfEnergyIsSymmetric::usage = "";
 
+CreateSingleNPointFunctionDefs::usage = "Creates files for nPoint functions of loop ordered
+>=2";
+
 Begin["`Private`"];
 
 
@@ -623,33 +626,53 @@ CreateNPointFunctionMatrix[nPointFunction_, loops_] :=
           ];
 
 CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
-    Module[{prototypes = "", defs = "", prototypes2L = {}, defs2L = {}, vertexFunctionNames = {}, p, d, l,
+    Module[{prototypes = "",  vertexdefs = "", nPointDefs = {}, collectDefs = "", fieldname = "", nPointType = "", vertexFunctionNames = {}, p, d, l,
             relevantVertexRules},
            (* create coupling functions for all vertices in the list *)
            Print["Converting vertex functions ..."];
            (* extract vertex rules needed for the given nPointFunctions *)
            relevantVertexRules = Cases[vertexRules, r:(Rule[a_,b_] /; !FreeQ[nPointFunctions,a]) :> r];
-           {prototypes, defs, vertexFunctionNames} = CreateVertexExpressions[relevantVertexRules];
+           {prototypes, vertexdefs, vertexFunctionNames} = CreateVertexExpressions[relevantVertexRules];
            (* creating n-point functions *)
            Print["Converting self energies ..."];
            Utils`StartProgressBar[Dynamic[k], Length[nPointFunctions]];
            For[k = 1, k <= Length[nPointFunctions], k++,
+               fieldname = ExtractFieldName[GetField[nPointFunctions[[k]]]];
                For[loops = 1, loops <= NumberOfLoops[nPointFunctions[[k]]], loops++,
                    Utils`UpdateProgressBar[k, Length[nPointFunctions]];
+                   functionName = CreateFunctionName[nPointFunctions[[k]], loops];
                    {p,d} = CreateNPointFunction[nPointFunctions[[k]], vertexFunctionNames, loops];
                    prototypes = prototypes <> p;
-                   defs = defs <> d;
+                   collectDefs = d;
                    {p,d} = CreateNPointFunctionMatrix[nPointFunctions[[k]], loops];
                    prototypes = prototypes <> p;
-                   defs = defs <> d;
+                   collectDefs = collectDefs <> d;
+                   AppendTo[nPointDefs, {fieldname, loops, functionName, collectDefs}];
                   ];
               ];
            Utils`StopProgressBar[Length[nPointFunctions]];
-           {prototypes, defs}
+           {prototypes, nPointDefs, vertexdefs}
           ];
 
-MaxLoopOrder[nPointFunctions_List] := Max[nPointFunctions/. {NPHead_[_, NPs__] /; NPointFunctionQ[NPHead[]] :>
-   Length[List[NPs]]}];
+CreateSingleNPointFunctionDefs[nPointFun_List, templateFile_String] :=
+  Module[{files = {}, functionname = "", functiondef = "", inputFile, outputFile},
+         For[n = 1, n <= Length[nPointFun], n++,
+             functionname = nPointFun[[n,3]];
+             functiondef = nPointFun[[n,4]];
+             inputFile  = FileNameJoin[{FlexibleSUSY`$flexiblesusyTemplateDir, templateFile}];
+             outputFile = FileNameJoin[{FlexibleSUSY`FSOutputDir,
+                                        FlexibleSUSY`FSModelName <> "_" <>
+                                        StringReplace[templateFile,
+                                                      {".cpp.in" -> functionname <> ".cpp"}]}];
+             WriteOut`ReplaceInFiles[{{inputFile, outputFile}},
+                   { "@nPointFunction@"     -> functiondef,
+                     Sequence @@ FlexibleSUSY`GeneralReplacementRules[]
+                   } ];
+             AppendTo[files, outputFile];
+            ];
+         Return[files];
+        ];
+
 
 FillArrayWithLoopTadpoles[loopLevel_, higgsAndIdx_List, arrayName_String, sign_String:"-", struct_String:""] :=
     Module[{body = "", v, field, idx, head, functionName},
