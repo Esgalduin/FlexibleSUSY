@@ -2795,7 +2795,7 @@ MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_]:=
             If[FilesExist[{tadListFile,selfenergyRotListFile,selfenergyUnrotListFile,treesolutionfile}],
                selfenergylist=Join[Get[selfenergyRotListFile],Get[selfenergyUnrotListFile]];
                tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfenergylist,nPointFunctions,higgstoEWSB,FlexibleSUSY`EWSBOutputParameters,
-                                                            Flatten[Get[treesolutionfile]],{g1->0,g2->0},FlexibleSUSY`FSEigenstates];
+                                                            Flatten[Get[treesolutionfile]],{g1->0,g2->0},{},FlexibleSUSY`FSEigenstates];
                ,
                Print["Could not find Tadpole-list, SelfEnergy-List or treelevel EWSB solution file for 1L2L shifts, can't do anyhting."];
             ];
