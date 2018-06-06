@@ -397,6 +397,8 @@ ifeq ($(WITH_MSSM),yes)
 TEST_SH += \
 		$(DIR)/test_MSSM_stable_ewsb_failure.sh \
 		$(DIR)/test_standalone.sh
+TEST_SRC += \
+		$(DIR)/test_MSSM_higgs_loop_corrections.cpp
 endif
 
 ifeq ($(WITH_CMSSM),yes)

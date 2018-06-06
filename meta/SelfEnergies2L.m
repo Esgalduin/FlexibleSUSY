@@ -145,7 +145,7 @@ GetnPointField[tempdiags_List]:=Module[{testdiag=tempdiags[[1]],coupfields,loopf
   coupfields=testdiag[[3]]/.{Cp[tempfields__]->List[tempfields]}/. {Conj[a_] -> a, conj[a_] -> a, bar[b_] -> b}/.{x_[b_]->x};
   For[i = 1, i <= Length[loopfields], i++, coupfields = Delete[coupfields, FirstPosition[coupfields, loopfields[[i]]]];];
   coupfields=DeleteDuplicates[coupfields];
-  If[Length[coupfields] != 1,Print["Problem while determining to which field the diagram "];
+  If[Length[coupfields] != 1,Print["Problem while determining, which field the diagram "];
                            Print[testdiag];
                            Print["corresponds to."]
     ];
@@ -389,8 +389,8 @@ StripFieldRotation := {Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson
    the values given by CalculatePi2S in SPheno. The signs used here should be
    consistent with the rest of FlexibleSUSY *)
 Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSolverSubstitutions_List,eigenstates_] :=
-Module[{gaugelessSub,EWSBSolverSubstitutions,relevantTadpoles,tadpole1LoopExpr,selfEnergy1LoopExpr,treeSolution,higgstoewsb,
-     nHiggs,tadpoleSeriesParameters,tadpoleFields,tadpoleShifts,selfEnergyShifts,couplingTadpoleShift,couplingSelfEnergyShift,
+Module[{gaugelessSub,relevantTadpoles,tadpole1LoopExpr,selfEnergy1LoopExpr,treeSolution,higgstoewsb,
+     nHiggs,tadpoleSeriesParameters,tadpoleFields,tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
      massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
 
      gaugelessSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
@@ -416,11 +416,11 @@ Module[{gaugelessSub,EWSBSolverSubstitutions,relevantTadpoles,tadpole1LoopExpr,s
        massTadpoleShift = GenerateTadpoleMassShifts[relevantTadpoles,gaugelessSub,treeSolution,nHiggs,eigenstates];
        massSelfEnergyShift = GenerateSelfEnergyMassShifts[relevantSelfEnergies,gaugelessSub,treeSolution,nHiggs,eigenstates];
 
-       couplingTadpoleShift = GenerateCouplingShifts[tadpole1LoopExpr,gaugelessSub,treeSolution,nHiggs,eigenstates];
-       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1LoopExpr,gaugelessSub,treeSolution,nHiggs,eigenstates];
+       (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1LoopExpr,gaugelessSub,treeSolution,nHiggs,eigenstates];
+       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1LoopExpr,gaugelessSub,treeSolution,nHiggs,eigenstates]; *)
 
-       couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
-       couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields];
+       (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
+       couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
 
        tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
        selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
