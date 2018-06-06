@@ -169,8 +169,6 @@ void setup_MSSM(MSSM_mass_eigenstates &mssm)
 
    mssm.solve_ewsb_tree_level();
    mssm.calculate_DRbar_masses();
-
-   return mssm;
 }
 
 
@@ -231,14 +229,14 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atat_atab_abab_SARAH_Slavich )
       std::sin(thetat), std::cos(thetat), std::sin(thetab), std::cos(thetab), sqr(mssm.get_scale()),
       -mssm.get_Mu(), mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()));
 
-   Eigen::Matrix<double, 2, 2> tadpole_atat_atab_abab_slavich = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_at_at_mssm(
+   Eigen::Matrix<double, 2, 1> tadpole_atat_atab_abab_slavich = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_at_at_mssm(
       sqr(mssm.get_MFu(2)), sqr(mssm.get_MFd(2)), mssm.get_M2Ah(1), mst1, mst2, msb1, msb2,
       std::sin(thetat), std::cos(thetat), std::sin(thetab), std::cos(thetab), sqr(mssm.get_scale()),
       -mssm.get_Mu(), mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()));
 
    Eigen::Matrix<double, 2, 2> self_energy_atat_atab_abab_sarah = (mssm.self_energy_hh_2loop(125)).real();
    Eigen::Matrix<double, 2, 1>  tadpole_atat_atab_abab_sarah;
-   tadpole_atat_atab_abab_sarah << mssm.tadpole_hh_2loop(0)/mssm.get_vd(), mssm.tadpole_hh_2loop(1)/mssm.get_vu();
+   tadpole_atat_atab_abab_sarah << (mssm.tadpole_hh_2loop(0)).real()/mssm.get_vd(), (mssm.tadpole_hh_2loop(1)).real()/mssm.get_vu();
 
    BOOST_CHECK_CLOSE_FRACTION(self_energy_atat_atab_abab_sarah(0,0), self_energy_atat_atab_abab_slavich(0,0), 1e-8);
    BOOST_CHECK_CLOSE_FRACTION(self_energy_atat_atab_abab_sarah(0,1), self_energy_atat_atab_abab_slavich(0,1), 1e-8);
@@ -246,6 +244,7 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atat_atab_abab_SARAH_Slavich )
 
    BOOST_CHECK_CLOSE_FRACTION(tadpole_atat_atab_abab_sarah(0), tadpole_atat_atab_abab_slavich(0), 1e-8);
    BOOST_CHECK_CLOSE_FRACTION(tadpole_atat_atab_abab_sarah(1), tadpole_atat_atab_abab_slavich(1), 1e-8);
+
 }
 
 
@@ -302,13 +301,13 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atau_atau_SARAH_Slavich )
       sqr(mssm.get_MFe(2)), mssm.get_M2Ah(1), msv2, mstau1, mstau2, std::sin(thetatau), std::cos(thetatau), sqr(mssm.get_scale()),
       -mssm.get_Mu(), mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()),0);
 
-   Eigen::Matrix<double, 2, 2> tadpole_atau_atau_slavich = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_atau_atau_mssm(
+   Eigen::Matrix<double, 2, 1> tadpole_atau_atau_slavich = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_atau_atau_mssm(
       sqr(mssm.get_MFe(2)), mssm.get_M2Ah(1), msv2, mstau1, mstau2, std::sin(thetatau), std::cos(thetatau), sqr(mssm.get_scale()),
       -mssm.get_Mu(), mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()));
 
    Eigen::Matrix<double, 2, 2> self_energy_atau_atau_sarah = (mssm.self_energy_hh_2loop(125)).real();
    Eigen::Matrix<double, 2, 1>  tadpole_atau_atau_sarah;
-   tadpole_atau_atau_sarah << mssm.tadpole_hh_2loop(0)/mssm.get_vd(), mssm.tadpole_hh_2loop(1)/mssm.get_vu();
+   tadpole_atau_atau_sarah << (mssm.tadpole_hh_2loop(0)).real()/mssm.get_vd(), (mssm.tadpole_hh_2loop(1)).real()/mssm.get_vu();
 
    BOOST_CHECK_CLOSE_FRACTION(self_energy_atau_atau_sarah(0,0), self_energy_atau_atau_slavich(0,0), 1e-8);
    BOOST_CHECK_CLOSE_FRACTION(self_energy_atau_atau_sarah(0,1), self_energy_atau_atau_slavich(0,1), 1e-8);
@@ -316,4 +315,79 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atau_atau_SARAH_Slavich )
 
    BOOST_CHECK_CLOSE_FRACTION(tadpole_atau_atau_sarah(0), tadpole_atau_atau_slavich(0), 1e-8);
    BOOST_CHECK_CLOSE_FRACTION(tadpole_atau_atau_sarah(1), tadpole_atau_atau_slavich(1), 1e-8);
+
+}
+
+BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atas_SARAH_Slavich )
+{
+   MSSM_mass_eigenstates mssm;
+
+   setup_MSSM(mssm);
+
+   double mst1, mst2, thetat;
+
+   Eigen::Matrix<double,3,3>
+      Yu = Eigen::Matrix<double,3,3>::Zero(),
+      Yd = Eigen::Matrix<double,3,3>::Zero(),
+      Ye = Eigen::Matrix<double,3,3>::Zero(),
+      Tu = Eigen::Matrix<double,3,3>::Zero(),
+      Td = Eigen::Matrix<double,3,3>::Zero(),
+      Te = Eigen::Matrix<double,3,3>::Zero(),
+      mu2 = Eigen::Matrix<double,3,3>::Zero(),
+      md2 = Eigen::Matrix<double,3,3>::Zero(),
+      me2 = Eigen::Matrix<double,3,3>::Zero(),
+      ml2 = Eigen::Matrix<double,3,3>::Zero(),
+      mq2 = Eigen::Matrix<double,3,3>::Zero();
+
+   Yu(2,2) =    8.73058219E-01;
+   Tu(2,2) =   -4.14385376E+02;
+   mu2(2,2) =   1.04647252E+05;
+
+   mq2(2,2) =   1.65139305E+05;
+
+
+   mssm.set_Yu(Yu);
+   mssm.set_Yd(Yd);
+   mssm.set_Ye(Ye);
+   mssm.set_TYu(Tu);
+   mssm.set_TYd(Td);
+   mssm.set_TYe(Te);
+   mssm.set_mu2(mu2);
+   mssm.set_md2(md2);
+   mssm.set_ml2(ml2);
+   mssm.set_mq2(mq2);
+   mssm.set_me2(me2);
+
+   mssm.enter_gaugeless_limit();
+
+   mssm.calculate_M2Su_3rd_generation(mst1,mst2,thetat);
+
+   Eigen::Matrix<double, 2, 2> self_energy_atas_slavich = flexiblesusy::mssm_twoloophiggs::self_energy_higgs_2loop_at_as_mssm(
+      sqr(mssm.get_MFu(2)), mssm.get_MGlu(), mst1, mst2, std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()), -mssm.get_Mu(),
+      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()), mssm.get_g3(), 0);
+
+   Eigen::Matrix<double, 2, 1> tadpole_atas_slavich = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_at_as_mssm(
+      sqr(mssm.get_MFu(2)), mssm.get_MGlu(), mst1, mst2, std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()), -mssm.get_Mu(),
+      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()), mssm.get_g3());
+
+   Eigen::Matrix<double, 2, 2> self_energy_atas_sarah = (mssm.self_energy_hh_2loop(125)).real();
+   Eigen::Matrix<double, 2, 1>  tadpole_atas_sarah;
+   tadpole_atas_sarah << (mssm.tadpole_hh_2loop(0)).real()/mssm.get_vd(), (mssm.tadpole_hh_2loop(1)).real()/mssm.get_vu();
+
+   mssm.set_g3(0);
+
+   Eigen::Matrix<double, 2, 2> self_energy_atat_sarah = (mssm.self_energy_hh_2loop(125)).real();
+   Eigen::Matrix<double, 2, 1>  tadpole_atat_sarah;
+   tadpole_atat_sarah << (mssm.tadpole_hh_2loop(0)).real()/mssm.get_vd(), (mssm.tadpole_hh_2loop(1)).real()/mssm.get_vu();
+
+   self_energy_atas_sarah = self_energy_atas_sarah - self_energy_atat_sarah;
+   tadpole_atas_sarah = tadpole_atas_sarah - tadpole_atat_sarah;
+
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_atas_sarah(0,0), self_energy_atas_slavich(0,0), 1e-8);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_atas_sarah(0,1), self_energy_atas_slavich(0,1), 1e-8);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_atas_sarah(1,1), self_energy_atas_slavich(1,1), 1e-8);
+
+   BOOST_CHECK_CLOSE_FRACTION(tadpole_atas_sarah(0), tadpole_atas_slavich(0), 1e-8);
+   BOOST_CHECK_CLOSE_FRACTION(tadpole_atas_sarah(1), tadpole_atas_slavich(1), 1e-8);
+
 }

@@ -813,6 +813,8 @@ $(DIR)/test_CMSSMCPV_tree_level_spectrum.x: $(LIBCMSSM) $(LIBCMSSMCPV)
 
 $(DIR)/test_MSSMEFTHiggs_lambda_threshold_correction.x: $(LIBMSSMEFTHiggs)
 
+$(DIR)/test_MSSM_higgs_loop_corrections.x: $(LIBMSSM)
+
 $(DIR)/test_NMSSMCPV_ewsb.x: $(LIBNMSSMCPV)
 
 $(DIR)/test_NMSSMCPV_tree_level_spectrum.x: $(LIBNMSSM) $(LIBNMSSMCPV)
