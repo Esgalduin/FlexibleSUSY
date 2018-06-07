@@ -85,6 +85,7 @@ void @ModelName@_spectrum_generator<Semi_analytic>::run_except(const softsusy::Q
    ewsb_solver.set_semi_analytic_solutions(&solutions);
    model.set_ewsb_solver(
       std::make_shared<@ModelName@_ewsb_solver<Semi_analytic> >(ewsb_solver));
+   model.set_semi_analytic_solutions(&solutions);
 
    @ModelName@_susy_scale_constraint<Semi_analytic> susy_scale_constraint(&model, qedqcd);
    @ModelName@_low_scale_constraint<Semi_analytic>  low_scale_constraint(&model, qedqcd);

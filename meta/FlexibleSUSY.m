@@ -1486,7 +1486,8 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             convertMixingsToSLHAConvention = "",
             convertMixingsToHKConvention = "",
             enablePoleMassThreads = True,
-            ewsbSolverHeaders = "", defaultEWSBSolverCctor = ""
+            ewsbSolverHeaders = "", semiAnalyticSolutionHeader = "", defaultEWSBSolverCctor = "",
+            semiAnalyticSolutionPrototypes = ""
            },
            convertMixingsToSLHAConvention = WriteOut`ConvertMixingsToSLHAConvention[massMatrices];
            convertMixingsToHKConvention   = WriteOut`ConvertMixingsToHKConvention[massMatrices];
@@ -1665,6 +1666,9 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                                 <> EnableForBVPSolver[#, ("#include \"" <> FlexibleSUSY`FSModelName
                                                           <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")&
                                 /@ FlexibleSUSY`FSBVPSolvers;
+           If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver], semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <> "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";
+                                                                     semiAnalyticSolutionPrototypes = semiAnalyticSolutionPrototypes <> "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* s) {semiAnalyticSolutions = s;}";
+                                                                     semiAnalyticSolutionVar = semiAnalyticSolutionVar <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* semiAnalyticSolutions{nullptr}; ///< semi-analytic solutions calculator";];
            defaultEWSBSolverCctor = CreateDefaultEWSBSolverConstructor[FlexibleSUSY`FSBVPSolvers];
            reorderDRbarMasses           = TreeMasses`ReorderGoldstoneBosons[""];
            reorderPoleMasses            = TreeMasses`ReorderGoldstoneBosons["PHYSICAL"];
@@ -1741,6 +1745,9 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@convertMixingsToSLHAConvention@" -> IndentText[convertMixingsToSLHAConvention],
                             "@convertMixingsToHKConvention@"   -> IndentText[convertMixingsToHKConvention],
                             "@ewsbSolverHeaders@"            -> ewsbSolverHeaders,
+                            "@semiAnalyticSolutionHeader@"   -> semiAnalyticSolutionHeader,
+                            "@semiAnalyticSolutionPrototypes@" -> IndentText[semiAnalyticSolutionPrototypes],
+                            "@semiAnalyticSolutionVar@"      -> IndentText[semiAnalyticSolutionVar],
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
                             "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
@@ -2785,7 +2792,7 @@ PrepareTadpoles[eigenstates_] :=
            ConvertSarahTadpoles[MergeNPointFunctions[tadpoles, tadpoles2L]]
           ];
 
-MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_]:=
+MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,semiAnalyticEWSBSubstitutions_]:=
     Module[{higgstoEWSB=CreateHiggsToEWSBEqAssociation[],
             tadListFile=GetTadpoleListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
             selfenergyRotListFile=GetSelfEnergyRotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
@@ -2795,7 +2802,7 @@ MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_]:=
             If[FilesExist[{tadListFile,selfenergyRotListFile,selfenergyUnrotListFile,treesolutionfile}],
                selfenergylist=Join[Get[selfenergyRotListFile],Get[selfenergyUnrotListFile]];
                tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfenergylist,nPointFunctions,higgstoEWSB,FlexibleSUSY`EWSBOutputParameters,
-                                                            Flatten[Get[treesolutionfile]],{g1->0,g2->0},{},FlexibleSUSY`FSEigenstates];
+                                                            Flatten[Get[treesolutionfile]],{g1->0,g2->0},semiAnalyticEWSBSubstitutions,FlexibleSUSY`FSEigenstates];
                ,
                Print["Could not find Tadpole-list, SelfEnergy-List or treelevel EWSB solution file for 1L2L shifts, can't do anyhting."];
             ];
@@ -2878,6 +2885,9 @@ SolveEWSBEquations[ewsbEquations_, ewsbOutputParameters_, ewsbSubstitutions_, tr
               Print["Using user-defined EWSB eqs. solution"];
               freePhases = {};
               ewsbSolution = Rule[#[[1]], #[[2]]]& /@ treeLevelSolution;
+              Put[ewsbSolution, treeLevelEwsbSolutionOutputFile];
+              Print["   The EWSB solution was written to the file:"];
+              Print["      ", treeLevelEwsbSolutionOutputFile];
              ];
            {ewsbSolution, freePhases}
           ];
@@ -3701,7 +3711,7 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
            solverEwsbSolvers = SelectValidEWSBSolvers[solverEwsbSolutions, FlexibleSUSY`FSEWSBSolvers];
            If[FlexibleSUSY`UseConsistentEWSBSolution === True && FlexibleSUSY`UseSARAH2Loop === True,
                Print["\nGenerating shifts for consistent EWSB solution ...\n"];
-               nPointFunctions=Join[nPointFunctions,EnforceCpColorStructures @ SortCps @ MakeShifts[nPointFunctions,treeLevelEwsbSolutionOutputFiles]];
+               nPointFunctions=Join[nPointFunctions,EnforceCpColorStructures @ SortCps @ MakeShifts[nPointFunctions,treeLevelEwsbSolutionOutputFiles,semiAnalyticEWSBSubstitutions]];
            ];
            Print["Input parameters: ", InputForm[Parameters`GetInputParameters[]]];
 
