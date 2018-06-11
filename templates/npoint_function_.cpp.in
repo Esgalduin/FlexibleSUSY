@@ -33,6 +33,7 @@ namespace flexiblesusy {
 #define LOCALINPUT(parameter) input.parameter
 #define MODELPARAMETER(parameter) model.get_##parameter()
 #define EXTRAPARAMETER(parameter) model.get_##parameter()
+#define SEMIANALYTICPARAMETER(p) semiAnalyticSolutions->get_##p()
 
 
 @nPointFunction@

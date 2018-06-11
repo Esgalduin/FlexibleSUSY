@@ -1325,8 +1325,8 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
            setModelParametersFromEWSB   = EWSB`SetModelParametersFromEWSB[parametersFixedByEWSB, ewsbSubstitutions, "model."];
            applyEWSBSubstitutions       = EWSB`ApplyEWSBSubstitutions[parametersFixedByEWSB, ewsbSubstitutions];
            WriteOut`ReplaceInFiles[files,
-                          { "@calculateOneLoopTadpolesNoStruct@" -> IndentText[calculateOneLoopTadpolesNoStruct],
-                            "@calculateTwoLoopTadpolesNoStruct@" -> IndentText[calculateTwoLoopTadpolesNoStruct],
+                          { "@calculateOneLoopTadpolesNoStruct@" -> IndentText[IndentText[calculateOneLoopTadpolesNoStruct]],
+                            "@calculateTwoLoopTadpolesNoStruct@" -> IndentText[IndentText[IndentText[calculateTwoLoopTadpolesNoStruct]]],
                             "@numberOfEWSBEquations@"-> ToString[TreeMasses`GetDimension[SARAH`HiggsBoson]],
                             "@ewsbInitialGuess@"       -> IndentText[ewsbInitialGuess],
                             "@solveEwsbTreeLevel@"           -> IndentText[WrapLines[solveEwsbTreeLevel]],
@@ -1394,8 +1394,8 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
            setModelParametersFromEWSB   = EWSB`SetModelParametersFromEWSB[parametersFixedByEWSB, additionalEwsbSubs, "model."];
            applyEWSBSubstitutions       = EWSB`ApplyEWSBSubstitutions[parametersFixedByEWSB, additionalEwsbSubs];
            WriteOut`ReplaceInFiles[files,
-                          { "@calculateOneLoopTadpolesNoStruct@" -> IndentText[calculateOneLoopTadpolesNoStruct],
-                            "@calculateTwoLoopTadpolesNoStruct@" -> IndentText[calculateTwoLoopTadpolesNoStruct],
+                          { "@calculateOneLoopTadpolesNoStruct@" -> IndentText[IndentText[calculateOneLoopTadpolesNoStruct]],
+                            "@calculateTwoLoopTadpolesNoStruct@" -> IndentText[IndentText[IndentText[calculateTwoLoopTadpolesNoStruct]]],
                             "@numberOfEWSBEquations@"-> ToString[TreeMasses`GetDimension[SARAH`HiggsBoson]],
                             "@ewsbInitialGuess@"       -> IndentText[ewsbInitialGuess],
                             "@solveEwsbTreeLevel@"           -> IndentText[WrapLines[solveEwsbTreeLevel]],
@@ -1666,7 +1666,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                                 <> EnableForBVPSolver[#, ("#include \"" <> FlexibleSUSY`FSModelName
                                                           <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")&
                                 /@ FlexibleSUSY`FSBVPSolvers;
-           If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver], semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <> "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";
+           If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver] && Length[FlexibleSUSY`FSBVPSolvers] === 1, semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <> "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";
                                                                      semiAnalyticSolutionPrototypes = semiAnalyticSolutionPrototypes <> "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* s) {semiAnalyticSolutions = s;}";
                                                                      semiAnalyticSolutionVar = semiAnalyticSolutionVar <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* semiAnalyticSolutions{nullptr}; ///< semi-analytic solutions calculator";];
            defaultEWSBSolverCctor = CreateDefaultEWSBSolverConstructor[FlexibleSUSY`FSBVPSolvers];

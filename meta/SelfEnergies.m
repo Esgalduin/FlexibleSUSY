@@ -532,6 +532,30 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
            }
           ];
 
+CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergyShift1L, vertexRules_List, loops_] :=
+  Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
+         expr = GetExpression[nPointFunction, loops];
+         If[expr === Null, Return[{"",""}]];
+         functionName = CreateFunctionPrototype[nPointFunction, loops];
+         type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
+         semianalyticpars = Cases[expr, _Symbol?(StringMatchQ[ToString[#], RegularExpression[".*Coeff.*"]] &), Infinity, Heads -> True];
+         (vardefs = vardefs <> "const auto " <> ToString[#] <> " = SEMIANALYTICPARAMETER(" <> ToString[#] <> ");\n")& /@ DeleteDuplicates[semianalyticpars];
+         prototype = type <> " " <> functionName <> ";\n";
+         decl = "\n" <> type <> " CLASSNAME::" <> functionName <> "\n{\n";
+         body = type <> " result;\n" <> vardefs <> "\n" <>
+                ExpressionToStringSequentially[
+                                   DecreaseLiteralCouplingIndices[expr] /.
+                                   vertexRules /.
+                                   a_[List[i__]] :> a[i] /.
+                                   ReplaceGhosts[FlexibleSUSY`FSEigenstates] /.
+                                   C -> 1,
+                                   TreeMasses`GetParticles[], "result"]  <>
+                "\nreturn result * " <> CConversion`RValueToCFormString[CConversion`oneOver16PiSqr^loops] <> ";";
+         body = IndentText[WrapLines[body]];
+         decl = decl <> body <> "\n}\n";
+         Return[{prototype, decl}];
+        ];
+
 CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
     Module[{decl, expr, prototype, body, functionName},
            expr = GetExpression[nPointFunction, loops];
