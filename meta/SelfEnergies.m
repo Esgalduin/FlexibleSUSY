@@ -29,6 +29,8 @@ Tadpole::usage="tadpole head";
 
 GetField::usage="Returns field in self-energy or tadpole";
 
+ExtractFieldName::usage=""
+
 ConvertSarahSelfEnergies::usage="converts SARAH's self-energies to our
 own format: SelfEnergies`FSSelfEnergy[particle, expression]";
 

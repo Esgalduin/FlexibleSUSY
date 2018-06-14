@@ -444,7 +444,6 @@ Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopE
        Print["Whacky model with more than one tadpole. Tell someone to fix SelfEnergies2L to handle this case."];
        Quit[];
      ];
-     Print[nPointform];
      nPointform
 ];
 

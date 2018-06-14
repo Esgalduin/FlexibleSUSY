@@ -28,6 +28,10 @@ If[$VersionNumber <= 9.,
    Protect[FirstPosition];
   ];
 
+Unprotect[Series];
+Series[SARAH`sum[a_, b_, c_, d_], k__] := SARAH`sum[a, b, c, Series[d, k]];
+Protect[Series];
+
 BeginPackage["FlexibleSUSY`",
              {"SARAH`",
               "AnomalousDimension`",
@@ -1487,7 +1491,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             convertMixingsToHKConvention = "",
             enablePoleMassThreads = True,
             ewsbSolverHeaders = "", semiAnalyticSolutionHeader = "", defaultEWSBSolverCctor = "",
-            semiAnalyticSolutionPrototypes = ""
+            semiAnalyticSolutionPrototypes = "", semiAnalyticSolutionVar = ""
            },
            convertMixingsToSLHAConvention = WriteOut`ConvertMixingsToSLHAConvention[massMatrices];
            convertMixingsToHKConvention   = WriteOut`ConvertMixingsToHKConvention[massMatrices];
@@ -2793,18 +2797,24 @@ PrepareTadpoles[eigenstates_] :=
           ];
 
 MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,semiAnalyticEWSBSubstitutions_]:=
-    Module[{higgstoEWSB=CreateHiggsToEWSBEqAssociation[],
-            tadListFile=GetTadpoleListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
-            selfenergyRotListFile=GetSelfEnergyRotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
-            selfenergyUnrotListFile=GetSelfEnergyUnrotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
-            treesolutionfile=treeLevelEwsbSolutionOutputFiles[[1]]//.{Rule[a_, c_] -> c},tempnPoints={},selfenergylist={}},
+    Module[{higgsToEWSB = CreateHiggsToEWSBEqAssociation[],
+            tadListFile = GetTadpoleListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
+            selfEnergyRotListFile = GetSelfEnergyRotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
+            selfEnergyUnrotListFile = GetSelfEnergyUnrotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
+            treesolutionfile=treeLevelEwsbSolutionOutputFiles[[1]] /. {Rule[a_, c_] -> c}, tempnPoints = {},selfEnergyList = {}},
 
-            If[FilesExist[{tadListFile,selfenergyRotListFile,selfenergyUnrotListFile,treesolutionfile}],
-               selfenergylist=Join[Get[selfenergyRotListFile],Get[selfenergyUnrotListFile]];
-               tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfenergylist,nPointFunctions,higgstoEWSB,FlexibleSUSY`EWSBOutputParameters,
+            If[FilesExist[{tadListFile,selfEnergyRotListFile,selfEnergyUnrotListFile,treesolutionfile}],
+               selfEnergyList = Join[Get[selfEnergyRotListFile],Get[selfEnergyUnrotListFile]];
+               tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfEnergyList,nPointFunctions,higgsToEWSB,FlexibleSUSY`EWSBOutputParameters,
                                                             Flatten[Get[treesolutionfile]],{g1->0,g2->0},semiAnalyticEWSBSubstitutions,FlexibleSUSY`FSEigenstates];
+
+               Print["Writing 2-loop shift expression to:"];
+               Module[{diagramtype = If[Head[#] === SelfEnergies`TadpoleShift1L, "tadpole_shift", "self_energy_shift"],
+                       field = SelfEnergies`ExtractFieldName[SelfEnergies`GetField[#]]},
+                       Put[#[[3]],Get2LExpressionOutputFileName[diagramtype,field]];
+                       Print[Get2LExpressionOutputFileName[diagramtype,field]];] & /@ tempnPoints;
                ,
-               Print["Could not find Tadpole-list, SelfEnergy-List or treelevel EWSB solution file for 1L2L shifts, can't do anyhting."];
+               Print["Could not find Tadpole-list, SelfEnergy-List or treelevel EWSB solution file, no shifts were calculated."];
             ];
             tempnPoints
     ];
