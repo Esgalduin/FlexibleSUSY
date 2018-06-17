@@ -21,7 +21,7 @@
 #include "@ModelName@_mass_eigenstates.hpp"
 #include "wrappers.hpp"
 
-@semiAnalyticSolutionHeader@
+@NPsemiAnalyticSolutionHeader@
 
 #include <cmath>
 
