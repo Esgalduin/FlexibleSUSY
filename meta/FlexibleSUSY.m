@@ -1672,7 +1672,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <>
                      "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";
                semiAnalyticSolutionPrototype = semiAnalyticSolutionPrototype <>
-                     "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions*)";
+                     "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions*);";
                semiAnalyticSolutionDef = semiAnalyticSolutionDef <>
                      "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* s) {semiAnalyticSolutions = s;}";
                semiAnalyticSolutionVar = semiAnalyticSolutionVar <> FlexibleSUSY`FSModelName <>
