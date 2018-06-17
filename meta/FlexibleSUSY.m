@@ -1382,7 +1382,7 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
            solveEwsbTreeLevel           = EWSB`CreateTreeLevelEwsbSolver[ewsbSolution /. FlexibleSUSY`tadpole[_] -> 0];
            solveEwsbTreeLevel           = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbTreeLevel, solutions];
            setTreeLevelSolution         = SemiAnalytic`SetTreeLevelEWSBSolution[ewsbSolution, solutions, additionalEwsbSubs];
-           setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
+           setConsistentSolution        = setTreeLevelSolution;
            solveEwsbWithTadpoles        = EWSB`CreateEwsbSolverWithTadpoles[ewsbSolution];
            solveEwsbWithTadpoles        = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbWithTadpoles, solutions];
            EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers, Except[FlexibleSUSY`ConsistentSolver]]];
