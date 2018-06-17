@@ -68,6 +68,7 @@ CreateSemiAnalyticCoefficientsCalculation::usage="";
 CreateCoefficientsCalculations::usage="";
 
 SetTreeLevelEWSBSolution::usage="";
+SetConsistentEWSBSolution::usage="";
 
 ApplySemiAnalyticBoundaryConditions::usage="";
 ReplacePreprocessorMacros::usage="";
@@ -1105,6 +1106,35 @@ SetTreeLevelEWSBSolution[ewsbSolution_, solutions_List, substitutions_List, stru
              ];
            result
           ];
+
+SetConsistentEWSBSolution[ewsbSolution_, solutions_List, substitutions_List, struct_String:"model."] :=
+              Module[{parametersFixedByEWSB, i, par, basisPar, parStr, body = "", result = ""},
+                     If[ewsbSolution =!= {},
+                        parametersFixedByEWSB = #[[1]]& /@ ewsbSolution;
+                        For[i = 1, i <= Length[parametersFixedByEWSB], i++,
+                            par    = parametersFixedByEWSB[[i]];
+                            parStr = CConversion`ToValidCSymbolString[par];
+                            body = body <> Parameters`SetParameter[par, parStr, struct, None];
+                           ];
+                        body = body <> "solutions->evaluate_solutions(model);\n";
+                        If[substitutions === {},
+                           result = result <>
+                                    "if (is_finite) {\n" <>
+                                    IndentText[body] <>
+                                    "} else {\n" <>
+                                    IndentText["error = 1;\n"] <>
+                                    "}";,
+                           result = result <>
+                                    "if (is_finite) {\n" <>
+                                    IndentText[body] <>
+                                    IndentText[WrapLines[EWSB`SetModelParametersFromEWSB[parametersFixedByEWSB, substitutions, struct]]] <>
+                                    "} else {\n" <>
+                                    IndentText["error = 1;\n"] <>
+                                    "}";
+                          ];
+                       ];
+                     result
+                    ];
 
 GetAllIndexCombinations[bounds_List] := Tuples[Range[0, #-1]& /@ bounds];
 
