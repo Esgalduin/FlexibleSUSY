@@ -658,6 +658,8 @@ void CLASSNAME::run_to(double scale, double eps)
 
 @dependenceFunctions@
 
+@semiAnalyticSolutionDef@
+
 std::ostream& operator<<(std::ostream& ostr, const @ModelName@_mass_eigenstates& model)
 {
    model.print(ostr);

@@ -1488,7 +1488,8 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             convertMixingsToHKConvention = "",
             enablePoleMassThreads = True,
             ewsbSolverHeaders = "", semiAnalyticSolutionHeader = "", defaultEWSBSolverCctor = "",
-            semiAnalyticSolutionPrototypes = "", semiAnalyticSolutionVar = ""
+            semiAnalyticSolutionPrototype = "", semiAnalyticSolutionVar = "", semiAnalyticSolutionsFowardDeclr = "",
+            semiAnalyticSolutionDef = ""
            },
            convertMixingsToSLHAConvention = WriteOut`ConvertMixingsToSLHAConvention[massMatrices];
            convertMixingsToHKConvention   = WriteOut`ConvertMixingsToHKConvention[massMatrices];
@@ -1667,9 +1668,17 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                                 <> EnableForBVPSolver[#, ("#include \"" <> FlexibleSUSY`FSModelName
                                                           <> "_" <> GetBVPSolverHeaderName[#] <> "_ewsb_solver.hpp\"\n")] <> "\n")&
                                 /@ FlexibleSUSY`FSBVPSolvers;
-           If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver] && Length[FlexibleSUSY`FSBVPSolvers] === 1, semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <> "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";
-                                                                     semiAnalyticSolutionPrototypes = semiAnalyticSolutionPrototypes <> "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* s) {semiAnalyticSolutions = s;}";
-                                                                     semiAnalyticSolutionVar = semiAnalyticSolutionVar <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* semiAnalyticSolutions{nullptr}; ///< semi-analytic solutions calculator";];
+           If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver] && Length[FlexibleSUSY`FSBVPSolvers] === 1,
+               semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <>
+                     "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";
+               semiAnalyticSolutionPrototype = semiAnalyticSolutionPrototype <>
+                     "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions*)";
+               semiAnalyticSolutionDef = semiAnalyticSolutionDef <>
+                     "void set_semi_analytic_solutions(" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions* s) {semiAnalyticSolutions = s;}";
+               semiAnalyticSolutionVar = semiAnalyticSolutionVar <> FlexibleSUSY`FSModelName <>
+                     "_semi_analytic_solutions* semiAnalyticSolutions{nullptr}; ///< semi-analytic solutions calculator";];
+               semiAnalyticSolutionsFowardDeclr = semiAnalyticSolutionsFowardDeclr <> "class " <> FlexibleSUSY`FSModelName <>
+                     "_semi_analytic_solutions;";
            defaultEWSBSolverCctor = CreateDefaultEWSBSolverConstructor[FlexibleSUSY`FSBVPSolvers];
            reorderDRbarMasses           = TreeMasses`ReorderGoldstoneBosons[""];
            reorderPoleMasses            = TreeMasses`ReorderGoldstoneBosons["PHYSICAL"];
@@ -1747,8 +1756,10 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@convertMixingsToHKConvention@"   -> IndentText[convertMixingsToHKConvention],
                             "@ewsbSolverHeaders@"            -> ewsbSolverHeaders,
                             "@semiAnalyticSolutionHeader@"   -> semiAnalyticSolutionHeader,
-                            "@semiAnalyticSolutionPrototypes@" -> IndentText[semiAnalyticSolutionPrototypes],
+                            "@semiAnalyticSolutionPrototype@" -> IndentText[semiAnalyticSolutionPrototype],
                             "@semiAnalyticSolutionVar@"      -> IndentText[semiAnalyticSolutionVar],
+                            "@semiAnalyticSolutionsFowardDeclr@" -> semiAnalyticSolutionsFowardDeclr,
+                            "@semiAnalyticSolutionDef@"   -> semiAnalyticSolutionDef,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
                             "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],

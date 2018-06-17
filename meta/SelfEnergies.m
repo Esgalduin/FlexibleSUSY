@@ -681,7 +681,7 @@ CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
           ];
 
 CreateSingleNPointFunctionDefs[nPointFun_List, templateFile_String] :=
-  Module[{files = {}, functionname = "", functiondef = "", inputFile, outputFile},
+  Module[{files = {}, functionname = "", functiondef = "", inputFile, outputFile, semiAnalyticSolutionHeader = ""},
          For[n = 1, n <= Length[nPointFun], n++,
              functionname = nPointFun[[n,3]];
              functiondef = nPointFun[[n,4]];
@@ -690,8 +690,12 @@ CreateSingleNPointFunctionDefs[nPointFun_List, templateFile_String] :=
                                         FlexibleSUSY`FSModelName <> "_" <>
                                         StringReplace[templateFile,
                                                       {".cpp.in" -> functionname <> ".cpp"}]}];
+             If[MemberQ[FlexibleSUSY`FSBVPSolvers,SemiAnalyticSolver],
+               semiAnalyticSolutionHeader = semiAnalyticSolutionHeader <>
+                                            "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";];
              WriteOut`ReplaceInFiles[{{inputFile, outputFile}},
                    { "@nPointFunction@"     -> functiondef,
+                     "@semiAnalyticSolutionHeader@" -> semiAnalyticSolutionHeader,
                      Sequence @@ FlexibleSUSY`GeneralReplacementRules[]
                    } ];
              AppendTo[files, outputFile];
