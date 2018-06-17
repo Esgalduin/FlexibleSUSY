@@ -40,9 +40,12 @@
 #include "problems.hpp"
 #include "wrappers.hpp"
 
+@semiAnalyticSolutionHeader@
+
 #include <iosfwd>
 #include <memory>
 #include <string>
+
 
 #include <Eigen/Core>
 

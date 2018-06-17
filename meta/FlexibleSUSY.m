@@ -28,9 +28,6 @@ If[$VersionNumber <= 9.,
    Protect[FirstPosition];
   ];
 
-Unprotect[Series];
-Series[SARAH`sum[a_, b_, c_, d_], k__] := SARAH`sum[a, b, c, Series[d, k]];
-Protect[Series];
 
 BeginPackage["FlexibleSUSY`",
              {"SARAH`",
@@ -2812,7 +2809,7 @@ MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,semiAnalyticEWSBSu
                Module[{diagramtype = If[Head[#] === SelfEnergies`TadpoleShift1L, "tadpole_shift", "self_energy_shift"],
                        field = SelfEnergies`ExtractFieldName[SelfEnergies`GetField[#]]},
                        Put[#[[3]],Get2LExpressionOutputFileName[diagramtype,field]];
-                       Print[Get2LExpressionOutputFileName[diagramtype,field]];] & /@ tempnPoints;
+                       Print["   ",Get2LExpressionOutputFileName[diagramtype,field]];] & /@ tempnPoints;
                ,
                Print["Could not find Tadpole-list, SelfEnergy-List or treelevel EWSB solution file, no shifts were calculated."];
             ];
