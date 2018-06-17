@@ -25,6 +25,8 @@
 
 #include <cmath>
 
+#define CHKZEROMULT(prefactor,rest)                      \
+   [&]()->auto {return (Abs((prefactor)) < 10E-12) ?  (prefactor) : (prefactor)*(rest); }()
 
 namespace flexiblesusy {
 

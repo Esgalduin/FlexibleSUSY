@@ -537,6 +537,7 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
 CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergyShift1L, vertexRules_List, loops_] :=
   Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
          expr = GetExpression[nPointFunction, loops];
+         If[loops === 2, expr = SelfEnergies2L`CreateCHKZEROMULTWrapper @ expr;];
          If[expr === Null, Return[{"",""}]];
          functionName = CreateFunctionPrototype[nPointFunction, loops];
          type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
@@ -561,6 +562,7 @@ CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergySh
 CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
     Module[{decl, expr, prototype, body, functionName},
            expr = GetExpression[nPointFunction, loops];
+           If[loops === 2, expr = SelfEnergies2L`CreateCHKZEROMULTWrapper @ expr;];
            If[expr === Null, Return[{"",""}]];
            functionName = CreateFunctionPrototype[nPointFunction, loops];
            type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
@@ -579,6 +581,8 @@ CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
            decl = decl <> body <> "\n}\n";
            Return[{prototype, decl}];
           ];
+
+
 
 CreateNPointFunctionMatrix[(SelfEnergies`Tadpole)[__], _] := { "", "" };
 CreateNPointFunctionMatrix[(SelfEnergies`TadpoleShift1L)[__], _] := { "", "" };

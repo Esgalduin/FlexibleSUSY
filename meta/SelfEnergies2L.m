@@ -8,7 +8,7 @@ ClearAll["SelfEnergies2L`Private`*"];
 ConvertSarah2LDiagramList::usage = "Converts SARAH's list with 2-loop
  self-energy and tadpole diagrams."
 
-(* GetTadpoleField::usage = "Returns the field to which the tadpole diagram expression belongs to." *)
+CreateCHKZEROMULTWrapper::usage = "Adds CHKZEROMULT Macro to expressions with 2-loop functions for improved efficiency"
 
 Make1L2LShifts::usage = "takes in list of SARAH tadpoles and eigenstates, and gives all 1L2L Tadpole shifts"
 
@@ -467,7 +467,7 @@ GenerateCouplingShifts[selfEnergiesFormat_,gaugelessSub_,treeSolution_,nHiggs_,e
 
 (* the following command plus the 'SetOptions[D,...]' are necessary to get SARAH`sum to work correctly
    with differentiation *)
-SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] := 
+SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
    SARAH`sum[idx, a, b, D[exprs, y, c]];
 
 
@@ -481,7 +481,7 @@ GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSolution_,nHig
 
    massshiftsTadpole = Map[(TreeMass[#[[2]], eigenstates] /. EWSBSolverSubstitutions) &, relevantMassTadpoles, {2}] ;
    massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub /. treeSolution;
-   massshiftsTadpole = TreeMasses`StripGenerators[massshiftsTadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *) 
+   massshiftsTadpole = TreeMasses`StripGenerators[massshiftsTadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
    SetOptions[D, NonConstants -> {SARAH`sum}];
    massshiftsTadpole = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsTadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
    SetOptions[D, NonConstants -> {}];
@@ -519,6 +519,32 @@ CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
    output = output <> "calculate_DRbar_masses();\n";
    output
 ];
+
+AddCHKZEROMULTWrapper = {Times[bef___, b_, aft___] /; (! FreeQ[b, Alternatives @@ LoopFunctions] &&
+   !And @@ (NumericQ[#] & /@ {bef, aft})) :> FlexibleSUSY`CHKZEROMULT[Times[bef, aft], b]};
+
+loopFunctions = {Symbol["TfSS"], Symbol["TfSSS"], Symbol["TfSSSS"],
+   Symbol["TfSSFF"], Symbol["TfSSFbFb"], Symbol["TfFFFbS"],
+   Symbol["TfFFbFS"], Symbol["TfFbFbFbS"], Symbol["TfSV"],
+   Symbol["TfFV"], Symbol["WfSSSS"], Symbol["XfSSS"],
+   Symbol["YfSSSS"], Symbol["SfSSS"], Symbol["UfSSSS"],
+   Symbol["VfSSSSS"], Symbol["WfSSSV"], Symbol["MfSSSSV"],
+   Symbol["WfSSFF"], Symbol["WfSSFbFb"], Symbol["MfFbFbFbFbS"],
+   Symbol["MfFFbFbFS"], Symbol["MfFFbFFbS"], Symbol["MfFFFbFbS"],
+   Symbol["MfFFFFS"], Symbol["MfSFbSFbFb"], Symbol["MfSFSFbF"],
+   Symbol["MfSFSFFb"], Symbol["VfSSSFbFb"], Symbol["VfSSSFF"],
+   Symbol["VfFbFbFbFbS"], Symbol["VfFbFFbFS"], Symbol["VfFbFFFbS"],
+   Symbol["VfFFbFbFS"], Symbol["VfFFFbFbS"], Symbol["VfFFFFS"],
+   Symbol["GfFFV"], Symbol["GfFbFbV"], Symbol["ZfSSSS"],
+   Symbol["MfSSSSS"], Symbol["CCtilde"], Symbol["BB"], Symbol["BBs"]};
+
+splitLoopFunctionSum = {SARAH`sum[idx_, start_, stop_,
+   Plus[c___, a_, b_,d___]] /; (!FreeQ[a, Alternatives[Sequence @@ loopFunctions], Heads -> True] &&
+   !FreeQ[b, Alternatives[Sequence @@ loopFunctions], Heads -> True]) :> SARAH`sum[idx, start, stop, Plus[c, a]] + SARAH`sum[idx, start, stop, Plus[b, d]]};
+
+distributeNumericFactors = {a_?NumericQ*Plus[b_, c__] :> Plus[a*b, a*Plus[c]]};
+
+CreateCHKZEROMULTWrapper[wrapExpr_] := wrapExpr //. splitLoopFuncionSum //. distributeNumericFactors //. AddCHKZEROMULTWrapper;
 
 End[];
 Protect["SelfEnergies2L`*"];
