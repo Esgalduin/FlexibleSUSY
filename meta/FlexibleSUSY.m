@@ -1385,7 +1385,7 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
            setConsistentSolution        = EWSB`SetConsistentSolution[ewsbSolution, ewsbSubstitutions];
            solveEwsbWithTadpoles        = EWSB`CreateEwsbSolverWithTadpoles[ewsbSolution];
            solveEwsbWithTadpoles        = SemiAnalytic`ReplacePreprocessorMacros[solveEwsbWithTadpoles, solutions];
-           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[allowedEwsbSolvers];
+           EWSBSolvers                  = EWSB`CreateEWSBRootFinders[Cases[allowedEwsbSolvers, Except[FlexibleSUSY`ConsistentSolver]]];
            setEWSBSolution              = EWSB`SetEWSBSolution[parametersFixedByEWSB, freePhases, "solution", "model."];
            If[ewsbSolution =!= {},
               fillArrayWithEWSBParameters  = EWSB`FillArrayWithParameters["ewsb_parameters", parametersFixedByEWSB];
