@@ -77,6 +77,8 @@ void @ModelName@_spectrum_generator<Semi_analytic>::run_except(const softsusy::Q
          Spectrum_generator_settings::threshold_corrections_loop_order));
    model.set_zero_threshold(
       settings.get(Spectrum_generator_settings::beta_zero_threshold));
+   model.set_ewsb_solve_consistently(settings.get(
+      Spectrum_generator_settings::consistent_ewsb_solution));
 
    @ModelName@_semi_analytic_solutions& solutions(
       model.get_semi_analytic_solutions());
