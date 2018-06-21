@@ -54,7 +54,7 @@ self-energy function name for a given field";
 
 FillArrayWithLoopTadpoles::usage="add loop tadpoles to array"
 
-FillArrayWithLoopTadpolesShifts1L::usage="add loop shifts to 1L tadpoles to array"
+FillArrayWithLoopTadpoleShifts::usage="add loop shifts to 1L tadpoles to array"
 
 FillArrayWithTwoLoopTadpoles::usage="add two-loop tadpoles to array"
 
@@ -727,14 +727,13 @@ FillArrayWithLoopTadpoles[loopLevel_, higgsAndIdx_List, arrayName_String, sign_S
            body
           ];
 
-FillArrayWithLoopTadpolesShifts1L[loopLevel_, higgsAndIdx_List, arrayName_String, sign_String:"-", struct_String:""] :=
+FillArrayWithLoopTadpoleShifts[loopLevel_, higgsAndIdx_List, arrayName_String, sign_String:"-", struct_String:""] :=
   Module[{body = "", v, field, idx, head, functionName},
          For[v = 1, v <= Length[higgsAndIdx], v++,
              field = higgsAndIdx[[v,1]];
              idx = higgsAndIdx[[v,2]];
              head = CConversion`ToValidCSymbolString[higgsAndIdx[[v,3]]];
              functionName = "model_gl." <> CreateTadpoleShift1LFunctionName[field, loopLevel];
-             body = body <> "if(ewsb_solve_consistently) {";
              If[TreeMasses`GetDimension[field] == 1,
                 body = body <> IndentText[arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
                        head <> "(" <> struct <> functionName <> "());\n"];
@@ -743,7 +742,6 @@ FillArrayWithLoopTadpolesShifts1L[loopLevel_, higgsAndIdx_List, arrayName_String
                        head <> "(" <> struct <> functionName <>
                        "(" <> ToString[idx - 1] <> "));\n"];
                ];
-            body = body <> "}\n"
             ];
          body
         ];
