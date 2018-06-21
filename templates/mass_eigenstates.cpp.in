@@ -82,6 +82,9 @@ namespace flexiblesusy {
 #define HIGGS_3LOOP_CORRECTION_AT_AT_AT    loop_corrections.higgs_at_at_at
 #define HIGGS_4LOOP_CORRECTION_AT_AS_AS_AS loop_corrections.higgs_at_as_as_as
 
+#define CHKZEROMULT(prefactor,rest)                      \
+   [&]()->std::complex<double> {return (Abs((prefactor)) < 10E-12) ?  (prefactor) : (prefactor)*(rest); }()
+
 CLASSNAME::@ModelName@_mass_eigenstates(const @ModelName@_input_parameters& input_)
    : @ModelName@_soft_parameters(input_)
 @defaultEWSBSolverCctor@

@@ -520,10 +520,15 @@ CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
    output
 ];
 
-AddCHKZEROMULTWrapper = {Times[bef___, b_, aft___] /; (! FreeQ[b, Alternatives @@ LoopFunctions] &&
-   !And @@ (NumericQ[#] & /@ {bef, aft})) :> FlexibleSUSY`CHKZEROMULT[Times[bef, aft], b]};
+NotLFFreeQ[x__] := And @@ (! FreeQ[#, Alternatives @@ loopFunctions] & /@ (List[x]));
+LFFreeQ[x__] :=  And @@ (FreeQ[#, Alternatives @@ loopFunctions] & /@ (List[x]));
+AllNumericQ[x__] := And @@ (NumericQ[#] & /@ List[x]);
 
-loopFunctions = {Symbol["TfSS"], Symbol["TfSSS"], Symbol["TfSSSS"],
+addCHKZEROMULTWrapper := {Times[b__,aft__] /; (NotLFFreeQ[b] &&
+   LFFreeQ[aft] && !AllNumericQ[aft]) :>
+   FlexibleSUSY`CHKZEROMULT[Times[aft],Times[b] /. addCHKZEROMULTWrapper]};
+
+loopFunctions := {Symbol["TfSS"], Symbol["TfSSS"], Symbol["TfSSSS"],
    Symbol["TfSSFF"], Symbol["TfSSFbFb"], Symbol["TfFFFbS"],
    Symbol["TfFFbFS"], Symbol["TfFbFbFbS"], Symbol["TfSV"],
    Symbol["TfFV"], Symbol["WfSSSS"], Symbol["XfSSS"],
@@ -544,7 +549,8 @@ splitLoopFunctionSum = {SARAH`sum[idx_, start_, stop_,
 
 distributeNumericFactors = {a_?NumericQ*Plus[b_, c__] :> Plus[a*b, a*Plus[c]]};
 
-CreateCHKZEROMULTWrapper[wrapExpr_] := wrapExpr //. splitLoopFuncionSum //. distributeNumericFactors //. AddCHKZEROMULTWrapper;
+CreateCHKZEROMULTWrapper[wrapExpr_] := wrapExpr //. splitLoopFunctionSum //. distributeNumericFactors /. addCHKZEROMULTWrapper;
+
 
 End[];
 Protect["SelfEnergies2L`*"];
