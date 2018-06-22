@@ -1311,7 +1311,7 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
            If[FlexibleSUSY`UseSARAH2Loop === True,
               calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.calculate_DRbar_masses();\n";
               calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", ""];
-              If[FlexibleEFTHiggs`UseConsistentEWSBSolution === True,
+              If[FlexibleSUSY`UseConsistentEWSBSolution === True,
                calculateTwoLoopTadpoleShiftsNoStruct = calculateTwoLoopTadpoleShiftsNoStruct <>
                   SelfEnergies`FillArrayWithLoopTadpoleShifts[2, higgsToEWSBEqAssociation, "tadpole", "+"];];
              ];
@@ -1383,7 +1383,7 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
            If[FlexibleSUSY`UseSARAH2Loop === True,
               calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.calculate_DRbar_masses();\n";
               calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", ""];
-              If[FlexibleEFTHiggs`UseConsistentEWSBSolution === True,
+              If[FlexibleSUSY`UseConsistentEWSBSolution === True,
               calculateTwoLoopTadpoleShiftsNoStruct = calculateTwoLoopTadpoleShiftsNoStruct <>
                   SelfEnergies`FillArrayWithLoopTadpoleShifts[2, higgsToEWSBEqAssociation, "tadpole", "+"];];
             ];
