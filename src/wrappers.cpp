@@ -277,4 +277,24 @@ double ZeroSqrt(double x) noexcept
    return (x > 0.0 ? std::sqrt(x) : 0.0);
 }
 
+template <int Head, int ...Tail>
+struct FillTensor{
+   template <typename F, typename ...X>
+   constexpr void operator()(F func, X... x) {
+      for (int i = 0; i < Head; ++i) {
+          FillTensor<Tail...>()(func, x..., i);
+      }
+   }
+};
+
+template <int Head>
+struct FillTensor<Head>{
+   template <typename F, typename ...X>
+   constexpr void operator()(F func, X... x) {
+      for (int i = 0; i < Head; ++i) {
+         func(x..., i);
+      }
+   }
+};
+
 } // namespace flexiblesusy

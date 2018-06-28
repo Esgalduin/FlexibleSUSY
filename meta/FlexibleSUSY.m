@@ -1499,7 +1499,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             enablePoleMassThreads = True,
             ewsbSolverHeaders = "", semiAnalyticSolutionHeader = "", defaultEWSBSolverCctor = "",
             semiAnalyticSolutionPrototype = "", semiAnalyticSolutionVar = "", semiAnalyticSolutionsFowardDeclr = "",
-            semiAnalyticSolutionDef = ""
+            semiAnalyticSolutionDef = "", vStructInit = "",vStructCalc= ""
            },
            convertMixingsToSLHAConvention = WriteOut`ConvertMixingsToSLHAConvention[massMatrices];
            convertMixingsToHKConvention   = WriteOut`ConvertMixingsToHKConvention[massMatrices];
@@ -1589,7 +1589,9 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               {secondGenerationHelperPrototypes, secondGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[2];
               {thirdGenerationHelperPrototypes, thirdGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[3];
              ];
-           {selfEnergyPrototypes, selfEnergyFunctions, vertexFunctions} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
+           {selfEnergyPrototypes, selfEnergyFunctions, vertexFunctions, vStructInit, vStructCalc} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
+           Print[vStructInit];
+           Print[vStructCalc];
            phasesDefinition             = Phases`CreatePhasesDefinition[phases];
            phasesGetterSetters          = Phases`CreatePhasesGetterSetters[phases];
            If[Parameters`GetExtraParameters[] =!= {},
@@ -1775,6 +1777,8 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
                             "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
+                            "@vStructInit@"                    -> IndentText[IndentText[vStructInit]],
+                            "@vStructCalc@"                    -> IndentText[IndentText[vStructCalc]],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
            singleNPointFunctionsDefsFiles = SelfEnergies`CreateSingleNPointFunctionDefs[Cases[selfEnergyFunctions, {_,Except[1],_,x_}],templatefile];
