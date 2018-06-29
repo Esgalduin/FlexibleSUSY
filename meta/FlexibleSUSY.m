@@ -1499,7 +1499,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
             enablePoleMassThreads = True,
             ewsbSolverHeaders = "", semiAnalyticSolutionHeader = "", defaultEWSBSolverCctor = "",
             semiAnalyticSolutionPrototype = "", semiAnalyticSolutionVar = "", semiAnalyticSolutionsFowardDeclr = "",
-            semiAnalyticSolutionDef = "", vStructInit = "",vStructCalc= ""
+            semiAnalyticSolutionDef = "", vStructDef = "",vStructCalc= ""
            },
            convertMixingsToSLHAConvention = WriteOut`ConvertMixingsToSLHAConvention[massMatrices];
            convertMixingsToHKConvention   = WriteOut`ConvertMixingsToHKConvention[massMatrices];
@@ -1589,7 +1589,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               {secondGenerationHelperPrototypes, secondGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[2];
               {thirdGenerationHelperPrototypes, thirdGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[3];
              ];
-           {selfEnergyPrototypes, selfEnergyFunctions, vertexFunctions, vStructInit, vStructCalc} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
+           {selfEnergyPrototypes, selfEnergyFunctions, vertexFunctions, vStructDef, vStructCalc} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
            Print[vStructInit];
            Print[vStructCalc];
            phasesDefinition             = Phases`CreatePhasesDefinition[phases];
@@ -1777,7 +1777,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
                             "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
-                            "@vStructInit@"                    -> IndentText[IndentText[vStructInit]],
+                            "@vStructDef@"                    -> IndentText[IndentText[vStructDef]],
                             "@vStructCalc@"                    -> IndentText[IndentText[vStructCalc]],
                             Sequence @@ GeneralReplacementRules[]
                           } ];
