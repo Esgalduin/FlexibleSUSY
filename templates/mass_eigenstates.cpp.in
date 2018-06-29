@@ -612,6 +612,13 @@ Eigen::ArrayXd CLASSNAME::get_DRbar_masses_and_mixings() const
    return pars;
 }
 
+void CLASSNAME::calculate_vertices()
+{
+   Vertex_struct vertex_struct;
+@vStructCalc@
+   vertices = vertex_struct;
+}
+
 void CLASSNAME::set_extra_parameters(const Eigen::ArrayXd& pars)
 {
 @setExtraParameters@

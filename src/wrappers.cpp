@@ -277,4 +277,5 @@ double ZeroSqrt(double x) noexcept
    return (x > 0.0 ? std::sqrt(x) : 0.0);
 }
 
+
 } // namespace flexiblesusy

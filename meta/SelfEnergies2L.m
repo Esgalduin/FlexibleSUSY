@@ -85,7 +85,8 @@ UnrotateRules[]:=Module[{rules={}},
           rules
         ];
 
-simpleUnrotateRules[]:={Symbol["U"<>ToString[SARAH`HiggsBoson]][x_]->SARAH`HiggsBoson[x],Symbol["U"<>ToString[SARAH`PseudoScalar]][x_]->SARAH`PseudoScalar[x]};
+simpleUnrotateRules:={Symbol["U"<>ToString[SARAH`HiggsBoson]][x_]->SARAH`HiggsBoson[x],
+                        Symbol["U"<>ToString[SARAH`PseudoScalar]][x_]->SARAH`PseudoScalar[x]};
 
 
 AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  Symbol["XfSSS"][masses__] -> Symbol["XfSSS"][p^2,masses],  Symbol["YfSSSS"][masses__] -> Symbol["YfSSSS"][p^2,masses],
@@ -161,8 +162,8 @@ Select[#, With[{unused = #},ContainsAny[Join[GetUsedParameters[TreeMass[#[[1]], 
 
 
 VertexZeroQ[fields_List,subs_List,mod_:-1]:= If[mod===-1,
-      SameQ[0, Simplify[(Drop[Vertex[fields//.simpleUnrotateRules[]],1][[1,1]])//.subs]],
-      SameQ[0, Simplify[(Select[Drop[Vertex[fields//.simpleUnrotateRules[]],1],#[[2]]===mod&][[1,1]])//.subs]]];
+      SameQ[0, Simplify[(Drop[Vertex[fields//.simpleUnrotateRules],1][[1,1]])//.subs]],
+      SameQ[0, Simplify[(Select[Drop[Vertex[fields//.simpleUnrotateRules],1],#[[2]]===mod&][[1,1]])//.subs]]];
 
 (*TadpoleReplacements1L2L:={Cp[a___, Symbol["Uhh"][{SARAH`gI3}] , b___]*Symbol["tadpole"][i_Integer] :> Cp[a, Symbol["Uhh"][{i}], b]*Symbol["tadpole"][i],
 Cp[a___, Symbol["Uhh"][{SARAH`gI3}] , b___][c___]*Symbol["tadpole"][i_Integer] :> Cp[a, Symbol["Uhh"][{i}], b][c]*Symbol["tadpole"][i]};*)

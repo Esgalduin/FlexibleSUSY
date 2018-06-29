@@ -47,6 +47,7 @@
 
 
 #include <Eigen/Core>
+#include <unsupported/Eigen/CXX11/Tensor>
 
 namespace flexiblesusy {
 
@@ -71,6 +72,7 @@ public:
    void calculate_DRbar_masses();
    void calculate_pole_masses();
    void check_pole_masses_for_tachyons();
+   void calculate_vertices();
    virtual void clear() override;
    void clear_DRbar_parameters();
    Eigen::ArrayXd get_DRbar_masses() const;
@@ -168,6 +170,11 @@ private:
    std::shared_ptr<@ModelName@_ewsb_solver_interface> ewsb_solver{};
    Threshold_corrections threshold_corrections{}; ///< used threshold corrections
 @semiAnalyticSolutionVar@
+
+   struct Vertex_struct{
+@vStructDef@
+   };
+   Vertex_struct vertices;
 
    int get_number_of_ewsb_iterations() const;
    int get_number_of_mass_iterations() const;

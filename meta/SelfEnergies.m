@@ -425,6 +425,51 @@ CreateVertexExpressions[vertexRules_List, inModelClass_:True] :=
            {prototypes, defs, Flatten[rules]}
           ];
 
+CreateVertexStruct[vertexRules_List, inModelClass_:True] :=
+  Module[{k, def = "", init = "", setZero = "", fillTensor = "", coupling, expr,
+          d, i, sZ, fT, MakeIndex},
+         MakeIndex[j_Integer] := MakeUniqueIdx[];
+         MakeIndex[j_] := j;
+         For[k = 1, k <= Length[vertexRules], k++,
+             coupling = Vertices`ToCp[vertexRules[[k,1]]] /. p_[{idx__}] :> p[MakeIndex /@ {idx}];
+             expr = vertexRules[[k,2]];
+             {d,i,sZ,fT} = CreateStructCoupling[coupling, expr, inModelClass];
+             def = def <> d;
+             init = init <> i;
+             setZero = setZero <> sZ;
+             fillTensor = fillTensor <> fT;
+            ];
+         {def, init, setZero, fillTensor}
+        ];
+
+CreateStructCoupling[coupling_, expr_, inModelClass_] :=
+   Module[{symbol, couplingBare, particles, indices = {}, fillTensor = "",
+         indicesStr = "", indicesIntStr = "", cFunctionName = "", init = "", def = "", setZero = "", type, typeStr},
+         indices = GetParticleIndicesInCoupling[coupling];
+         couplingBare = ReplaceUnrotatedFields @ coupling /. SARAH`Cp[flds__][__] :> SARAH`Cp[flds];
+         If[Parameters`IsRealExpression[expr],
+            type = CConversion`ScalarType[CConversion`realScalarCType];,
+            type = CConversion`ScalarType[CConversion`complexScalarCType];];
+         typeStr = CConversion`CreateCType[type];
+         If[indices =!= {},
+            particles = List @@ couplingBare;
+            dimensions = Cases[TreeMasses`GetDimension[#] & /@ particles,Except[1]];
+            dimensionsStr = StringDrop[StringJoin @@ ((ToString[#] <> ",") & /@ dimensions), -1];
+            indicesStr = StringDrop[StringJoin @@ ((ToValidCSymbolString[#] <> ",") & /@ indices), -1];
+            indicesIntStr = StringDrop[StringJoin @@ (("int " <> ToValidCSymbolString[#] <> ",") & /@ indices), -1];
+            symbol = CreateCouplingSymbol[coupling];
+            cFunctionName = ToValidCSymbolString[GetHead[symbol]];
+            def = "Eigen::Tensor<" <> typeStr <> "," <> ToString[Length[dimensions]] <> "> " <>
+                  cFunctionName <> ";\n";
+            init = "vertex_struct." <> cFunctionName <> " = Eigen::Tensor<" <> typeStr <> "," <> ToString[Length[dimensions]] <> ">("<> dimensionsStr<>");\n";
+            setZero = "vertex_struct." <> cFunctionName <> ".setZero();\n";
+            fillTensor = "FillTensor<" <> dimensionsStr <> ">()([&](" <>
+                         indicesIntStr <> ") {vertex_struct." <> cFunctionName <> "(" <> indicesStr <>
+                         ") = " <> cFunctionName <> "(" <> indicesStr <> ");});\n"
+         ];
+         {def, init, setZero, fillTensor}
+];
+
 ReplaceGhosts[states_:FlexibleSUSY`FSEigenstates] :=
     Module[{vectorBosons = {}, ghostStr, ghostSym, ghostCSym, ghosts = {}, k},
            vectorBosons = GetVectorBosons[states];
@@ -657,12 +702,13 @@ CreateNPointFunctionMatrix[nPointFunction_, loops_] :=
 
 CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
     Module[{prototypes = "",  vertexdefs = "", nPointDefs = {}, collectDefs = "", fieldname = "", nPointType = "", vertexFunctionNames = {}, p, d, l,
-            relevantVertexRules},
+            relevantVertexRules, vStructDef = "", vStructInit = "", vStructSetZero = "", vStructFillTensor = "" },
            (* create coupling functions for all vertices in the list *)
            Print["Converting vertex functions ..."];
            (* extract vertex rules needed for the given nPointFunctions *)
            relevantVertexRules = Cases[vertexRules, r:(Rule[a_,b_] /; !FreeQ[nPointFunctions,a]) :> r];
            {prototypes, vertexdefs, vertexFunctionNames} = CreateVertexExpressions[relevantVertexRules];
+           {vStructDef,vStructInit, vStructSetZero, vStructFillTensor} = CreateVertexStruct[relevantVertexRules];
            (* creating n-point functions *)
            Print["Converting self energies ..."];
            Utils`StartProgressBar[Dynamic[k], Length[nPointFunctions]];
@@ -681,7 +727,7 @@ CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
                   ];
               ];
            Utils`StopProgressBar[Length[nPointFunctions]];
-           {prototypes, nPointDefs, vertexdefs}
+           {prototypes, nPointDefs, vertexdefs, vStructDef, vStructInit <> vStructSetZero <> vStructFillTensor}
           ];
 
 CreateSingleNPointFunctionDefs[nPointFun_List, templateFile_String] :=
