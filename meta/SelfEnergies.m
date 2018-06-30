@@ -627,8 +627,8 @@ CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
            Return[{prototype, decl}];
           ];
 
-CreateVertexStructWrapper[expr_] := expr /. {SARAH`Cp[fields__]/;!FreeQ[{fields},_[__]]->VERTEXSTRUCT[SARAH`Cp[fields]],
-                                     SARAH`Cp[fields__][lorentz_]/;!FreeQ[{fields},_[__]]->VERTEXSTRUCT[SARAH`Cp[fields][lorentz]]}
+CreateVertexStructWrapper[expr_] := expr /. {SARAH`Cp[fields__]/;!FreeQ[{fields},Except[List[__], _[__]]]->Symbol["VERTEXSTRUCT"][SARAH`Cp[fields]],
+                                     SARAH`Cp[fields__][lorentz_]/;!FreeQ[{fields},Except[List[__], _[__]]]->Symbol["VERTEXSTRUCT"][SARAH`Cp[fields][lorentz]]}
 
 CreateNPointFunctionMatrix[(SelfEnergies`Tadpole)[__], _] := { "", "" };
 CreateNPointFunctionMatrix[(SelfEnergies`TadpoleShift1L)[__], _] := { "", "" };
