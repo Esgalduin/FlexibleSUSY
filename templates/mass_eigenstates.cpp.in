@@ -85,6 +85,9 @@ namespace flexiblesusy {
 #define CHKZEROMULT(prefactor,rest)                      \
    [&]()->std::complex<double> {return (Abs((prefactor)) < 10E-12) ?  (prefactor) : (prefactor)*(rest); }()
 
+#define VERTEXSTRUCT(coupling)                           \
+   vertices.coupling
+
 CLASSNAME::@ModelName@_mass_eigenstates(const @ModelName@_input_parameters& input_)
    : @ModelName@_soft_parameters(input_)
 @defaultEWSBSolverCctor@
@@ -488,6 +491,8 @@ double CLASSNAME::G0(double p, double m1, double m2) const noexcept
  */
 void CLASSNAME::calculate_DRbar_masses()
 {
+calculate_vertices();
+
 @saveEWSBOutputParameters@
 @solveEWSBTemporarily@
 

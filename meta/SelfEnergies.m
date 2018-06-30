@@ -581,8 +581,8 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
 
 CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergyShift1L, vertexRules_List, loops_] :=
   Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
-         expr = GetExpression[nPointFunction, loops];
-         expr = SelfEnergies2L`CreateCHKZEROMULTWrapper @ expr;
+         expr = CreateVertexStructWrapper @
+                  SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops];
          If[expr === Null, Return[{"",""}]];
          functionName = CreateFunctionPrototype[nPointFunction, loops];
          type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
@@ -606,8 +606,8 @@ CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergySh
 
 CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
     Module[{decl, expr, prototype, body, functionName},
-           expr = GetExpression[nPointFunction, loops];
-           expr = SelfEnergies2L`CreateCHKZEROMULTWrapper @ expr;
+           expr = CreateVertexStructWrapper @
+                     SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops];
            If[expr === Null, Return[{"",""}]];
            functionName = CreateFunctionPrototype[nPointFunction, loops];
            type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
@@ -627,7 +627,8 @@ CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
            Return[{prototype, decl}];
           ];
 
-
+CreateVertexStructWrapper[expr_] := expr /. {SARAH`Cp[fields__]/;!FreeQ[{fields},_[__]]->VERTEXSTRUCT[SARAH`Cp[fields]],
+                                     SARAH`Cp[fields__][lorentz_]/;!FreeQ[{fields},_[__]]->VERTEXSTRUCT[SARAH`Cp[fields][lorentz]]}
 
 CreateNPointFunctionMatrix[(SelfEnergies`Tadpole)[__], _] := { "", "" };
 CreateNPointFunctionMatrix[(SelfEnergies`TadpoleShift1L)[__], _] := { "", "" };

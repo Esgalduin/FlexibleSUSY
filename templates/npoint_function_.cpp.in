@@ -28,6 +28,9 @@
 #define CHKZEROMULT(prefactor,rest)                      \
    [&]()->std::complex<double> {return (Abs((prefactor)) < 10E-12) ?  (prefactor) : (prefactor)*(rest); }()
 
+#define VERTEXSTRUCT(coupling)                           \
+   vertices.coupling
+
 namespace flexiblesusy {
 
 #define CLASSNAME @ModelName@_mass_eigenstates
