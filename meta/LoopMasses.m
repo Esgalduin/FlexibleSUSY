@@ -523,8 +523,7 @@ DoMediumDiagonalization[particle_Symbol /; IsScalar[particle], inputMomentum_, t
                 ];
              If[FlexibleSUSY`UseSARAH2Loop === True &&
                MemberQ[{SARAH`HiggsBoson, SARAH`PseudoScalar}, particle],
-               calcHigherLoopHiggsContributions = calcHigherLoopHiggsContributions <> CalcEffPot2L[particle];
-               addHigherLoopHiggsContributions = addHigherLoopHiggsContributions <>"\nself_energy += self_energy_2l;\n";
+               addHigherLoopHiggsContributions = CalcEffPot2L[particle] <>"\nself_energy += self_energy_2l;\n";
               ];
               If[FlexibleSUSY`UseHiggs3LoopMSSM === True && MemberQ[{SARAH`HiggsBoson}, particle],
                  addHigherLoopHiggsContributions = addHigherLoopHiggsContributions <> "self_energy += self_energy_3l;\n";
@@ -763,12 +762,11 @@ if (pole_mass_loop_order > 1) {
 " <> IndentText["\
 " <> If[FlexibleSUSY`UseSARAH2Loop === True,
    "auto model_gl = *this;\nmodel_gl.enter_gaugeless_limit();\n" <>
-   "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(old_" <>ToValidCSymbolString[TreeMasses`GetMass[particle]] <> "(0)" <> "));\n" <>
+   "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
    If[FlexibleSUSY`UseConsistentEWSBSolution === True,
       "if(ewsb_solve_consistently) {\n" <>
-      "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(old_" <>ToValidCSymbolString[TreeMasses`GetMass[particle]] <> "(0)" <> "));\n" <>
+      "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
       "}\n",""]
-
    ,
    "self_energy_2l = self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2);\n"
 ] <>
