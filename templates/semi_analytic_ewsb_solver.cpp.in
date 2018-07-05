@@ -202,6 +202,9 @@ int CLASSNAME::solve(@ModelName@_mass_eigenstates& model_to_solve)
    if (loop_order == 0) {
       return solve_tree_level(model_to_solve);
    }
+   if(loop_order > 1) {
+      model_to_solve.calculate_vertices();
+   }
    if (solve_consistently == true) {
       return solve_consistently_at(model_to_solve, loop_order);
    }

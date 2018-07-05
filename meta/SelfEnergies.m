@@ -581,8 +581,7 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
 
 CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergyShift1L, vertexRules_List, loops_] :=
   Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
-         expr = CreateVertexStructWrapper @
-                  SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops];
+         expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops];
          If[expr === Null, Return[{"",""}]];
          functionName = CreateFunctionPrototype[nPointFunction, loops];
          type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
@@ -606,8 +605,7 @@ CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergySh
 
 CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
     Module[{decl, expr, prototype, body, functionName},
-           expr = CreateVertexStructWrapper @
-                     SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops];
+           expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops];
            If[expr === Null, Return[{"",""}]];
            functionName = CreateFunctionPrototype[nPointFunction, loops];
            type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
@@ -627,13 +625,10 @@ CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
            Return[{prototype, decl}];
           ];
 
-CreateVertexStructWrapper[expr_] := expr /. {SARAH`Cp[fields__]/;HasFieldIndexQ[{fields}]->Symbol["VERTEXSTRUCT"][SARAH`Cp[fields]],
-                                     SARAH`Cp[fields__][lorentz_]/;HasFieldIndexQ[{fields}]->Symbol["VERTEXSTRUCT"][SARAH`Cp[fields][lorentz]]}
+CreateVertexStructWrapper[expr_,nPointType_,loops_] := expr /. If[loops === 2, {SARAH`Cp[fields__]/;HasFieldIndexQ[{fields}]:>Symbol["VERTEXSTRUCT"][SARAH`Cp[fields]],
+                                     SARAH`Cp[fields__][lorentz_]/;HasFieldIndexQ[{fields}]:>Symbol["VERTEXSTRUCT"][SARAH`Cp[fields][lorentz]]}, {}];
 
-HasFieldIndexQ[fields_List] := ! 
-  FreeQ[fields, (Except[
-      Alternatives[List, Susyno`LieGroups`conj, SARAH`Conj, 
-       SARAH`bar], _])[__]]
+HasFieldIndexQ[fields_List] := !FreeQ[fields, (Except[Alternatives[List, Susyno`LieGroups`conj, SARAH`Conj, SARAH`bar], _])[__]];
 
 CreateNPointFunctionMatrix[(SelfEnergies`Tadpole)[__], _] := { "", "" };
 CreateNPointFunctionMatrix[(SelfEnergies`TadpoleShift1L)[__], _] := { "", "" };

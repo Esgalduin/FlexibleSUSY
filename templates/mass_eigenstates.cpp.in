@@ -491,7 +491,6 @@ double CLASSNAME::G0(double p, double m1, double m2) const noexcept
  */
 void CLASSNAME::calculate_DRbar_masses()
 {
-calculate_vertices();
 
 @saveEWSBOutputParameters@
 @solveEWSBTemporarily@
@@ -504,6 +503,8 @@ calculate_vertices();
  */
 void CLASSNAME::calculate_pole_masses()
 {
+   calculate_vertices();
+
 #ifdef ENABLE_THREADS
 @callAllLoopMassFunctionsInThreads@
 #else
