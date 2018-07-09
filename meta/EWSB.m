@@ -102,6 +102,8 @@ given list of substitutions";
 SolveEWSBIgnoringFailures::usage="Solve EWSB conditions without
 flagging a problem if no solution is found.";
 
+MakeParametersUnique::usage=""
+
 Begin["`Private`"];
 
 DebugPrint[msg___] :=

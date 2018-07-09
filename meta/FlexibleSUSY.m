@@ -1581,6 +1581,13 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               twoLoopHiggsHeaders = "#include \"sfermions.hpp\"\n#include \"mssm_twoloophiggs.hpp\"\n#include \"nmssm_twoloophiggs.hpp\"\n";
              ];
            twoLoopThresholdHeaders = ThresholdCorrections`GetTwoLoopThresholdHeaders[];
+           If[SARAH`UseHiggs2LoopMSSM === False &&
+              FlexibleSUSY`UseHiggs2LoopNMSSM === False &&
+              FlexibleSUSY`UseHiggs3LoopMSSM === False &&
+              (FlexibleSUSY`UseMSSMYukawa2Loop === True ||
+              FlexibleSUSY`UseMSSMAlphaS2Loop === True),
+                  twoLoopHiggsHeaders = "#include \"sfermions.hpp\"\n";
+           ];
            If[(FlexibleSUSY`UseSARAH2Loop === True && (FlexibleSUSY`FSModelName === "MSSM" || FlexibleSUSY`FSModelName === "NMSSM")) || SARAH`UseHiggs2LoopMSSM === True ||
               FlexibleSUSY`UseHiggs2LoopNMSSM === True ||
               FlexibleSUSY`UseMSSMYukawa2Loop === True ||
@@ -1590,8 +1597,6 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               {thirdGenerationHelperPrototypes, thirdGenerationHelperFunctions} = TreeMasses`CreateGenerationHelpers[3];
              ];
            {selfEnergyPrototypes, selfEnergyFunctions, vertexFunctions, vStructDef, vStructCalc} = SelfEnergies`CreateNPointFunctions[nPointFunctions, vertexRules];
-           Print[vStructInit];
-           Print[vStructCalc];
            phasesDefinition             = Phases`CreatePhasesDefinition[phases];
            phasesGetterSetters          = Phases`CreatePhasesGetterSetters[phases];
            If[Parameters`GetExtraParameters[] =!= {},
