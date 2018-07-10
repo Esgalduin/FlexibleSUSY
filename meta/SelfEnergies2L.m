@@ -155,9 +155,9 @@ GetnPointField[tempdiags_List]:=Module[{testdiag=tempdiags[[1]],coupfields,loopf
 
 GetUsedParameters[expr_,extraPars_:{}] := Select[Join[Transpose[parameters][[1]],extraPars], ! FreeQ[expr, #] &];
 
-GetMassShiftedExpressions[SarahList_List,ewsbEqparameters_,EWSBSolverSubstitutions_,eigenstates_]:=
-Select[#, With[{unused = #},ContainsAny[Join[GetUsedParameters[TreeMass[#[[1]], eigenstates] /. EWSBSolverSubstitutions,ewsbEqparameters],
-      GetUsedParameters[TreeMass[#[[2]], eigenstates] /. EWSBSolverSubstitutions],ewsbEqparameters],ewsbEqparameters]] &] & /@ SarahList;
+GetMassShiftedExpressions[SarahList_List,ewsbEqparameters_,EWSBSubst_,eigenstates_]:=
+Select[#, With[{unused = #},ContainsAny[Join[GetUsedParameters[TreeMass[#[[1]], eigenstates] /. EWSBSubst,ewsbEqparameters],
+      GetUsedParameters[TreeMass[#[[2]], eigenstates] /. EWSBSubst],ewsbEqparameters],ewsbEqparameters]] &] & /@ SarahList;
     (* the 'unused = #'' is set, so that we can use a pure function inside another one *)
 
 
@@ -389,8 +389,8 @@ StripFieldRotation := {Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson
    1L corrections to the EWSB parameters. The sign is opposite to that of
    the values given by CalculatePi2S in SPheno. The signs used here should be
    consistent with the rest of FlexibleSUSY *)
-Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSolverSubstitutions_List,eigenstates_] :=
-Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopExpr,selfEnergy1LoopExpr,treeSolution,higgstoewsb,
+Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSubst_List,eigenstates_] :=
+Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopExpr,selfEnergy1LoopExpr,treeSol,higgstoewsb,
      nHiggs,tadpoleSeriesParameters,tadpoleFields,tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
      massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
 
@@ -405,22 +405,22 @@ Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopE
        tadpoleFields = (GetnPointField[#] & /@ SarahTads) /. StripFieldRotation;
        selfenergyFields = (GetnPointField[#] & /@ GetHiggsSelfEnergy[SarahSelfenergies]) /. StripFieldRotation;
 
-       relevantMassTadpoles = GetMassShiftedExpressions[SarahTads,EWSBpars,EWSBSolverSubstitutions,eigenstates];
-       relevantMassSelfEnergies = GetMassShiftedExpressions[GetHiggsSelfEnergy[SarahSelfenergies],EWSBpars,EWSBSolverSubstitutions,eigenstates];
+       relevantMassTadpoles = GetMassShiftedExpressions[SarahTads,EWSBpars,EWSBSubst,eigenstates];
+       relevantMassSelfEnergies = GetMassShiftedExpressions[GetHiggsSelfEnergy[SarahSelfenergies],EWSBpars,EWSBSubst,eigenstates];
        (*We don't have to worry about ignoring Goldstones, since those contributions will
          be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
          given that their masses have been properly set to zero *)
 
-       treeSolution = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. gaugelessSub /. EWSBSolverSubstitutions];
+       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. gaugelessSub /. EWSBSubst];
        nHiggs = Length[tadHiggsassoc];
 
 
 
-       massTadpoleShift = GenerateTadpoleMassShifts[relevantMassTadpoles,gaugelessSub,treeSolution,nHiggs,EWSBSolverSubstitutions,eigenstates];
-       massSelfEnergyShift = GenerateSelfEnergyMassShifts[relevantMassSelfEnergies,gaugelessSub,treeSolution,nHiggs,EWSBSolverSubstitutions,eigenstates];
+       massTadpoleShift = GenerateTadpoleMassShifts[relevantMassTadpoles,gaugelessSub,treeSol,nHiggs,EWSBSubst,eigenstates];
+       massSelfEnergyShift = GenerateSelfEnergyMassShifts[relevantMassSelfEnergies,gaugelessSub,treeSol,nHiggs,EWSBSubst,eigenstates];
 
-       (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1LoopExpr,gaugelessSub,treeSolution,nHiggs,eigenstates];
-       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1LoopExpr,gaugelessSub,treeSolution,nHiggs,eigenstates]; *)
+       (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1LoopExpr,gaugelessSub,treeSol,nHiggs,eigenstates];
+       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1LoopExpr,gaugelessSub,treeSol,nHiggs,eigenstates]; *)
 
        (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
        couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
@@ -456,7 +456,7 @@ ReplaceMassInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
           idxnum : DigitCharacter .. :>
            ToString[ToExpression[idxnum] + 5]}]]}])};
 
-GenerateCouplingShifts[selfEnergiesFormat_,gaugelessSub_,treeSolution_,nHiggs_,eigenstates_] := Module[
+GenerateCouplingShifts[selfEnergiesFormat_,gaugelessSub_,treeSol_,nHiggs_,eigenstates_] := Module[
    {},
 
    tadpoleSeriesParametersFirstOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 1}, {i, 1, nHiggs}];
@@ -475,16 +475,16 @@ SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
 FirstOrderSeries[seriesExpr_, seriesPars_List] :=
     Plus @@ (((D[seriesExpr, #] & /@ seriesPars[[All, 1]]) /. (Rule[#[[1]], #[[2]]] & /@ seriesPars))*seriesPars[[All, 1]]);
 
-GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSolution_,nHiggs_,EWSBSolverSubstitutions_,eigenstates_] := Module[{massshiftsTadpole,
+GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSol_,nHiggs_,EWSBSubst_,eigenstates_] := Module[{massshiftsTadpole,
    tadpoleSeriesParameters,makeParametersUnique},
 
    makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
 
    tadpoleSeriesParameters =  Table[{Symbol["tadpole"][i], 0}, {i, 1, nHiggs}];
 
-   massshiftsTadpole = Map[(TreeMass[#[[2]], eigenstates] /. EWSBSolverSubstitutions) &, relevantMassTadpoles, {2}];
+   massshiftsTadpole = Map[(TreeMass[#[[2]], eigenstates] /. EWSBSubst) &, relevantMassTadpoles, {2}];
    massshiftsTadpole = massshiftsTadpole /. makeParametersUnique;
-   massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub /. treeSolution;
+   massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub /. treeSol;
 
    massshiftsTadpole = TreeMasses`StripGenerators[massshiftsTadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
    SetOptions[D, NonConstants -> {SARAH`sum}];
@@ -497,16 +497,16 @@ GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSolution_,nHig
    Plus @@@ (Thread[noEvalfunc[relevantMassTadpoles,massshiftsTadpole]]/.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}) (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
 ];
 
-GenerateSelfEnergyMassShifts[relevantMassSelfEnergies_,gaugelessSub_,treeSolution_,nHiggs_,EWSBSolverSubstitutions_,eigenstates_] := Module[{massshiftsSelfEnergy,
+GenerateSelfEnergyMassShifts[relevantMassSelfEnergies_,gaugelessSub_,treeSol_,nHiggs_,EWSBSubst_,eigenstates_] := Module[{massshiftsSelfEnergy,
    tadpoleSeriesParameters,makeParametersUnique},
 
    makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
 
    tadpoleSeriesParameters =  Table[{Symbol["tadpole"][i], 0}, {i, 1, nHiggs}];
 
-   massshiftsSelfEnergy = Map[{TreeMass[#[[1]], eigenstates] /. EWSBSolverSubstitutions,TreeMass[#[[2]], eigenstates] /. EWSBSolverSubstitutions} &, relevantMassSelfEnergies, {2}];
+   massshiftsSelfEnergy = Map[{TreeMass[#[[1]], eigenstates] /. EWSBSubst,TreeMass[#[[2]], eigenstates] /. EWSBSubst} &, relevantMassSelfEnergies, {2}];
    massshiftsSelfEnergy = massshiftsSelfEnergy /. makeParametersUnique;
-   massshiftsSelfEnergy = massshiftsSelfEnergy //. ReplaceMassInternalIndices /. gaugelessSub /. treeSolution;
+   massshiftsSelfEnergy = massshiftsSelfEnergy //. ReplaceMassInternalIndices /. gaugelessSub /. treeSol;
 
    massshiftsSelfEnergy = TreeMasses`StripGenerators[#,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}] & /@ massshiftsSelfEnergy; (* get rid of all colour indices and any generators, that might be present *)
    SetOptions[D, NonConstants -> {SARAH`sum}];
