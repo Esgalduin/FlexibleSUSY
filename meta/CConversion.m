@@ -862,10 +862,7 @@ RValueToCFormString[expr_] :=
            greekSymbolsRules = Rule[#, FlexibleSUSY`GreekSymbol[#]]& /@ FindGreekSymbols[expr];
            (* create complicated conj simplification rules only when needed *)
            If[!FreeQ[expr, Susyno`LieGroups`conj] || !FreeQ[expr, SARAH`Conj],
-              conjSimplification = {
-                  Times[x___, SARAH`Conj[a_], y___, a_, z___] :> AbsSqr[a] x y z,
-                  Times[x___, a_, y___, SARAH`Conj[a_], z___] :> AbsSqr[a] x y z
-              };
+              conjSimplification = {Times[SARAH`Conj[a_], a_, z__] :> AbsSqr[a]*z, Times[SARAH`Conj[a_], a_] :> AbsSqr[a]};
              ];
            result = Block[{Which, If}, expr /. greekSymbolsRules] /.
                     SARAH`sum -> FlexibleSUSY`SUM /.
