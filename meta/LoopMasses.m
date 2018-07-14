@@ -814,7 +814,7 @@ DoSlowDiagonalization[particle_Symbol, tadpole_] :=
               MemberQ[{SARAH`HiggsBoson, SARAH`PseudoScalar}, particle],
               effPot = effPot <> CalcEffPot2L[particle];
              ];
-           If[FlexibleSUSY`UseSARAH2Loop === True &&
+           If[dim > 1 && FlexibleSUSY`UseSARAH2Loop === True &&
               MemberQ[{SARAH`HiggsBoson, SARAH`PseudoScalar}, particle],
               effPot = effPot <> CalcEffPot2L[particle];
            ];
