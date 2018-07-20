@@ -581,7 +581,8 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
 
 CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergyShift1L, vertexRules_List, loops_] :=
   Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
-         expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops];
+         (* expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops]; *)
+         expr = GetExpression[nPointFunction, loops];
          If[expr === Null, Return[{"",""}]];
          functionName = CreateFunctionPrototype[nPointFunction, loops];
          type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
