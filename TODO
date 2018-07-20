@@ -76,3 +76,15 @@ convention.
    FS<model>CalculateSpectrum[handle, Convention -> SLHA]
 
 etc.
+
+----------------------------------------------------
+----------------------------------------------------
+----------------------------------------------------
+
+Master thesis TODO:
+
+-add selfenergies to medium precision diagonalization case
+-shifts for couplings
+-semianalytic consisten solution (get it to work)
+-NMSSM test
+-look at todo in colour factor calculation

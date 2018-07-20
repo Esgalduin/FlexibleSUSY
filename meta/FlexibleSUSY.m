@@ -1781,7 +1781,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
                             "@semiAnalyticSolutionDef@"   -> semiAnalyticSolutionDef,
                             "@defaultEWSBSolverCctor@"       -> defaultEWSBSolverCctor,
                             "@rMS@"                 -> ToString[SelectRenormalizationScheme[FlexibleSUSY`FSRenormalizationScheme]],
-                            "@ewsbSolveConsistently@"        -> If[MemberQ[allowedEwsbSolvers,FlexibleSUSY`ConsistentSolver], "true", "false"],
+                            "@ewsbSolveConsistently@"        -> If[FlexibleSUSY`UseConsistentEWSBSolution, "true", "false"],
                             "@vStructDef@"                    -> IndentText[IndentText[vStructDef]],
                             "@vStructCalc@"                    -> IndentText[IndentText[vStructCalc]],
                             Sequence @@ GeneralReplacementRules[]
