@@ -428,8 +428,8 @@ Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopE
        tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
        selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
 
-       tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift1L[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1LoopExpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
-       selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift1L[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1LoopExpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+       tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1LoopExpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+       selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1LoopExpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
        tadpoleNPointForm = tadpoleNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
        selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;

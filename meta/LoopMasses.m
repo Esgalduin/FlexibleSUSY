@@ -196,7 +196,7 @@ Do1DimScalar[particle_, particleName_String, massName_String, massMatrixName_Str
                   "self_energy += Re(model_gl.self_energy_" <> particleName <> "_2loop(p2));\n"<>
                   If[FlexibleSUSY`UseSARAH2Loop === True && FlexibleSUSY`UseConsistentEWSBSolution === True,
                      "if(ewsb_solve_consistently) {\n" <>
-                     "  self_energy += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
+                     "  self_energy += Re(model_gl.self_energy_shift_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2));\n" <>
                      "}\n",
                      ""
                   ]] <> "}\n", ""] <>
@@ -764,7 +764,7 @@ if (pole_mass_loop_order > 1) {
    "self_energy_2l = Re(model_gl.self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(15625));\n" <>
    If[FlexibleSUSY`UseConsistentEWSBSolution === True,
       "if(ewsb_solve_consistently) {\n" <>
-      "  self_energy_2l += Re(model_gl.self_energy_shift1L_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(15625));\n" <>
+      "  self_energy_2l += Re(model_gl.self_energy_shift_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(15625));\n" <>
       "}\n",""]
    ,
    "self_energy_2l = self_energy_" <> CConversion`ToValidCSymbolString[particle] <> "_2loop(p2);\n"

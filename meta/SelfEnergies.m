@@ -95,13 +95,13 @@ CreateSingleNPointFunctionDefs::usage = "Creates files for nPoint functions of l
 Begin["`Private`"];
 
 
-(*Note: TadpoleShift1L means the higher loop shifts to the 1L tadpole diagrams,
-so TadpoleShift1L[hh,0,expr] is the 2L shift.*)
+(*Note: TadpoleShift means the higher loop shifts to the 1L tadpole diagrams,
+so TadpoleShift[hh,0,expr] is the 2L shift.*)
 
 NPointFunctionQ[_SelfEnergies`Tadpole]                  := True;
-NPointFunctionQ[_SelfEnergies`TadpoleShift1L]           := True;
+NPointFunctionQ[_SelfEnergies`TadpoleShift]           := True;
 NPointFunctionQ[_SelfEnergies`FSSelfEnergy]             := True;
-NPointFunctionQ[_SelfEnergies`FSSelfEnergyShift1L]      := True;
+NPointFunctionQ[_SelfEnergies`FSSelfEnergyShift]      := True;
 NPointFunctionQ[_SelfEnergies`FSHeavySelfEnergy]        := True;
 NPointFunctionQ[_SelfEnergies`FSHeavyRotatedSelfEnergy] := True;
 NPointFunctionQ[_]                                      := False;
@@ -496,12 +496,12 @@ DeclareFieldIndices[field_[1]]  := DeclareFieldIndices[field];
 DeclareFieldIndices[field_[ind_]] :=
     "int " <> ToValidCSymbolString[ind];
 
-ExtractChiraility[field_[idx1_,idx2_]] := ExtractChiraility[field];
-ExtractChiraility[field_[PL]]          := "_PL";
-ExtractChiraility[field_[PR]]          := "_PR";
-ExtractChiraility[field_[1]]           := "_1";
-ExtractChiraility[field_[idx_]]        := ExtractChiraility[field];
-ExtractChiraility[field_]              := "";
+ExtractChirality[field_[idx1_,idx2_]] := ExtractChirality[field];
+ExtractChirality[field_[PL]]          := "_PL";
+ExtractChirality[field_[PR]]          := "_PR";
+ExtractChirality[field_[1]]           := "_1";
+ExtractChirality[field_[idx_]]        := ExtractChirality[field];
+ExtractChirality[field_]              := "";
 
 ExtractFieldName[field_[idx1_,idx2_]] := ExtractFieldName[field];
 ExtractFieldName[field_[PL]]          := ExtractFieldName[field];
@@ -511,28 +511,28 @@ ExtractFieldName[field_[idx_]]        := ExtractFieldName[field];
 ExtractFieldName[field_]              := ToValidCSymbolString[field];
 
 CreateSelfEnergyFunctionName[field_, loops_] :=
-    "self_energy_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChiraility[field];
+    "self_energy_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChirality[field];
 
-CreateSelfEnergyShift1LFunctionName[field_, loops_] :=
-    "self_energy_shift1L_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChiraility[field];
+CreateSelfEnergyShiftFunctionName[field_, loops_] :=
+    "self_energy_shift_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChirality[field];
 
 CreateHeavySelfEnergyFunctionName[field_, loops_] :=
-    "self_energy_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChiraility[field] <> "_heavy";
+    "self_energy_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChirality[field] <> "_heavy";
 
 CreateHeavyRotatedSelfEnergyFunctionName[field_, loops_] :=
-    "self_energy_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChiraility[field] <> "_heavy_rotated";
+    "self_energy_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChirality[field] <> "_heavy_rotated";
 
 CreateTadpoleFunctionName[field_, loops_] :=
-    "tadpole_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChiraility[field];
+    "tadpole_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChirality[field];
 
-CreateTadpoleShift1LFunctionName[field_, loops_] :=
-    "tadpoleshift1L_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChiraility[field];
+CreateTadpoleShiftFunctionName[field_, loops_] :=
+    "tadpole_shift_" <> ExtractFieldName[field] <> "_" <> ToString[loops] <> "loop" <> ExtractChirality[field];
 
 CreateFunctionName[selfEnergy_SelfEnergies`FSSelfEnergy, loops_] :=
     CreateSelfEnergyFunctionName[GetField[selfEnergy], loops];
 
-CreateFunctionName[selfEnergy_SelfEnergies`FSSelfEnergyShift1L, loops_] :=
-    CreateSelfEnergyShift1LFunctionName[GetField[selfEnergy], loops];
+CreateFunctionName[selfEnergy_SelfEnergies`FSSelfEnergyShift, loops_] :=
+    CreateSelfEnergyShiftFunctionName[GetField[selfEnergy], loops];
 
 CreateFunctionName[selfEnergy_SelfEnergies`FSHeavySelfEnergy, loops_] :=
     CreateHeavySelfEnergyFunctionName[GetField[selfEnergy], loops];
@@ -543,14 +543,14 @@ CreateFunctionName[selfEnergy_SelfEnergies`FSHeavyRotatedSelfEnergy, loops_] :=
 CreateFunctionName[tadpole_SelfEnergies`Tadpole, loops_] :=
     CreateTadpoleFunctionName[GetField[tadpole], loops];
 
-CreateFunctionName[tadpole_SelfEnergies`TadpoleShift1L, loops_] :=
-    CreateTadpoleShift1LFunctionName[GetField[tadpole], loops];
+CreateFunctionName[tadpole_SelfEnergies`TadpoleShift, loops_] :=
+    CreateTadpoleShiftFunctionName[GetField[tadpole], loops];
 
 CreateFunctionPrototype[tadpole:(SelfEnergies`Tadpole[__]), loops_] :=
     CreateFunctionName[tadpole, loops] <>
     "(" <> DeclareFieldIndices[GetField[tadpole]] <> ") const";
 
-CreateFunctionPrototype[tadpole:(SelfEnergies`TadpoleShift1L[__]), loops_] :=
+CreateFunctionPrototype[tadpole:(SelfEnergies`TadpoleShift[__]), loops_] :=
     CreateFunctionName[tadpole, loops] <>
     "(" <> DeclareFieldIndices[GetField[tadpole]] <> ") const";
 
@@ -579,7 +579,7 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
            }
           ];
 
-CreateNPointFunction[nPointFunction_TadpoleShift1L|nPointFunction_FSSelfEnergyShift1L, vertexRules_List, loops_] :=
+CreateNPointFunction[nPointFunction_TadpoleShift|nPointFunction_FSSelfEnergyShift, vertexRules_List, loops_] :=
   Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
          (* expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops]; *)
          expr = GetExpression[nPointFunction, loops];
@@ -632,7 +632,7 @@ CreateVertexStructWrapper[expr_,nPointType_,loops_] := expr /. If[loops === 2, {
 HasFieldIndexQ[fields_List] := !FreeQ[fields, (Except[Alternatives[List, Susyno`LieGroups`conj, SARAH`Conj, SARAH`bar], _])[__]];
 
 CreateNPointFunctionMatrix[(SelfEnergies`Tadpole)[__], _] := { "", "" };
-CreateNPointFunctionMatrix[(SelfEnergies`TadpoleShift1L)[__], _] := { "", "" };
+CreateNPointFunctionMatrix[(SelfEnergies`TadpoleShift)[__], _] := { "", "" };
 
 FillHermitianSelfEnergyMatrix[nPointFunction_, sym_String, loops_] :=
     Module[{dim, name},
@@ -781,7 +781,7 @@ FillArrayWithLoopTadpoleShifts[loopLevel_, higgsAndIdx_List, arrayName_String, s
              field = higgsAndIdx[[v,1]];
              idx = higgsAndIdx[[v,2]];
              head = CConversion`ToValidCSymbolString[higgsAndIdx[[v,3]]];
-             functionName = "model_gl." <> CreateTadpoleShift1LFunctionName[field, loopLevel];
+             functionName = "model_gl." <> CreateTadpoleShiftFunctionName[field, loopLevel];
              If[TreeMasses`GetDimension[field] == 1,
                 body = body <> IndentText[arrayName <> "[" <> ToString[v-1] <> "] " <> sign <> "= " <>
                        head <> "(" <> struct <> functionName <> "());\n"];

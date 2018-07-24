@@ -2735,8 +2735,8 @@ FSCheckFlags[] :=
              ];
           ];
 
-Get2LExpressionOutputFileName[type_String,field_String]:=FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_2loop_expr_"
-                                       <> type <> "_" <> field <> ".m"}];
+Get2LExpressionOutputFileName[type_String,field_String]:=FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <> "_npoint_function_"
+                                       <> type <> "_" <> field <> "_2loop.m"}];
 
 Get2LSelfEnergy[eigenstates_] :=
     Module[{files,result={}},
@@ -2749,9 +2749,9 @@ Get2LSelfEnergy[eigenstates_] :=
                         {SARAH`HiggsBoson  , Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twoloophiggsmassdiags[[1]]]},
                         {SARAH`PseudoScalar, Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twoloophiggsmassdiags[[2]]]}
                      };
-               Put[result[[1,3]],Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`HiggsBoson]]];
-               Put[result[[2,3]],Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`PseudoScalar]]];
-               Print["2L selfenergy expressions written to:",Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`HiggsBoson]],
+               Put[result[[1,3]],Get2LExpressionOutputFileName["self_energy",ToString[SARAH`HiggsBoson]]];
+               Put[result[[2,3]],Get2LExpressionOutputFileName["self_energy",ToString[SARAH`PseudoScalar]]];
+               Print["2L selfenergy expressions written to:",Get2LExpressionOutputFileName["self_energy",ToString[SARAH`HiggsBoson]],
                      Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`PseudoScalar]]];
 
                result
@@ -2838,7 +2838,7 @@ MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,semiAnalyticEWSBSu
                                                             Flatten[Get[treesolutionfile]],{g1->0,g2->0},semiAnalyticEWSBSubstitutions,FlexibleSUSY`FSEigenstates];
 
                Print["Writing 2-loop shift expression to:"];
-               Module[{diagramtype = If[Head[#] === SelfEnergies`TadpoleShift1L, "tadpole_shift", "self_energy_shift"],
+               Module[{diagramtype = If[Head[#] === SelfEnergies`TadpoleShift, "tadpole_shift", "self_energy_shift"],
                        field = SelfEnergies`ExtractFieldName[SelfEnergies`GetField[#]]},
                        Put[#[[3]],Get2LExpressionOutputFileName[diagramtype,field]];
                        Print["   ",Get2LExpressionOutputFileName[diagramtype,field]];] & /@ tempnPoints;
