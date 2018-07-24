@@ -206,8 +206,6 @@ int CLASSNAME::solve(@ModelName@_mass_eigenstates& model_to_solve)
       return solve_consistently_at(model_to_solve, loop_order);
    }
    else {
-      if(loop_order > 1)
-         model_to_solve.calculate_vertices();
       return solve_iteratively_at(model_to_solve, loop_order);
    }
 }
@@ -235,7 +233,6 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
 
    model.solve_ewsb_tree_level(); // need to make sure our parameters are at tree-level
    model.calculate_DRbar_masses();
-   model.calculate_vertices();
 
    std::array<double, number_of_ewsb_equations> tadpole{};
    EWSB_vector_t ewsb_parameters(EWSB_vector_t::Zero());
