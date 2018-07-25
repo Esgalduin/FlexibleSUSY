@@ -392,17 +392,28 @@ StripFieldRotation := {Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson
    the values given by CalculatePi2S in SPheno. The signs used here should be
    consistent with the rest of FlexibleSUSY *)
 Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSubst_List,eigenstates_] :=
-Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopExpr,selfEnergy1LoopExpr,treeSol,higgstoewsb,
-     nHiggs,tadpoleSeriesParameters,tadpoleFields,tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
-     massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
+Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopExpr,
+        selfEnergy1LoopExpr,treeSol,higgstoewsb,nHiggs,tadpoleSeriesParameters,tadpoleFields,
+        tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
+        massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
 
      gaugelessSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
-     tadpole1LoopExpr = GetTadpolesfromNPointFunctions[nPointFuncs] /. {SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
-     tadpole1LoopExpr = tadpole1LoopExpr /. gaugelessVertexRules[gaugelessSub];
-     selfEnergy1LoopExpr = GetHiggsSEfromNPointFunctions[nPointFuncs] /. {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
-     selfEnergy1LoopExpr = selfEnergy1LoopExpr /. gaugelessVertexRules[gaugelessSub];
 
-     If[Length[tadpole1LoopExpr] == 1,
+     tadpole1LoopExpr = GetTadpolesfromNPointFunctions[nPointFuncs] /.
+                              {SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
+     selfEnergy1LoopExpr = GetHiggsSEfromNPointFunctions[nPointFuncs] /.
+                              {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
+
+     (* tadpole1LoopExpr = tadpole1LoopExpr /. gaugelessVertexRules[gaugelessSub];
+
+
+     selfEnergy1LoopExpr = selfEnergy1LoopExpr /. gaugelessVertexRules[gaugelessSub]; *)
+
+     SetAttributes[SARAH`Cp, Orderless];
+     {tadpole1LoopExpr,selfEnergy1LoopExpr} = {tadpole1LoopExpr,selfEnergy1LoopExpr} /. gaugelessVertexRules[gaugelessSub];
+     ClearAttributes[SARAH`Cp, Orderless];
+
+     If[Length[tadpole1LoopExpr] === 1,
 
        tadpoleFields = (GetnPointField[#] & /@ SarahTads) /. StripFieldRotation;
        selfenergyFields = (GetnPointField[#] & /@ GetHiggsSelfEnergy[SarahSelfenergies]) /. StripFieldRotation;
