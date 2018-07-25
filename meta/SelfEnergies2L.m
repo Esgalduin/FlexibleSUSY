@@ -544,11 +544,7 @@ CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
    For[nm = 1,nm <= Length[couplingnames], nm++,
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";
    ];
-
-   output = output <> "solve_ewsb_tree_level();\n";
-   output = output <> "problems.set_suppress_running_tachyon_warning(true);\n";
-   output = output <> "calculate_DRbar_masses();\n";
-   output = output <> "calculate_vertices();";
+   
    output
 ];
 

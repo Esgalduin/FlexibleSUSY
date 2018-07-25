@@ -251,6 +251,11 @@ void CLASSNAME::enter_gaugeless_limit(){
 
 @WriteEnterGauglessLimit@
 
+   solve_ewsb_tree_level();
+   problems.set_suppress_running_tachyon_warning(true);
+   calculate_DRbar_masses();
+   calculate_vertices();
+
 }
 
 
