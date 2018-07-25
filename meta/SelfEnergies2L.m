@@ -153,11 +153,13 @@ GetnPointField[tempdiags_List]:=Module[{testdiag=tempdiags[[1]],coupfields,loopf
   coupfields[[1]]
   ];
 
-GetUsedParameters[expr_,extraPars_:{}] := Select[Join[Transpose[parameters][[1]],extraPars], ! FreeQ[expr, #] &];
+GetUsedParameters[expr_, extraPars_: {}] :=
+   Select[Join[Transpose[SARAH`parameters][[1]],extraPars], ! FreeQ[expr, #] &];
 
-GetMassShiftedExpressions[SarahList_List,ewsbEqparameters_,EWSBSubst_,eigenstates_]:=
-Select[#, With[{unused = #},ContainsAny[Join[GetUsedParameters[TreeMass[#[[1]], eigenstates] /. EWSBSubst,ewsbEqparameters],
-      GetUsedParameters[TreeMass[#[[2]], eigenstates] /. EWSBSubst],ewsbEqparameters],ewsbEqparameters]] &] & /@ SarahList;
+GetMassShiftedExpressions[SarahList_List, ewsbEqparameters_, EWSBSubst_, eigenstates_] :=
+   Select[#, With[{unused = #}, ContainsAny[
+      Join[GetUsedParameters[TreeMass[#[[1]], eigenstates] /. EWSBSubst, ewsbEqparameters],
+            GetUsedParameters[TreeMass[#[[2]], eigenstates] /. EWSBSubst,ewsbEqparameters]], ewsbEqparameters]] &] & /@ SarahList;
     (* the 'unused = #'' is set, so that we can use a pure function inside another one *)
 
 
@@ -471,6 +473,9 @@ GenerateCouplingShifts[selfEnergiesFormat_,gaugelessSub_,treeSol_,nHiggs_,eigens
 SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
    SARAH`sum[idx, a, b, D[exprs, y, c]];
 
+Susyno`LieGroups`conj /: D[Susyno`LieGroups`conj [exprs__], y_, c___] :=
+   Susyno`LieGroups`conj [D[exprs, y, c]];
+
 
 FirstOrderSeries[seriesExpr_, seriesPars_List] :=
     Plus @@ (((D[seriesExpr, #] & /@ seriesPars[[All, 1]]) /. (Rule[#[[1]], #[[2]]] & /@ seriesPars))*seriesPars[[All, 1]]);
@@ -487,7 +492,7 @@ GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSol_,nHiggs_,E
    massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub /. treeSol;
 
    massshiftsTadpole = TreeMasses`StripGenerators[massshiftsTadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
-   SetOptions[D, NonConstants -> {SARAH`sum}];
+   SetOptions[D, NonConstants -> {SARAH`sum, Susyno`LieGroups`conj}];
    massshiftsTadpole = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsTadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
    SetOptions[D, NonConstants -> {}];
 
@@ -509,7 +514,7 @@ GenerateSelfEnergyMassShifts[relevantMassSelfEnergies_,gaugelessSub_,treeSol_,nH
    massshiftsSelfEnergy = massshiftsSelfEnergy //. ReplaceMassInternalIndices /. gaugelessSub /. treeSol;
 
    massshiftsSelfEnergy = TreeMasses`StripGenerators[#,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}] & /@ massshiftsSelfEnergy; (* get rid of all colour indices and any generators, that might be present *)
-   SetOptions[D, NonConstants -> {SARAH`sum}];
+   SetOptions[D, NonConstants -> {SARAH`sum, Susyno`LieGroups`conj}];
    massshiftsSelfEnergy = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsSelfEnergy, {3}];
    SetOptions[D, NonConstants -> {}];
 
