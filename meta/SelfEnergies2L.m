@@ -430,6 +430,8 @@ Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopE
 
 
        massTadpoleShift = GenerateTadpoleMassShifts[relevantMassTadpoles,gaugelessSub,treeSol,nHiggs,EWSBSubst,eigenstates];
+       Print[massTadpoleShift//InputForm];
+       Print[EWSBSubst];
        massSelfEnergyShift = GenerateSelfEnergyMassShifts[relevantMassSelfEnergies,gaugelessSub,treeSol,nHiggs,EWSBSubst,eigenstates];
 
        (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1LoopExpr,gaugelessSub,treeSol,nHiggs,eigenstates];
@@ -479,13 +481,10 @@ GenerateCouplingShifts[selfEnergiesFormat_,gaugelessSub_,treeSol_,nHiggs_,eigens
 ];
 
 
-(* the following command plus the 'SetOptions[D,...]' are necessary to get SARAH`sum to work correctly
-   with differentiation *)
+(* the following command plus the 'SetOptions[D,...]' are necessary to get SARAH`sum and Susyno`LieGroups`conj
+   to work correctl ywith differentiation *)
 SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
    SARAH`sum[idx, a, b, D[exprs, y, c]];
-
-Susyno`LieGroups`conj /: D[Susyno`LieGroups`conj [exprs__], y_, c___] :=
-   Susyno`LieGroups`conj [D[exprs, y, c]];
 
 
 FirstOrderSeries[seriesExpr_, seriesPars_List] :=
@@ -496,14 +495,14 @@ GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSol_,nHiggs_,E
 
    makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
 
-   tadpoleSeriesParameters =  Table[{Symbol["tadpole"][i], 0}, {i, 1, nHiggs}];
+   tadpoleSeriesParameters =  Flatten[Table[{{Symbol["tadpole"][i], 0},{Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}],1];
 
    massshiftsTadpole = Map[(TreeMass[#[[2]], eigenstates] /. EWSBSubst) &, relevantMassTadpoles, {2}];
    massshiftsTadpole = massshiftsTadpole /. makeParametersUnique;
-   massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub /. treeSol;
+   massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub //. treeSol;
 
    massshiftsTadpole = TreeMasses`StripGenerators[massshiftsTadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
-   SetOptions[D, NonConstants -> {SARAH`sum, Susyno`LieGroups`conj}];
+   SetOptions[D, NonConstants -> {SARAH`sum}];
    massshiftsTadpole = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsTadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
    SetOptions[D, NonConstants -> {}];
 
@@ -518,14 +517,14 @@ GenerateSelfEnergyMassShifts[relevantMassSelfEnergies_,gaugelessSub_,treeSol_,nH
 
    makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
 
-   tadpoleSeriesParameters =  Table[{Symbol["tadpole"][i], 0}, {i, 1, nHiggs}];
+   tadpoleSeriesParameters =  Flatten[Table[{{Symbol["tadpole"][i], 0},{Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}],1];
 
    massshiftsSelfEnergy = Map[{TreeMass[#[[1]], eigenstates] /. EWSBSubst,TreeMass[#[[2]], eigenstates] /. EWSBSubst} &, relevantMassSelfEnergies, {2}];
    massshiftsSelfEnergy = massshiftsSelfEnergy /. makeParametersUnique;
-   massshiftsSelfEnergy = massshiftsSelfEnergy //. ReplaceMassInternalIndices /. gaugelessSub /. treeSol;
+   massshiftsSelfEnergy = massshiftsSelfEnergy //. ReplaceMassInternalIndices /. gaugelessSub //. treeSol;
 
-   massshiftsSelfEnergy = TreeMasses`StripGenerators[#,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}] & /@ massshiftsSelfEnergy; (* get rid of all colour indices and any generators, that might be present *)
-   SetOptions[D, NonConstants -> {SARAH`sum, Susyno`LieGroups`conj}];
+   massshiftsSelfEnergy = TreeMasses`StripGenerators[#,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}] & /@ massshiftsSelfEnergy; (* get rid of all colour indices and any generators, thatx might be present *)
+   SetOptions[D, NonConstants -> {SARAH`sum}];
    massshiftsSelfEnergy = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsSelfEnergy, {3}];
    SetOptions[D, NonConstants -> {}];
 
@@ -544,7 +543,7 @@ CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
    For[nm = 1,nm <= Length[couplingnames], nm++,
       output = output <> CConversion`RValueToCFormString[couplingnames[[nm]]] <> " = 0;\n";
    ];
-   
+
    output
 ];
 
