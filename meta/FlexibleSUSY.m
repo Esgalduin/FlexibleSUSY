@@ -3583,6 +3583,10 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
 
            massMatrices = massMatrices /. allIntermediateOutputParameterIndexReplacementRules;
 
+           Print["Writing mass matrices to ",FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <>"_mass_matrices.m"}]];
+           Put[massMatrices,FileNameJoin[{FSOutputDir, FlexibleSUSY`FSModelName <>"_mass_matrices.m"}]];
+
+
            allParticles = TreeMasses`GetMass[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices;
 
            allOutputParameters = DeleteCases[DeleteDuplicates[

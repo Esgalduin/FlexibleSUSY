@@ -85,9 +85,6 @@ UnrotateRules[]:=Module[{rules={}},
           rules
         ];
 
-simpleUnrotateRules:={Symbol["U"<>ToString[SARAH`HiggsBoson]][x_]->SARAH`HiggsBoson[x],
-                        Symbol["U"<>ToString[SARAH`PseudoScalar]][x_]->SARAH`PseudoScalar[x]};
-
 
 AddSEMomDep[] := {Symbol["WfSSSS"][masses__] -> Symbol["WfSSSS"][p^2,masses],  Symbol["XfSSS"][masses__] -> Symbol["XfSSS"][p^2,masses],  Symbol["YfSSSS"][masses__] -> Symbol["YfSSSS"][p^2,masses],
                   Symbol["SfSSS"][masses__] -> Symbol["SfSSS"][p^2,masses],  Symbol["UfSSSS"][masses__] -> Symbol["UfSSSS"][p^2,masses],  Symbol["VfSSSSS"][masses__] -> Symbol["VfSSSSS"][p^2,masses],
@@ -164,8 +161,8 @@ GetMassShiftedExpressions[SarahList_List, ewsbEqparameters_, EWSBSubst_, eigenst
 
 
 VertexZeroQ[fields_List,subs_List,mod_:-1]:= If[mod===-1,
-      SameQ[0, Simplify[(Drop[Vertex[fields//.simpleUnrotateRules],1][[1,1]])//.subs]],
-      SameQ[0, Simplify[(Select[Drop[Vertex[fields//.simpleUnrotateRules],1],#[[2]]===mod&][[1,1]])//.subs]]];
+      SameQ[0, Simplify[(Drop[Vertex[fields//.StripFieldRotation],1][[1,1]])//.subs]],
+      SameQ[0, Simplify[(Select[Drop[Vertex[fields//.StripFieldRotation],1],#[[2]]===mod&][[1,1]])//.subs]]];
 
 (*TadpoleReplacements1L2L:={Cp[a___, Symbol["Uhh"][{SARAH`gI3}] , b___]*Symbol["tadpole"][i_Integer] :> Cp[a, Symbol["Uhh"][{i}], b]*Symbol["tadpole"][i],
 Cp[a___, Symbol["Uhh"][{SARAH`gI3}] , b___][c___]*Symbol["tadpole"][i_Integer] :> Cp[a, Symbol["Uhh"][{i}], b][c]*Symbol["tadpole"][i]};*)
@@ -533,6 +530,40 @@ GenerateSelfEnergyMassShifts[relevantMassSelfEnergies_,gaugelessSub_,treeSol_,nH
 
    Plus @@@ (Thread[noEvalfunc[relevantMassSelfEnergies,massshiftsSelfEnergy]]/.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]})
 ];
+
+   EWSBNFreeQ[expr_] :=
+     Or @@ ((!
+           FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.
+          EWSB`MakeParametersUnique[
+           FlexibleSUSY`EWSBOutputParameters]));
+
+   GenerateMassMatrixShifts[massMat_, gaugelessSub_, treeSol_, nHiggs_,
+      EWSBSubst_] :=
+     Module[{shiftedFields, massMatShifted, makeParametersUnique,
+       tadpoleSeriesParameters},
+      makeParametersUnique =
+       EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
+      tadpoleSeriesParameters =
+       Flatten[Table[{{Symbol["tadpole"][i],
+           0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1,
+          nHiggs}], 1];
+
+      massMatShifted =
+       massMat /. EWSBSubst /. makeParametersUnique /. gaugelessSub;
+      massMatShifted = Select[massMatShifted, EWSBNFreeQ] //. treeSol;
+      shiftedFields = Transpose[(List @@@ massMatShifted)][[2]];
+      SetOptions[D, NonConstants -> {SARAH`sum}];
+      massMatShifted =
+       massMatShifted /.
+        TreeMasses`FSMassMatrix[mm_, fieldrot__] :>
+         TreeMasses`FSMassMatrix[
+          FirstOrderSeries[mm, tadpoleSeriesParameters], fieldrot];
+      SetOptions[D, NonConstants -> {}];
+      massMatShifted =
+       massMatShifted /. (Reverse /@ makeParametersUnique);
+      {shiftedFields, massMatShifted}
+      ];
+
 
 OrderingToTarget[list_, sourceIds_, targetIds_] :=
   list[[Ordering @ sourceIds]][[Ordering @ Ordering@targetIds]];
