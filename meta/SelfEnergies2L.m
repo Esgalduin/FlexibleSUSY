@@ -260,9 +260,9 @@ CalcSelfEnergyShiftsSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,l
 
    tempexpr = prefactors * loopfunctions;
 
-   If[nFields[[1]] > 1, tempexpr = SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];
+   If[nFields[[1]] > 1, tempexpr = SARAH`sum[SARAH`gI4,1,nFields[[1]],#]& /@ tempexpr;
                         tempexpr[[1]] = SARAH`sum[SARAH`gI5,1,nFields[[1]],tempexpr[[1]]];];
-   If[nFields[[2]] > 1, tempexpr = SARAH`sum[SARAH`gI6,1,nFields[[2]],tempexpr];
+   If[nFields[[2]] > 1, tempexpr = SARAH`sum[SARAH`gI6,1,nFields[[2]],#]& /@ tempexpr;
                         tempexpr[[2]] = SARAH`sum[SARAH`gI5,1,nFields[[2]],tempexpr[[2]]];];
 
    Plus @@ tempexpr
@@ -273,7 +273,7 @@ CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,
       loopfields = {diag[[1]],diag[[2]]} /. {SARAH`bar[x_] :> x, Susyno`LieGroups`conj[x_] :> x, SARAH`Conj[x_] :> x};
       nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
-      couplings= diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
+      couplings= ReplaceFirst[diag[[3]],{SARAH`gI1->SARAH`gI4,SARAH`gI1->SARAH`gI5}];
       If[!FreeQ[couplings, x_[{SARAH`gO1}]],couplings = ReplaceFirst[couplings,SARAH`gO1->SARAH`gO2];];
 
       prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[2]], massMatShifts]};
