@@ -228,6 +228,7 @@ GenerateSelfEnergyMassShifts[diags_,massMatShifts_] := Module[{result={}},
       Symbol["SSS"],
         result = Append[result,CalcSelfEnergyShiftsSSS[diags[[n]],massMatShifts]];,
       Symbol["SSSS"],
+        Print[diags[[n]]];
         result = Append[result,CalcSelfEnergyShiftsSSSS[diags[[n]],massMatShifts]];,
       (* Symbol["FFS"],
         result = Append[result,CalcSEShiftFFS[diags[[n]],massshifts[[n]]]];, *)
@@ -250,14 +251,21 @@ CalcSelfEnergyShiftsSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,l
                                                  GetMassShift[loopfields[[2]], massMatShifts]/.{SARAH`gI4->SARAH`gI6}};
 
    loopfunctions = {-Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI6}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI5}]]],
-                 -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI6}]]]};
+                    -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI6}]]]};
 
-   If[nFields[[1]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI4}]->x}];
-   If[nFields[[2]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI6}]->x}];
-   tempexpr = Plus @@ (prefactors * loopfunctions);
-   If[nFields[[1]] > 1,tempexpr = SARAH`sum[SARAH`gI5,1,nFields[[1]],SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr]];];
-   If[nFields[[2]] > 1,tempexpr = SARAH`sum[SARAH`gI5,1,nFields[[2]],SARAH`sum[SARAH`gI6,1,nFields[[2]],tempexpr]];];
-   tempexpr
+   If[nFields[[1]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI4}]->x};
+                         loopfunctions[[1]] = loopfunctions[[1]]/.{x_[{SARAH`gI5}]->x};];
+   If[nFields[[2]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI6}]->x};
+                         loopfunctions[[2]] = loopfunctions[[2]]/.{x_[{SARAH`gI5}]->x};];
+
+   tempexpr = prefactors * loopfunctions;
+
+   If[nFields[[1]] > 1, tempexpr = SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];
+                        tempexpr[[1]] = SARAH`sum[SARAH`gI5,1,nFields[[1]],tempexpr[[1]]];];
+   If[nFields[[2]] > 1, tempexpr = SARAH`sum[SARAH`gI6,1,nFields[[2]],tempexpr];
+                        tempexpr[[2]] = SARAH`sum[SARAH`gI5,1,nFields[[2]],tempexpr[[2]]];];
+
+   Plus @@ tempexpr
 ];
 
 CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
