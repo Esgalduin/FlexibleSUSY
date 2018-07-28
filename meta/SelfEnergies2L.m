@@ -228,7 +228,6 @@ GenerateSelfEnergyMassShifts[diags_,massMatShifts_] := Module[{result={}},
       Symbol["SSS"],
         result = Append[result,CalcSelfEnergyShiftsSSS[diags[[n]],massMatShifts]];,
       Symbol["SSSS"],
-        Print[diags[[n]]];
         result = Append[result,CalcSelfEnergyShiftsSSSS[diags[[n]],massMatShifts]];,
       (* Symbol["FFS"],
         result = Append[result,CalcSEShiftFFS[diags[[n]],massshifts[[n]]]];, *)
@@ -403,56 +402,55 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
         tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
         massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
 
-     glSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
+   glSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
 
-     tadpole1L = GetTadpolesfromNPointFunctions[nPointFuncs] /.
-                              {SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
-     selfEnergy1L = GetHiggsSEfromNPointFunctions[nPointFuncs] /.
-                              {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
+   tadpole1L = GetTadpolesfromNPointFunctions[nPointFuncs] /.
+                     {SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
+   selfEnergy1L = GetHiggsSEfromNPointFunctions[nPointFuncs] /.
+                     {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
 
-     SetAttributes[SARAH`Cp, Orderless];
-     {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /. gaugelessVertexRules[glSub];
-     ClearAttributes[SARAH`Cp, Orderless];
+   SetAttributes[SARAH`Cp, Orderless];
+   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /. gaugelessVertexRules[glSub];
+   ClearAttributes[SARAH`Cp, Orderless];
 
-     If[Length[tadpole1L] === 1,
-       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. glSub /. EWSBSubst];
-       nHiggs = Length[tadHiggsassoc];
+   If[Length[tadpole1L] === 1,
+      treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. glSub /. EWSBSubst];
+      nHiggs = Length[tadHiggsassoc];
 
-       tadpoleFields = (GetnPointField[#] & /@ Sarah1LTadsList) /. StripFieldRotation;
-       selfenergyFields = (GetnPointField[#] & /@ GetRelevantSEs[Sarah1LSEList]) /. StripFieldRotation;
+      tadpoleFields = (GetnPointField[#] & /@ Sarah1LTadsList) /. StripFieldRotation;
+      selfenergyFields = (GetnPointField[#] & /@ GetRelevantSEs[Sarah1LSEList]) /. StripFieldRotation;
 
-       {shiftedFields,massMatShifts} = GenerateMassMatrixShifts[massMat, glSub, treeSol, nHiggs, EWSBSubst];
-       Print[ {massMatShifts,shiftedFields} ];
+      {shiftedFields,massMatShifts} = GenerateMassMatrixShifts[massMat, glSub, treeSol, nHiggs, EWSBSubst];
 
-       relevantMassTadpoles = GetMassShiftedExpressions[Sarah1LTadsList,shiftedFields];
-       relevantMassSelfEnergies = GetMassShiftedExpressions[GetRelevantSEs[Sarah1LSEList],shiftedFields];
-       (*We don't have to worry about ignoring Goldstones, since those contributions will
-         be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
-         given that their masses have been properly set to zero *)
+      relevantMassTadpoles = GetMassShiftedExpressions[Sarah1LTadsList,shiftedFields];
+      relevantMassSelfEnergies = GetMassShiftedExpressions[GetRelevantSEs[Sarah1LSEList],shiftedFields];
+      (*We don't have to worry about ignoring Goldstones, since those contributions will
+      be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
+      given that their masses have been properly set to zero *)
 
-       massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
-       massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
+      massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
+      massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
 
-       (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,glSub,treeSol,nHiggs,eigenstates];
-       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,glSub,treeSol,nHiggs,eigenstates]; *)
+      (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,glSub,treeSol,nHiggs,eigenstates];
+      couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,glSub,treeSol,nHiggs,eigenstates]; *)
 
-       (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
-       couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
+      (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
+      couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
 
-       tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
-       selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
+      tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
+      selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
 
-       tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
-       selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+      tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+      selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
-       tadpoleNPointForm = tadpoleNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
-       selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
+      tadpoleNPointForm = tadpoleNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
+      selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
 
-       nPointform=Join[nPointform,AppendShiftFieldIndices[tadpoleNPointForm,SARAH`gO1],AppendShiftFieldIndices[selfEnergyNPointForm,SARAH`gO1,SARAH`gO2]];,
-       Print["Whacky model with more than one tadpole. Tell someone to fix SelfEnergies2L to handle this case."];
-       Quit[];
-     ];
-     nPointform
+      nPointform=Join[nPointform,AppendShiftFieldIndices[tadpoleNPointForm,SARAH`gO1],AppendShiftFieldIndices[selfEnergyNPointForm,SARAH`gO1,SARAH`gO2]];,
+      Print["Whacky model with more than one tadpole. Tell someone to fix SelfEnergies2L to handle this case."];
+      Quit[];
+   ];
+   nPointform
 ];
 
 ReplaceMassInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
@@ -487,11 +485,12 @@ SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
 
 
 FirstOrderSeries[seriesExpr_, seriesPars_List] :=
-    Plus @@ (((D[seriesExpr, #] & /@ seriesPars[[All, 1]]) /. (Rule[#[[1]], #[[2]]] & /@ seriesPars))*seriesPars[[All, 1]]);
+   Plus @@ (((D[seriesExpr, #] & /@ seriesPars[[All, 1]]) /. (Rule[#[[1]], #[[2]]] & /@ seriesPars))*seriesPars[[All, 1]]);
 
 
 EWSBNFreeQ[expr_] :=
-  Or @@ ((!FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters]));
+   Or @@ ((!FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.
+      EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters]));
 
 GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
    Module[{shiftedFields, massMatShifted, makeParametersUnique, tadpoleSeriesParameters},
@@ -506,8 +505,8 @@ GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
    massMatShifted = massMatShifted /.
     TreeMasses`FSMassMatrix[mm_, field_, rot_] :>
      SelfEnergies2L`FSMassMatrixShift @@ {field,
-       RotateShiftMatrix[
-        FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
+      RotateShiftMatrix[
+         FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
    SetOptions[D, NonConstants -> {}];
    massMatShifted = massMatShifted /. (Reverse /@ makeParametersUnique);
    {shiftedFields, massMatShifted}
