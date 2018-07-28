@@ -153,11 +153,8 @@ GetnPointField[tempdiags_List]:=Module[{testdiag=tempdiags[[1]],coupfields,loopf
 GetUsedParameters[expr_, extraPars_: {}] :=
    Select[Join[Transpose[SARAH`parameters][[1]],extraPars], ! FreeQ[expr, #] &];
 
-GetMassShiftedExpressions[SarahList_List, ewsbEqparameters_, EWSBSubst_, eigenstates_] :=
-   Select[#, With[{unused = #}, ContainsAny[
-      Join[GetUsedParameters[TreeMass[#[[1]], eigenstates] /. EWSBSubst, ewsbEqparameters],
-            GetUsedParameters[TreeMass[#[[2]], eigenstates] /. EWSBSubst,ewsbEqparameters]], ewsbEqparameters]] &] & /@ SarahList;
-    (* the 'unused = #'' is set, so that we can use a pure function inside another one *)
+GetMassShiftedExpressions[SarahList_List, shiftedFields_] :=
+  Function[nPList, Select[nPList, ContainsAny[{#[[1]], #[[2]]}, shiftedFields] &]] /@ SarahList;
 
 
 VertexZeroQ[fields_List,subs_List,mod_:-1]:= If[mod===-1,
@@ -174,13 +171,13 @@ Cp[a___, Symbol["Uhh"][{SARAH`gI3}] , b___][c___]*Symbol["tadpole"][i_Integer] :
 
 
 (* Note: the A0=-x(log(x)-1) function used by FlexibleSUSY is the same as in SPheno (though they both differ from the paper, where A=x(log(x)-1))*)
-Calc1L2LTadShiftExpr[diags_,massshifts_List] := Module[{result={}},
+GenerateTadpoleMassShifts[diags_,massMatShifts_] := Module[{result={}},
   For[n = 1,n <= Length[diags],n++,
     Switch[diags[[n,4]],
       Symbol["SSS"],
-        result = Append[result,Calc1L2LTadShiftSSS[diags[[n]],massshifts[[n]]]];,
-      Symbol["FFS"],
-        result = Append[result,Calc1L2LTadShiftFFS[diags[[n]],massshifts[[n]]]];,
+        result = Append[result,CalcTadShiftSSS[diags[[n]],massMatShifts]];,
+      (* Symbol["FFS"],
+        result = Append[result,CalcTadShiftFFS[diags[[n]],massMatShifts]];, *)
       _,Null;];
   ];
   result
@@ -188,23 +185,23 @@ Calc1L2LTadShiftExpr[diags_,massshifts_List] := Module[{result={}},
 
 (* Tadpole shift functions for the different topologies *)
 
-Calc1L2LTadShiftSSS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfunction,nField,couplings,prefactor},
+CalcTadShiftSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfield,loopfunction,nField,couplings,prefactor},
     loopfield = diag[[2]]/.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
     nField = TreeMasses`GetDimension[loopfield];
 
-    couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI4};
+    couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
 
-    prefactor = 4*0.5*diag[[5]]*diag[[6]]*couplings*massshift//.{Symbol["generation"]->SARAH`gI4}; (* SARAH diag basefactor: 4 *)
+    prefactor = 4*0.5*diag[[5]]*diag[[6]]*couplings*GetMassShift[loopfield, massMatShifts]; (* SARAH diag basefactor: 4 *)
+    Print["GetMassShift[loopfield, massMatShifts]",GetMassShift[loopfield, massMatShifts]];
+    loopfunction =-Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI5}]]]; (* -BB is P_{SS} *)
 
-    loopfunction =-Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI4}]]]; (* -BB is P_{SS} *)
-
-    If[nField == 1, loopfunction=loopfunction//.{x_[{SARAH`gI4}]->x}];
+    If[nField == 1, loopfunction=loopfunction//.{x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
     tempexpr = prefactor*loopfunction;
-    If[nField > 1, tempexpr = SARAH`sum[SARAH`gI4,1,nField,tempexpr];];
+    If[nField > 1, tempexpr = SARAH`sum[SARAH`gI5,1,nField,SARAH`sum[SARAH`gI4,1,nField,tempexpr]];];
     tempexpr
 ];
 
-Calc1L2LTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfunctions,nField,couplings,prefactors},
+CalcTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfunctions,nField,couplings,prefactors},
   If[FlexibleSUSY`Exclude1L2LFermionShifts === False,
     loopfield = diag[[2]]/.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
     nField = TreeMasses`GetDimension[loopfield];
@@ -226,62 +223,62 @@ Calc1L2LTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfuncti
 
 
 (* calculates the 1L2L shifts to the given selfenergies *)
-Calc1L2LSEShiftExpr[diags_,massshifts_List]:=Module[{result={}},
-  For[n=1,n<=Length[diags],n++,
+GenerateSelfEnergyMassShifts[diags_,massMatShifts_] := Module[{result={}},
+   For[n=1,n<=Length[diags],n++,
     Switch[diags[[n,4]],
       Symbol["SSS"],
-        result = Append[result,Calc1L2LselfEnergyShiftsSS[diags[[n]],massshifts[[n]]]];,
+        result = Append[result,CalcSelfEnergyShiftsSSS[diags[[n]],massMatShifts]];,
       Symbol["SSSS"],
-        result = Append[result,Calc1L2LselfEnergyShiftsSSS[diags[[n]],massshifts[[n]]]];,
-      Symbol["FFS"],
-        result = Append[result,Calc1L2LSEShiftFFS[diags[[n]],massshifts[[n]]]];,
+        result = Append[result,CalcSelfEnergyShiftsSSSS[diags[[n]],massMatShifts]];,
+      (* Symbol["FFS"],
+        result = Append[result,CalcSEShiftFFS[diags[[n]],massshifts[[n]]]];, *)
       _,Null;];
-  ];
-  result
+   ];
+   result
 ];
 
 (* SelfEnergy shift functions for the different topologies *)
 
-Calc1L2LselfEnergyShiftsSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
-  loopfields = {diag[[1]],diag[[2]]}//.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
-  nFields = TreeMasses`GetDimension[#]& /@ loopfields;
+CalcSelfEnergyShiftsSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
+   loopfields = {diag[[1]],diag[[2]]} /. {bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+   nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
-  couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
+   couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI6};
 
-  prefactors = 2*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]/.{Symbol["generation"]->SARAH`gI4},
-                                                massshifts[[2]]/.{Symbol["generation"]->SARAH`gI5}};
+   prefactors = 2*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[1]], massMatShifts],
+                                                 GetMassShift[loopfields[[2]], massMatShifts]/.{SARAH`gI4->SARAH`gI6}};
 
-  loopfunctions = {-Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                 -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+   loopfunctions = {-Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI6}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI5}]]],
+                 -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI6}]]]};
 
-  If[nFields[[1]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI4}]->x}];
-  If[nFields[[2]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI5}]->x}];
-  tempexpr = Plus @@ (prefactors * loopfunctions);
-  If[nFields[[1]] > 1,tempexpr = SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];];
-  If[nFields[[2]] > 1,tempexpr = SARAH`sum[SARAH`gI5,1,nFields[[2]],tempexpr];];
-  tempexpr
+   If[nFields[[1]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI4}]->x}];
+   If[nFields[[2]] == 1, loopfunctions = loopfunctions/.{x_[{SARAH`gI6}]->x}];
+   tempexpr = Plus @@ (prefactors * loopfunctions);
+   If[nFields[[1]] > 1,tempexpr = SARAH`sum[SARAH`gI5,1,nFields[[1]],SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr]];];
+   If[nFields[[2]] > 1,tempexpr = SARAH`sum[SARAH`gI5,1,nFields[[2]],SARAH`sum[SARAH`gI6,1,nFields[[2]],tempexpr]];];
+   tempexpr
 ];
 
-Calc1L2LselfEnergyShiftsSSS[diag_List,massshifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
-  If[!(MatchQ[GetnPointField[{diag}],SARAH`PseudoScalar] && FlexibleSUSY`Exclude1L2LAhShiftSSSS === True),
-    loopfields = {diag[[2]]}/.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
-    nFields = TreeMasses`GetDimension[#]& /@ loopfields;
+CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
+   If[!(MatchQ[GetnPointField[{diag}],SARAH`PseudoScalar] && FlexibleSUSY`Exclude1L2LAhShiftSSSS === True),
+      loopfields = {diag[[1]],diag[[2]]} /. {bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+      nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
-    couplings= diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI4};
-    If[!FreeQ[couplings, x_[{SARAH`gO1}]],couplings = ReplaceFirst[couplings,SARAH`gO1->SARAH`gO2];];
+      couplings= diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
+      If[!FreeQ[couplings, x_[{SARAH`gO1}]],couplings = ReplaceFirst[couplings,SARAH`gO1->SARAH`gO2];];
 
-    prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{massshifts[[1]]/.{Symbol["generation"]->SARAH`gI4}};
+      prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[1]], massMatShifts]};
 
-    loopfunctions = {-Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]]};
+      loopfunctions = {-Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
 
-    If[nFields[[1]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
-    tempexpr=Plus @@ (prefactors*loopfunctions);
-    If[nFields[[1]] > 1,tempexpr=SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr];];
-    tempexpr
-  ,Nothing]
+      If[nFields[[1]] == 1, loopfunctions=loopfunctions /. {x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
+      tempexpr=Plus @@ (prefactors*loopfunctions);
+      If[nFields[[1]] > 1,tempexpr=SARAH`sum[SARAH`gI5,1,nFields[[2]],SARAH`sum[SARAH`gI4,1,nFields[[1]],tempexpr]];];
+      tempexpr
+   ,Nothing]
 ];
 
-Calc1L2LSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfunction,nFields,
+CalcSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfunction,nFields,
    couplings,prefactors,loopfunctions,massshifts={massshiftsgen[[1]]/.{Symbol["generation"]->SARAH`gI4},massshiftsgen[[2]]/.{Symbol["generation"]->SARAH`gI5}}},
    If[FlexibleSUSY`Exclude1L2LFermionShifts === False,
      loopfields = {diag[[1]],diag[[2]]}//.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
@@ -351,15 +348,18 @@ AppendShiftFieldIndicesTo[f_[field_, ex___], idx__] :=
      ];
 
 (* these are the fields, whose selfenergies will get a shift due to the 1L tadpoles *)
-RelevantselfenergyFields[] := {ToExpression["U"<>ToString[SARAH`HiggsBoson]],
+IsRelevantSelfEnergyFieldQ[field_[___]] := MemberQ[{ToExpression["U"<>ToString[SARAH`HiggsBoson]],
                         ToExpression["U"<>ToString[SARAH`PseudoScalar]],
-                        SARAH`HiggsBoson,SARAH`PseudoScalar};
+                        SARAH`HiggsBoson,SARAH`PseudoScalar},field];
 
-IsRelevantSelfEnergyFieldQ[field_[___]] := MemberQ[RelevantselfenergyFields[],field];
-IsRelevantSelfEnergyFieldQ[field_] := MemberQ[RelevantselfenergyFields[],field];
+IsRelevantSelfEnergyFieldQ[field_] := MemberQ[{ToExpression["U"<>ToString[SARAH`HiggsBoson]],
+                        ToExpression["U"<>ToString[SARAH`PseudoScalar]],
+                        SARAH`HiggsBoson,SARAH`PseudoScalar},field];
 
 
-GetHiggsSelfEnergy[energies_List]:=Select[energies,MemberQ[RelevantselfenergyFields[],GetnPointField[#]]&];
+GetRelevantSEs[energies_List]:=Select[energies,MemberQ[{ToExpression["U"<>ToString[SARAH`HiggsBoson]],
+                        ToExpression["U"<>ToString[SARAH`PseudoScalar]],
+                        SARAH`HiggsBoson,SARAH`PseudoScalar},GetnPointField[#]]&];
 
 ReduceExplicitGenIndices := Module[{generationMatrices = First /@ Select[SARAH`parameters, (SequenceCount[Flatten[#], {generation, generation}] === 1) &]},
                                     {matx_[a_Symbol, b_Integer] /; MemberQ[generationMatrices, matx] -> matx[a, b - 1],
@@ -388,51 +388,47 @@ StripFieldRotation := {Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson
    1L corrections to the EWSB parameters. The sign is opposite to that of
    the values given by CalculatePi2S in SPheno. The signs used here should be
    consistent with the rest of FlexibleSUSY *)
-Make1L2LShifts[SarahTads_List,SarahSelfenergies_List,nPointFuncs_List,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSubst_List,eigenstates_] :=
-Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopExpr,
-        selfEnergy1LoopExpr,treeSol,higgstoewsb,nHiggs,tadpoleSeriesParameters,tadpoleFields,
+Make1L2LShifts[Sarah1LTadsList_List,Sarah1LSEList_List,nPointFuncs_List, massMat_,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSubst_List,eigenstates_] :=
+Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
+        selfEnergy1L,massMatShifts,shiftedFields,treeSol,higgstoewsb,nHiggs,tadpoleFields,
         tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
         massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
 
-     gaugelessSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
+     glSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
 
-     tadpole1LoopExpr = GetTadpolesfromNPointFunctions[nPointFuncs] /.
+     tadpole1L = GetTadpolesfromNPointFunctions[nPointFuncs] /.
                               {SelfEnergies`Tadpole[f_,L1_,___]->SelfEnergies`Tadpole[f,L1]};
-     selfEnergy1LoopExpr = GetHiggsSEfromNPointFunctions[nPointFuncs] /.
+     selfEnergy1L = GetHiggsSEfromNPointFunctions[nPointFuncs] /.
                               {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
 
-     (* tadpole1LoopExpr = tadpole1LoopExpr /. gaugelessVertexRules[gaugelessSub];
-
-
-     selfEnergy1LoopExpr = selfEnergy1LoopExpr /. gaugelessVertexRules[gaugelessSub]; *)
-
      SetAttributes[SARAH`Cp, Orderless];
-     {tadpole1LoopExpr,selfEnergy1LoopExpr} = {tadpole1LoopExpr,selfEnergy1LoopExpr} /. gaugelessVertexRules[gaugelessSub];
+     {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /. gaugelessVertexRules[glSub];
      ClearAttributes[SARAH`Cp, Orderless];
 
-     If[Length[tadpole1LoopExpr] === 1,
+     If[Length[tadpole1L] === 1,
+       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. glSub /. EWSBSubst];
+       nHiggs = Length[tadHiggsassoc];
 
-       tadpoleFields = (GetnPointField[#] & /@ SarahTads) /. StripFieldRotation;
-       selfenergyFields = (GetnPointField[#] & /@ GetHiggsSelfEnergy[SarahSelfenergies]) /. StripFieldRotation;
+       tadpoleFields = (GetnPointField[#] & /@ Sarah1LTadsList) /. StripFieldRotation;
+       selfenergyFields = (GetnPointField[#] & /@ GetRelevantSEs[Sarah1LSEList]) /. StripFieldRotation;
 
-       relevantMassTadpoles = GetMassShiftedExpressions[SarahTads,EWSBpars,EWSBSubst,eigenstates];
-       relevantMassSelfEnergies = GetMassShiftedExpressions[GetHiggsSelfEnergy[SarahSelfenergies],EWSBpars,EWSBSubst,eigenstates];
+       {shiftedFields,massMatShifts} = GenerateMassMatrixShifts[massMat, glSub, treeSol, nHiggs, EWSBSubst];
+       Print[ {massMatShifts,shiftedFields} ];
+
+       relevantMassTadpoles = GetMassShiftedExpressions[Sarah1LTadsList,shiftedFields];
+       relevantMassSelfEnergies = GetMassShiftedExpressions[GetRelevantSEs[Sarah1LSEList],shiftedFields];
+       Print[relevantMassTadpoles];
+       Print[relevantMassSelfEnergies];
+       Print[GetRelevantSEs[Sarah1LSEList]];
        (*We don't have to worry about ignoring Goldstones, since those contributions will
          be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
          given that their masses have been properly set to zero *)
 
-       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. gaugelessSub /. EWSBSubst];
-       nHiggs = Length[tadHiggsassoc];
+       massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
+       massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
 
-
-
-       massTadpoleShift = GenerateTadpoleMassShifts[relevantMassTadpoles,gaugelessSub,treeSol,nHiggs,EWSBSubst,eigenstates];
-       Print[massTadpoleShift//InputForm];
-       Print[EWSBSubst];
-       massSelfEnergyShift = GenerateSelfEnergyMassShifts[relevantMassSelfEnergies,gaugelessSub,treeSol,nHiggs,EWSBSubst,eigenstates];
-
-       (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1LoopExpr,gaugelessSub,treeSol,nHiggs,eigenstates];
-       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1LoopExpr,gaugelessSub,treeSol,nHiggs,eigenstates]; *)
+       (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,glSub,treeSol,nHiggs,eigenstates];
+       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,glSub,treeSol,nHiggs,eigenstates]; *)
 
        (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
        couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
@@ -440,8 +436,8 @@ Module[{gaugelessSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1LoopE
        tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
        selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
 
-       tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1LoopExpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
-       selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1LoopExpr]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+       tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+       selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
        tadpoleNPointForm = tadpoleNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
        selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
@@ -468,7 +464,7 @@ ReplaceMassInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
           idxnum : DigitCharacter .. :>
            ToString[ToExpression[idxnum] + 5]}]]}])};
 
-GenerateCouplingShifts[selfEnergiesFormat_,gaugelessSub_,treeSol_,nHiggs_,eigenstates_] := Module[
+GenerateCouplingShifts[selfEnergiesFormat_,glSub_,treeSol_,nHiggs_,eigenstates_] := Module[
    {},
 
    tadpoleSeriesParametersFirstOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 1}, {i, 1, nHiggs}];
@@ -487,83 +483,58 @@ SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
 FirstOrderSeries[seriesExpr_, seriesPars_List] :=
     Plus @@ (((D[seriesExpr, #] & /@ seriesPars[[All, 1]]) /. (Rule[#[[1]], #[[2]]] & /@ seriesPars))*seriesPars[[All, 1]]);
 
-GenerateTadpoleMassShifts[relevantMassTadpoles_,gaugelessSub_,treeSol_,nHiggs_,EWSBSubst_,eigenstates_] := Module[{massshiftsTadpole,
-   tadpoleSeriesParameters,makeParametersUnique},
 
+EWSBNFreeQ[expr_] :=
+  Or @@ ((!FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters]));
+
+GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
+   Module[{shiftedFields, massMatShifted, makeParametersUnique, tadpoleSeriesParameters},
    makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
+   tadpoleSeriesParameters =
+      Flatten[Table[{{Symbol["tadpole"][i], 0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}], 1];
+   massMatShifted = massMat /. EWSBSubst /. makeParametersUnique /. glSub;
 
-   tadpoleSeriesParameters =  Flatten[Table[{{Symbol["tadpole"][i], 0},{Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}],1];
-
-   massshiftsTadpole = Map[(TreeMass[#[[2]], eigenstates] /. EWSBSubst) &, relevantMassTadpoles, {2}];
-   massshiftsTadpole = massshiftsTadpole /. makeParametersUnique;
-   massshiftsTadpole = massshiftsTadpole //. ReplaceMassInternalIndices /. gaugelessSub //. treeSol;
-
-   massshiftsTadpole = TreeMasses`StripGenerators[massshiftsTadpole,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}]; (* get rid of all colour indices and any generators, that might be present *)
+   massMatShifted = Select[massMatShifted, EWSBNFreeQ] //. Flatten[treeSol];
+   shiftedFields = Flatten[Transpose[(List @@@ massMatShifted)][[2]]];
    SetOptions[D, NonConstants -> {SARAH`sum}];
-   massshiftsTadpole = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsTadpole, {2}]; (* subbing the treelevel solution into the masses and throwing out the leading order part *)
+   massMatShifted = massMatShifted /.
+    TreeMasses`FSMassMatrix[mm_, field_, rot_] :>
+     SelfEnergies2L`FSMassMatrixShift @@ {field,
+       RotateShiftMatrix[
+        FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
    SetOptions[D, NonConstants -> {}];
-
-   makeParametersUnique = Reverse /@ makeParametersUnique;
-   massshiftsTadpole = massshiftsTadpole /. makeParametersUnique;
-
-   Plus @@@ (Thread[noEvalfunc[relevantMassTadpoles,massshiftsTadpole]]/.{noEvalfunc[pars___]->Calc1L2LTadShiftExpr[pars]}) (* Function evaluation with a list as parameter has higher priority than the distribution of lists via Thread, therefore I am using this workaround. Not pretty, but gets the job done. *)
+   massMatShifted = massMatShifted /. (Reverse /@ makeParametersUnique);
+   {shiftedFields, massMatShifted}
 ];
 
-GenerateSelfEnergyMassShifts[relevantMassSelfEnergies_,gaugelessSub_,treeSol_,nHiggs_,EWSBSubst_,eigenstates_] := Module[{massshiftsSelfEnergy,
-   tadpoleSeriesParameters,makeParametersUnique},
+RotateShiftMatrix[matrix_, fd_, rota_List] /; Length[rota] === 2 :=
+  Module[{dim = Dimensions[matrix]},
+   Sum[matrix[[l1, l2]]*
+     If[TreeMasses`IsFermion[fd] === True,
+      Susyno`LieGroups`conj[rota[[1]][SARAH`gI4, l1]]*
+       Susyno`LieGroups`conj[rota[[2]][SARAH`gI5, l2]],
+      rota[[1]][SARAH`gI4, l1]*rota[[2]][SARAH`gI5, l2]], {l1, 1,
+     dim[[1]]}, {l2, 1, dim[[2]]}]];
 
-   makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
+RotateShiftMatrix[matrix_, fd_, rota_] :=
+  Module[{dim = Dimensions[matrix]},
+   Sum[matrix[[l1, l2]]*
+     If[TreeMasses`IsFermion[fd] === True,
+      Susyno`LieGroups`conj[rota[SARAH`gI4, l1]]*
+       Susyno`LieGroups`conj[rota[SARAH`gI5, l2]],
+      rota[SARAH`gI4, l1]*rota[SARAH`gI5, l2]], {l1, 1,
+     dim[[1]]}, {l2, 1, dim[[2]]}]];
 
-   tadpoleSeriesParameters =  Flatten[Table[{{Symbol["tadpole"][i], 0},{Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}],1];
+RotateShiftMatrix[matrix_, fd_, rota_] /; rota === Null := matrix[[1]];
 
-   massshiftsSelfEnergy = Map[{TreeMass[#[[1]], eigenstates] /. EWSBSubst,TreeMass[#[[2]], eigenstates] /. EWSBSubst} &, relevantMassSelfEnergies, {2}];
-   massshiftsSelfEnergy = massshiftsSelfEnergy /. makeParametersUnique;
-   massshiftsSelfEnergy = massshiftsSelfEnergy //. ReplaceMassInternalIndices /. gaugelessSub //. treeSol;
+RotateShiftMatrix[s___] :=
+  Print["Error: Wrong syntax for RotateShiftMatrix: ", List @@ s];
 
-   massshiftsSelfEnergy = TreeMasses`StripGenerators[#,{SARAH`ct1,SARAH`ct2,SARAH`ct3,SARAH`ct4}] & /@ massshiftsSelfEnergy; (* get rid of all colour indices and any generators, thatx might be present *)
-   SetOptions[D, NonConstants -> {SARAH`sum}];
-   massshiftsSelfEnergy = Map[FirstOrderSeries[#,tadpoleSeriesParameters]& , massshiftsSelfEnergy, {3}];
-   SetOptions[D, NonConstants -> {}];
-
-   makeParametersUnique = Reverse /@ makeParametersUnique;
-   massshiftsSelfEnergy = massshiftsSelfEnergy /. makeParametersUnique;
-
-   Plus @@@ (Thread[noEvalfunc[relevantMassSelfEnergies,massshiftsSelfEnergy]]/.{noEvalfunc[pars___]->Calc1L2LSEShiftExpr[pars]})
+GetMassShift[fld_, massShifts_] :=
+ Module[{res},
+   res = Cases[massShifts, SelfEnergies2L`FSMassMatrixShift[fld, mat_] :> mat];
+   If[res === {}, 0, res[[1]]]
 ];
-
-   EWSBNFreeQ[expr_] :=
-     Or @@ ((!
-           FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.
-          EWSB`MakeParametersUnique[
-           FlexibleSUSY`EWSBOutputParameters]));
-
-   GenerateMassMatrixShifts[massMat_, gaugelessSub_, treeSol_, nHiggs_,
-      EWSBSubst_] :=
-     Module[{shiftedFields, massMatShifted, makeParametersUnique,
-       tadpoleSeriesParameters},
-      makeParametersUnique =
-       EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
-      tadpoleSeriesParameters =
-       Flatten[Table[{{Symbol["tadpole"][i],
-           0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1,
-          nHiggs}], 1];
-
-      massMatShifted =
-       massMat /. EWSBSubst /. makeParametersUnique /. gaugelessSub;
-      massMatShifted = Select[massMatShifted, EWSBNFreeQ] //. treeSol;
-      shiftedFields = Transpose[(List @@@ massMatShifted)][[2]];
-      SetOptions[D, NonConstants -> {SARAH`sum}];
-      massMatShifted =
-       massMatShifted /.
-        TreeMasses`FSMassMatrix[mm_, fieldrot__] :>
-         TreeMasses`FSMassMatrix[
-          FirstOrderSeries[mm, tadpoleSeriesParameters], fieldrot];
-      SetOptions[D, NonConstants -> {}];
-      massMatShifted =
-       massMatShifted /. (Reverse /@ makeParametersUnique);
-      {shiftedFields, massMatShifted}
-      ];
-
 
 OrderingToTarget[list_, sourceIds_, targetIds_] :=
   list[[Ordering @ sourceIds]][[Ordering @ Ordering@targetIds]];

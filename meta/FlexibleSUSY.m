@@ -2825,7 +2825,7 @@ PrepareTadpoles[eigenstates_] :=
            ConvertSarahTadpoles[MergeNPointFunctions[tadpoles, tadpoles2L]]
           ];
 
-MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,semiAnalyticEWSBSubstitutions_]:=
+MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,massMat_,semiAnalyticEWSBSubstitutions_]:=
     Module[{higgsToEWSB = CreateHiggsToEWSBEqAssociation[],
             tadListFile = GetTadpoleListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
             selfEnergyRotListFile = GetSelfEnergyRotatedListFileName[$sarahCurrentOutputMainDir, FlexibleSUSY`FSEigenstates],
@@ -2834,7 +2834,7 @@ MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,semiAnalyticEWSBSu
 
             If[FilesExist[{tadListFile,selfEnergyRotListFile,selfEnergyUnrotListFile,treesolutionfile}],
                selfEnergyList = Join[Get[selfEnergyRotListFile],Get[selfEnergyUnrotListFile]];
-               tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfEnergyList,nPointFunctions,higgsToEWSB,FlexibleSUSY`EWSBOutputParameters,
+               tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfEnergyList,nPointFunctions,massMat,higgsToEWSB,FlexibleSUSY`EWSBOutputParameters,
                                                             Flatten[Get[treesolutionfile]],{g1->0,g2->0},semiAnalyticEWSBSubstitutions,FlexibleSUSY`FSEigenstates];
 
                Print["Writing 2-loop shift expression to:"];
@@ -3754,7 +3754,7 @@ MakeFlexibleSUSY[OptionsPattern[]] :=
            solverEwsbSolvers = SelectValidEWSBSolvers[solverEwsbSolutions, FlexibleSUSY`FSEWSBSolvers];
            If[FlexibleSUSY`UseConsistentEWSBSolution === True && FlexibleSUSY`UseSARAH2Loop === True,
                Print["\nGenerating shifts for consistent EWSB solution ...\n"];
-               nPointFunctions=Join[nPointFunctions,EnforceCpColorStructures @ SortCps @ MakeShifts[nPointFunctions,treeLevelEwsbSolutionOutputFiles,semiAnalyticEWSBSubstitutions]];
+               nPointFunctions=Join[nPointFunctions,EnforceCpColorStructures @ SortCps @ MakeShifts[nPointFunctions,treeLevelEwsbSolutionOutputFiles,massMatrices,semiAnalyticEWSBSubstitutions]];
            ];
            Print["Input parameters: ", InputForm[Parameters`GetInputParameters[]]];
 
