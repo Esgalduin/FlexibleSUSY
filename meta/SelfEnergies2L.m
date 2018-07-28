@@ -186,15 +186,15 @@ GenerateTadpoleMassShifts[diags_,massMatShifts_] := Module[{result={}},
 (* Tadpole shift functions for the different topologies *)
 
 CalcTadShiftSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfield,loopfunction,nField,couplings,prefactor},
-    loopfield = diag[[2]]/.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+    loopfield = ReFields @ diag[[2]];
     nField = TreeMasses`GetDimension[loopfield];
 
     couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
 
     prefactor = 4*0.5*diag[[5]]*diag[[6]]*couplings*GetMassShift[loopfield, massMatShifts]; (* SARAH diag basefactor: 4 *)
-    loopfunction =-Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI5}]]]; (* -BB is P_{SS} *)
+    loopfunction = -Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI5}]]]; (* -BB is P_{SS} *)
 
-    If[nField == 1, loopfunction=loopfunction//.{x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
+    If[nField == 1, loopfunction=loopfunction /. {x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
     tempexpr = prefactor*loopfunction;
     If[nField > 1, tempexpr = SARAH`sum[SARAH`gI5,1,nField,SARAH`sum[SARAH`gI4,1,nField,tempexpr]];];
     tempexpr
@@ -202,7 +202,7 @@ CalcTadShiftSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfield,loopfuncti
 
 CalcTadShiftFFS[diag_List,massshift_]:=Module[{tempexpr,loopfield,loopfunctions,nField,couplings,prefactors},
   If[FlexibleSUSY`Exclude1L2LFermionShifts === False,
-    loopfield = diag[[2]]/.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+    loopfield = ReFields @ diag[[2]];
     nField = TreeMasses`GetDimension[loopfield];
 
     couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI4};
@@ -240,7 +240,7 @@ GenerateSelfEnergyMassShifts[diags_,massMatShifts_] := Module[{result={}},
 (* SelfEnergy shift functions for the different topologies *)
 
 CalcSelfEnergyShiftsSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
-   loopfields = {diag[[1]],diag[[2]]} /. {bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+   loopfields = ReFields @ {diag[[1]],diag[[2]]};
    nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
    couplings = (diag[[3]] /. {SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI6}) *
@@ -270,7 +270,7 @@ CalcSelfEnergyShiftsSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,l
 
 CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,loopfunction,nFields,couplings,prefactors,loopfunctions},
    If[!(MatchQ[GetnPointField[{diag}],SARAH`PseudoScalar] && FlexibleSUSY`Exclude1L2LAhShiftSSSS === True),
-      loopfields = {diag[[1]],diag[[2]]} /. {SARAH`bar[x_] :> x, Susyno`LieGroups`conj[x_] :> x, SARAH`Conj[x_] :> x};
+      loopfields = ReFields @ {diag[[1]],diag[[2]]};
       nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
       couplings= ReplaceFirst[diag[[3]],{SARAH`gI1->SARAH`gI4,SARAH`gI1->SARAH`gI5}];
@@ -278,7 +278,6 @@ CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,
 
       prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[2]], massMatShifts]};
 
-      Print[loopfields[[1]], " : ", GetMassShift[loopfields[[1]], massMatShifts]];
       loopfunctions = {-Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
 
       If[nFields[[1]] == 1, loopfunctions=loopfunctions /. {x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
@@ -291,7 +290,7 @@ CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,
 CalcSEShiftFFS[diag_List,massshiftsgen_]:=Module[{tempexpr,loopfields,loopfunction,nFields,
    couplings,prefactors,loopfunctions,massshifts={massshiftsgen[[1]]/.{Symbol["generation"]->SARAH`gI4},massshiftsgen[[2]]/.{Symbol["generation"]->SARAH`gI5}}},
    If[FlexibleSUSY`Exclude1L2LFermionShifts === False,
-     loopfields = {diag[[1]],diag[[2]]}//.{bar[x_]->x,conj[x_]->x,Conj[x_]->x};
+     loopfields = ReFields @ {diag[[1]],diag[[2]]};
      nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
      couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
