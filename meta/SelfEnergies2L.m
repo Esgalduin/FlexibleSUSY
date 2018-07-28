@@ -277,7 +277,7 @@ CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,
       If[!FreeQ[couplings, x_[{SARAH`gO1}]],couplings = ReplaceFirst[couplings,SARAH`gO1->SARAH`gO2];];
 
       prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[1]], massMatShifts]};
-
+i     Print[loopfields[[1]], " : ", GetMassShift[loopfields[[1]], massMatShifts]];
       loopfunctions = {-Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
 
       If[nFields[[1]] == 1, loopfunctions=loopfunctions /. {x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
