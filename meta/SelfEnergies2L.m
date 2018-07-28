@@ -243,7 +243,9 @@ CalcSelfEnergyShiftsSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,l
    loopfields = {diag[[1]],diag[[2]]} /. {bar[x_]->x,conj[x_]->x,Conj[x_]->x};
    nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
-   couplings = diag[[3]] * (diag[[3]]/.{SARAH`gO1->SARAH`gO2}/. {Cp[tempfields__]:>Cp[Sequence @@ (AntiField /@ List[tempfields])]})/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI6};
+   couplings = (diag[[3]] /. {SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI6}) *
+               (diag[[3]] /. {SARAH`gO1->SARAH`gO2} /. {Cp[tempfields__] :> Cp[Sequence @@ (AntiField /@ List[tempfields])]} /.
+               {{SARAH`gI1->SARAH`gI5,SARAH`gI2->SARAH`gI6},{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5}});
 
    prefactors = 2*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[1]], massMatShifts],
                                                  GetMassShift[loopfields[[2]], massMatShifts]/.{SARAH`gI4->SARAH`gI6}};
