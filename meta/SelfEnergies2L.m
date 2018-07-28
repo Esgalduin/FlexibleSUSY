@@ -192,7 +192,6 @@ CalcTadShiftSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfield,loopfuncti
     couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
 
     prefactor = 4*0.5*diag[[5]]*diag[[6]]*couplings*GetMassShift[loopfield, massMatShifts]; (* SARAH diag basefactor: 4 *)
-    Print["GetMassShift[loopfield, massMatShifts]",GetMassShift[loopfield, massMatShifts]];
     loopfunction =-Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI5}]]]; (* -BB is P_{SS} *)
 
     If[nField == 1, loopfunction=loopfunction//.{x_[{SARAH`gI4}]->x,x_[{SARAH`gI5}]->x}];
@@ -419,9 +418,6 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
 
        relevantMassTadpoles = GetMassShiftedExpressions[Sarah1LTadsList,shiftedFields];
        relevantMassSelfEnergies = GetMassShiftedExpressions[GetRelevantSEs[Sarah1LSEList],shiftedFields];
-       Print[relevantMassTadpoles];
-       Print[relevantMassSelfEnergies];
-       Print[GetRelevantSEs[Sarah1LSEList]];
        (*We don't have to worry about ignoring Goldstones, since those contributions will
          be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
          given that their masses have been properly set to zero *)
