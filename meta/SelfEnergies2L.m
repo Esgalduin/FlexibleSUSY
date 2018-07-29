@@ -452,20 +452,20 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
    nPointform
 ];
 
-ReplaceMassInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
+ReplaceSARAHInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
    StringMatchQ[ToString[idx],
     RegularExpression["j[0-9]*"]] :> (SARAH`sum[
     ToExpression[
      StringReplace[
       ToString[idx], {"j" -> "SARAH`gI",
        idxnum : DigitCharacter .. :>
-        ToString[ToExpression[idxnum] + 5]}]], bndLow, bndHigh,
+        ToString[ToExpression[idxnum] + 6]}]], bndLow, bndHigh,
     Expr /. {idx ->
        ToExpression[
         StringReplace[
          ToString[idx], {"j" -> "SARAH`gI",
           idxnum : DigitCharacter .. :>
-           ToString[ToExpression[idxnum] + 5]}]]}])};
+           ToString[ToExpression[idxnum] + 6]}]]}])};
 
 GenerateCouplingShifts[selfEnergiesFormat_,glSub_,treeSol_,nHiggs_,eigenstates_] := Module[
    {},
@@ -490,6 +490,19 @@ FirstOrderSeries[seriesExpr_, seriesPars_List] :=
 EWSBNFreeQ[expr_] :=
    Or @@ ((!FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.
       EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters]));
+
+GenerateVertexShifts[vertexRules_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
+   Module[{vertexRulesShifted, makeParametersUnique, tadpoleSeriesParameters}, makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
+      tadpoleSeriesParameters = Flatten[Table[{{Symbol["tadpole"][i], 0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}], 1];
+      vertexRulesShifted = vertexRules /. EWSBSubst /. makeParametersUnique /. glSub;
+      vertexRulesShifted = Select[vertexRulesShifted, EWSBNFreeQ] //. Flatten[treeSol];
+      SetOptions[D, NonConstants -> {SARAH`sum}];
+      vertexRulesShifted = vertexRulesShifted /.
+        {Rule[SARAH`Cp[flds__], Cpexpr_] :> Rule[SelfEnergies2L`DCp[flds], FirstOrderSeries[Cpexpr, tadpoleSeriesParameters]],
+         Rule[SARAH`Cp[flds__][LIdx_], Cpexpr_] :> Rule[SelfEnergies2L`DCp[flds][LIdx], FirstOrderSeries[Cpexpr, tadpoleSeriesParameters]]};
+      SetOptions[D, NonConstants -> {}];
+      vertexRulesShifted /. (Reverse /@ makeParametersUnique) //. ReplaceSARAHInternalIndices
+];
 
 GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
    Module[{shiftedFields, massMatShifted, makeParametersUnique, tadpoleSeriesParameters},
