@@ -272,7 +272,9 @@ CalcSelfEnergyShiftsSSSS[diag_List,massMatShifts_]:=Module[{tempexpr,loopfields,
       loopfields = ReFields @ {diag[[1]],diag[[2]]};
       nFields = TreeMasses`GetDimension[#]& /@ loopfields;
 
-      couplings= ReplaceFirst[diag[[3]],{SARAH`gI1->SARAH`gI4,SARAH`gI1->SARAH`gI5}];
+      couplings= diag[[3]];
+
+      If[nFields[[1]] > 1, couplings= ReplaceFirst[couplings,{SARAH`gI1->SARAH`gI4,SARAH`gI1->SARAH`gI5}]];
       If[!FreeQ[couplings, x_[{SARAH`gO1}]],couplings = ReplaceFirst[couplings,SARAH`gO1->SARAH`gO2];];
 
       prefactors = 2*0.5*diag[[5]]*diag[[6]]*couplings*{GetMassShift[loopfields[[2]], massMatShifts]};
@@ -409,9 +411,9 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
    selfEnergy1L = GetHiggsSEfromNPointFunctions[nPointFuncs] /.
                      {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
 
-   SetAttributes[SARAH`Cp, Orderless];
-   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /. gaugelessVertexRules[glSub];
-   ClearAttributes[SARAH`Cp, Orderless];
+   vertexRules = Vertices`VertexRules[Join[tadpole1L,selfEnergy1L], massMat];
+   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /.
+                                    Cases[vertexRules /. {g1 -> 0, g2 -> 0}, HoldPattern[Rule[CpExpr_, 0]]];
 
    If[Length[tadpole1L] === 1,
       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. glSub /. EWSBSubst];
@@ -424,9 +426,6 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
 
       relevantMassTadpoles = GetMassShiftedExpressions[Sarah1LTadsList,shiftedFields];
       relevantMassSelfEnergies = GetMassShiftedExpressions[GetRelevantSEs[Sarah1LSEList],shiftedFields];
-      (*We don't have to worry about ignoring Goldstones, since those contributions will
-      be set to zero in the loop functions (there, e.g. BB(small,small,scale)=0)
-      given that their masses have been properly set to zero *)
 
       massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
       massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
@@ -447,7 +446,7 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
       selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
 
       nPointform=Join[nPointform,AppendShiftFieldIndices[tadpoleNPointForm,SARAH`gO1],AppendShiftFieldIndices[selfEnergyNPointForm,SARAH`gO1,SARAH`gO2]];,
-      Print["Whacky model with more than one tadpole. Tell someone to fix SelfEnergies2L to handle this case."];
+      Print["Error: Model has more than one tadpole. Tell someone to fix SelfEnergies2L to handle this case."];
       Quit[];
    ];
    nPointform
