@@ -413,8 +413,6 @@ Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
                      {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
 
    vertexRules = Vertices`VertexRules[Join[tadpole1L,selfEnergy1L], massMat];
-   Print[vertexRules];
-   Print[Cases[vertexRules /. glSub, HoldPattern[Rule[_, 0]]]];
 
    {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /.Cases[vertexRules /. glSub, HoldPattern[Rule[_, 0]]];
 
@@ -443,8 +441,8 @@ Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
       tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
       selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
 
-      tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
-      selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]]/.tadpoleReplacementRules[tadHiggsassoc,tadpole1L]/. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+      tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]] /. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+      selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]] /. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
       tadpoleNPointForm = tadpoleNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
       selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;

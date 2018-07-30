@@ -580,17 +580,20 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
           ];
 
 CreateNPointFunction[nPointFunction_TadpoleShift|nPointFunction_FSSelfEnergyShift, vertexRules_List, loops_] :=
-  Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = ""},
+  Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = "", higgsAndIdx},
          (* expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops]; *)
          expr = GetExpression[nPointFunction, loops];
          If[expr === Null, Return[{"",""}]];
+         higgsAndIdx = CreateHiggsToEWSBEqAssociation[]
          functionName = CreateFunctionPrototype[nPointFunction, loops];
          type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
          semianalyticpars = Cases[expr, _Symbol?(StringMatchQ[ToString[#], RegularExpression[".*Coeff.*"]] &), Infinity, Heads -> True];
          (vardefs = vardefs <> "const auto " <> ToString[#] <> " = SEMIANALYTICPARAMETER(" <> ToString[#] <> ");\n")& /@ DeleteDuplicates[semianalyticpars];
          prototype = type <> " " <> functionName <> ";\n";
          decl = "\n" <> type <> " CLASSNAME::" <> functionName <> "\n{\n";
-         body = type <> " result;\n" <> vardefs <> "\n" <>
+         body = type <> " result;\n" <> vardefs <> "\n\n" <>
+                "std::array<double, number_of_ewsb_equations> tadpole{};\n" <>
+                FillArrayWithLoopTadpoles[1, higgsAndIdx, "tadpole", "+", ""] <> "\n\n" <>
                 ExpressionToStringSequentially[
                                    DecreaseLiteralCouplingIndices[expr] /.
                                    vertexRules /.
