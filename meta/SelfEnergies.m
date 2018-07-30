@@ -579,12 +579,34 @@ DecreaseLiteralCouplingIndices[expr_, num_:1] :=
            }
           ];
 
+(* Ideally we would use the function already defined in FlexibleSUSY`, but that one is private, and it seems ugly to make it public *)
+CreateHiggsToEWSBEqAssociation[] :=
+   Module[{vevs},
+         vevs = Cases[SARAH`DEFINITION[FlexibleSUSY`FSEigenstates][SARAH`VEVs],
+                      {_,{v_,_},{s_,_},{p_,_},___} :> {v,s,p}];
+         If[Length[vevs] == 1,
+            Return[{{SARAH`HiggsBoson, 1, Re}}];
+           ];
+         FindPositions[es_] :=
+             Module[{gaugeES, higgsGaugeES},
+                    gaugeES = ExpandGaugeIndices[es];
+                    (* list of gauge eigenstate fields, ordered according to Higgs mixing *)
+                    higgsGaugeES = Cases[SARAH`DEFINITION[FlexibleSUSY`FSEigenstates][SARAH`MatterSector],
+                                         {gauge_List, {SARAH`HiggsBoson, _}} :> gauge][[1]];
+                    higgsGaugeES = ExpandGaugeIndices[higgsGaugeES];
+                    (* find positions of gaugeES in higgsGaugeES *)
+                    {SARAH`HiggsBoson,#}& /@ (Flatten[Position[higgsGaugeES, #]& /@ gaugeES])
+                   ];
+         Join[Append[#,Re]& /@ FindPositions[Transpose[vevs][[3]]],
+              Append[#,Re]& /@ FindPositions[Transpose[vevs][[2]]]]
+];
+
 CreateNPointFunction[nPointFunction_TadpoleShift|nPointFunction_FSSelfEnergyShift, vertexRules_List, loops_] :=
   Module[{decl, expr, prototype, body, functionName, semianalyticpars, vardefs = "", higgsAndIdx},
          (* expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops]; *)
          expr = GetExpression[nPointFunction, loops];
          If[expr === Null, Return[{"",""}]];
-         higgsAndIdx = CreateHiggsToEWSBEqAssociation[]
+         higgsAndIdx = SelfEnergies`CreateHiggsToEWSBEqAssociation[];
          functionName = CreateFunctionPrototype[nPointFunction, loops];
          type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
          semianalyticpars = Cases[expr, _Symbol?(StringMatchQ[ToString[#], RegularExpression[".*Coeff.*"]] &), Infinity, Heads -> True];
