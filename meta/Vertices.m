@@ -89,7 +89,7 @@ SortCps[nPointFunctions_List] := Module[{
 	exprs = Sequence @@ Drop[#, 1] & /@ nPointFunctions,
 	cpls, relevantCpls, sortCplsRules, k = 0, result},
 	cpls = DeleteDuplicates[Cases[exprs, _SARAH`Cp|_SARAH`Cp[_], Infinity]];
-   If[Length[cpls] > 50,
+   If[Length[cpls] > 100,
       Print["sorting couplings"];
    	Print["extracting couplings..."];
 

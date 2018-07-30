@@ -2749,11 +2749,11 @@ Get2LSelfEnergy[eigenstates_] :=
                         {SARAH`HiggsBoson  , Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twoloophiggsmassdiags[[1]]]},
                         {SARAH`PseudoScalar, Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twoloophiggsmassdiags[[2]]]}
                      };
+               Print["Writing 2-loop self energy expressions to:",
+                     Get2LExpressionOutputFileName["self_energy",ToString[SARAH`HiggsBoson]],
+                     Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`PseudoScalar]]];
                Put[result[[1,3]],Get2LExpressionOutputFileName["self_energy",ToString[SARAH`HiggsBoson]]];
                Put[result[[2,3]],Get2LExpressionOutputFileName["self_energy",ToString[SARAH`PseudoScalar]]];
-               Print["2L selfenergy expressions written to:",Get2LExpressionOutputFileName["self_energy",ToString[SARAH`HiggsBoson]],
-                     Get2LExpressionOutputFileName["selfenergy",ToString[SARAH`PseudoScalar]]];
-
                result
              ]
           ];
@@ -2768,9 +2768,10 @@ Get2LTadpole[eigenstates_] :=
               result={
                         {SARAH`HiggsBoson, Null, SelfEnergies2L`ConvertSarah2LDiagramList[SARAH`twolooptadpolediags]}
                      };
-              Put[result[[1,3]],Get2LExpressionOutputFileName["tadpole",ToString[SARAH`HiggsBoson]]];
-              Print["2L tadpole expression written to:",Get2LExpressionOutputFileName["tadpole",ToString[SARAH`HiggsBoson]]];
-              result
+               Print["Writing 2-loop tadpole expression to:",
+                     Get2LExpressionOutputFileName["tadpole",ToString[SARAH`HiggsBoson]]];
+               Put[result[[1,3]],Get2LExpressionOutputFileName["tadpole",ToString[SARAH`HiggsBoson]]];
+               result
              ]
           ];
 
@@ -2837,7 +2838,7 @@ MakeShifts[nPointFunctions_,treeLevelEwsbSolutionOutputFiles_,massMat_,semiAnaly
                tempnPoints = SelfEnergies2L`Make1L2LShifts[Get[tadListFile],selfEnergyList,nPointFunctions,massMat,higgsToEWSB,FlexibleSUSY`EWSBOutputParameters,
                                                             Flatten[Get[treesolutionfile]],{g1->0,g2->0},semiAnalyticEWSBSubstitutions,FlexibleSUSY`FSEigenstates];
 
-               Print["Writing 2-loop shift expression to:"];
+               Print["Writing 2-loop shift expressions to:"];
                Module[{diagramtype = If[Head[#] === SelfEnergies`TadpoleShift, "tadpole_shift", "self_energy_shift"],
                        field = SelfEnergies`ExtractFieldName[SelfEnergies`GetField[#]]},
                        Put[#[[3]],Get2LExpressionOutputFileName[diagramtype,field]];
