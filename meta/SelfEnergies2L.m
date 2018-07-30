@@ -328,19 +328,8 @@ GetTadpolesfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]
 GetHiggsSEfromNPointFunctions[nPointFunctions_List]:=If[Length[nPointFunctions]==0,Print["No nPointFunctions available."];{},Cases[nPointFunctions,SelfEnergies`FSSelfEnergy[field_, __]/;IsRelevantSelfEnergyFieldQ[field]]];
 
 
-(* replaces tadpole[i] expressions with the explicit 1-loop tadpole expression *)
-tadpoleReplacementRules[assoc_, tadexpr_] :=
-    Module[{n=Length[assoc]},
-     If[n == 1,
-     {Rule[Symbol["tadpole"][1], Cases[tadexpr,SelfEnergies`Tadpole[assoc[[1, 1]],expr1L_] -> (expr1L)][[1]]]},
-      Table[Rule[Symbol["tadpole"][i],
-      ReleaseHold[
-         Cases[tadexpr,SelfEnergies`Tadpole[assoc[[i, 1]][ind_], expr1L_] ->
-            Hold[SARAH`sum[SARAH`gI3,1,n,(expr1L //. {ind :> SARAH`gI3})*Symbol["KroneckerDelta"][SARAH`gI3,assoc[[i, 2]]-1]]]][[1]]
-            ]
-          ], {i, 1, n}]
-        ]
-      ];
+(* replaces tadpole[i] expressions with correct form for C translation *)
+tadpoleReplacementRules[] := FlexibleSUSY`tadpole[p_] :> (CConversion`ReleaseHoldAt[HoldForm[FlexibleSUSY`tadpole[[p-1]]], {1,2}]/CConversion`oneOver16PiSqr);
 
 (* replaces vertices with zero, if they are in fact zero given the specified substitutions *)
 gaugelessVertexRules[subs_List] := {Symbol["Cp"][fields__] /; VertexZeroQ[List[fields], subs] -> 0,
@@ -441,8 +430,8 @@ Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
       tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
       selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
 
-      tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]] /. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
-      selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]] /. SARAH`Mass -> FlexibleSUSY`M  /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+      tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]] /. tadpoleReplacementRules[] /. {SARAH`Mass -> FlexibleSUSY`M} /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
+      selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]] /. tadpoleReplacementRules[] /. {SARAH`Mass -> FlexibleSUSY`M} /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
 
       tadpoleNPointForm = tadpoleNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
       selfEnergyNPointForm = selfEnergyNPointForm /. ReduceExplicitGenIndices /. ReplaceSARAHMassHeads;
