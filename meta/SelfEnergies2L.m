@@ -420,9 +420,9 @@ Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
       massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
 
 
-      vertexShiftRules = GenerateVertexShifts[vertexRules, glSub, treeSol, nHiggs, EWSBSubst];
-      couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,vertexShiftRules];
-      couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,vertexShiftRules];
+      vertexShiftRules = GenerateVertexShiftRules[vertexRules, glSub, treeSol, nHiggs, EWSBSubst];
+      couplingTadpoleShift = GenerateVertexShifts[tadpole1L,vertexShiftRules];
+      couplingSelfEnergyShift = GenerateVertexShifts[selfEnergy1L,vertexShiftRules];
       couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
       couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields];
 
@@ -473,7 +473,7 @@ EWSBNFreeQ[expr_] :=
    Or @@ ((!FreeQ[expr, #]) & /@ (FlexibleSUSY`EWSBOutputParameters /.
       EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters]));
 
-GenerateVertexShifts[vertexRules_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
+GenerateVertexShiftRules[vertexRules_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
    Module[{vertexRulesShifted, makeParametersUnique, tadpoleSeriesParameters}, makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
       tadpoleSeriesParameters = Flatten[Table[{{Symbol["tadpole"][i], 0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}], 1];
       vertexRulesShifted = vertexRules /. EWSBSubst /. makeParametersUnique /. glSub;
@@ -486,7 +486,7 @@ GenerateVertexShifts[vertexRules_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
       vertexRulesShifted /. (Reverse /@ makeParametersUnique) //. ReplaceSARAHInternalIndices
 ];
 
-GenerateCouplingShifts[selfEnergies_, vertexShiftRules_] :=
+GenerateVertexShifts[selfEnergies_, vertexShiftRules_] :=
 Module[{output},
    (*Necessary output format:{{field,expr},{field,expr},...}*)
    output = Replace[#, nPF_[fld_, expr_] :> {fld, expr}] & /@ selfEnergies;
