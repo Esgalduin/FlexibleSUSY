@@ -399,10 +399,11 @@ StripFieldRotation := {Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson
    the values given by CalculatePi2S in SPheno. The signs used here should be
    consistent with the rest of FlexibleSUSY *)
 Make1L2LShifts[Sarah1LTadsList_List,Sarah1LSEList_List,nPointFuncs_List, massMat_,tadHiggsassoc_,EWSBpars_List,treeEWSBsol_List,sub_List,EWSBSubst_List,eigenstates_] :=
-Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
-        selfEnergy1L,massMatShifts,shiftedFields,treeSol,higgstoewsb,nHiggs,tadpoleFields,
-        tadpoleShifts,selfEnergyShifts,couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
-        massTadpoleShift,massSelfEnergyShift,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
+Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
+        couplingTadpoleShift = 0,couplingSelfEnergyShift = 0,
+        vertexRules,vertexShiftRules,massMatShifts,shiftedFields,
+        massTadpoleShift,massSelfEnergyShift,relevantMassTadpoles,relevantMassSelfEnergies,
+        tadpoleShifts,selfEnergyShifts,tadpoleNPointForm={},selfEnergyNPointForm={},nPointform={}},
 
    glSub = sub /. {Rule[gaugelesscoup_,probzero_]:>Rule[Symbol[SymbolName[gaugelesscoup]],probzero]}; (* for some reason, the couplings have context FlexibleSUSY`Private` for no obvious reason. This fixes that. *)
 
@@ -412,8 +413,8 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
                      {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
 
    vertexRules = Vertices`VertexRules[Join[tadpole1L,selfEnergy1L], massMat];
-   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /.
-                                    Cases[vertexRules /. {g1 -> 0, g2 -> 0}, HoldPattern[Rule[CpExpr_, 0]]];
+   Print[Context[vertexRules[[1,1]]]];
+   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /.Cases[vertexRules /. {g1 -> 0, g2 -> 0}, HoldPattern[Rule[CpExpr_, 0]]];
 
    If[Length[tadpole1L] === 1,
       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. glSub /. EWSBSubst];
@@ -430,8 +431,15 @@ Module[{glSub,relevantMassTadpoles,relevantMassSelfEnergies,tadpole1L,
       massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
       massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
 
-      (* couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,glSub,treeSol,nHiggs,eigenstates];
-      couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,glSub,treeSol,nHiggs,eigenstates]; *)
+      vertexShiftRules = GenerateVertexShifts[vertexRules, glSub, treeSol, nHiggs, EWSBSubst];
+
+      Print[vertexShiftRules];
+
+      couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,vertexShiftRules];
+      couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,vertexShiftRules];
+
+      (* Print[couplingTadpoleShift]; *)
+      Print[tadpole1L];
 
       (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
       couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
@@ -467,20 +475,11 @@ ReplaceSARAHInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
           idxnum : DigitCharacter .. :>
            ToString[ToExpression[idxnum] + 6]}]]}])};
 
-GenerateCouplingShifts[selfEnergiesFormat_,glSub_,treeSol_,nHiggs_,eigenstates_] := Module[
-   {},
-
-   tadpoleSeriesParametersFirstOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 1}, {i, 1, nHiggs}];
-   tadpoleSeriesParametersZeroOrder = Sequence @@ Table[{Symbol["tadpole"][i], 0, 0}, {i, 1, nHiggs}];
-
-   (* Necessary output format: {{field,expr},{field,expr},...} *)
-];
 
 
-(* the following command plus the 'SetOptions[D,...]' are necessary to get SARAH`sum and Susyno`LieGroups`conj
-   to work correctl ywith differentiation *)
-SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] :=
-   SARAH`sum[idx, a, b, D[exprs, y, c]];
+(* the following command plus the 'SetOptions[D,...]' are necessary to get SARAH`sum
+   to work correctly with differentiation *)
+SARAH`sum /: D[SARAH`sum[idx_, a_, b_, exprs_], y_, c___] := SARAH`sum[idx, a, b, D[exprs, y, c]];
 
 
 FirstOrderSeries[seriesExpr_, seriesPars_List] :=
@@ -495,30 +494,42 @@ GenerateVertexShifts[vertexRules_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
    Module[{vertexRulesShifted, makeParametersUnique, tadpoleSeriesParameters}, makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
       tadpoleSeriesParameters = Flatten[Table[{{Symbol["tadpole"][i], 0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}], 1];
       vertexRulesShifted = vertexRules /. EWSBSubst /. makeParametersUnique /. glSub;
-      vertexRulesShifted = Select[vertexRulesShifted, EWSBNFreeQ] //. Flatten[treeSol];
+      vertexRulesShifted = Select[vertexRulesShifted, EWSBNFreeQ] //. (Flatten[treeSol] /. makeParametersUnique);
       SetOptions[D, NonConstants -> {SARAH`sum}];
       vertexRulesShifted = vertexRulesShifted /.
-        {Rule[SARAH`Cp[flds__], Cpexpr_] :> Rule[SelfEnergies2L`DCp[flds], FirstOrderSeries[Cpexpr, tadpoleSeriesParameters]],
-         Rule[SARAH`Cp[flds__][LIdx_], Cpexpr_] :> Rule[SelfEnergies2L`DCp[flds][LIdx], FirstOrderSeries[Cpexpr, tadpoleSeriesParameters]]};
+         {Rule[SARAH`Cp[flds__], Cpexpr_] :> Rule[SelfEnergies2L`DCp[flds], FirstOrderSeries[Cpexpr, tadpoleSeriesParameters]],
+          Rule[SARAH`Cp[flds__][LIdx_], Cpexpr_] :> Rule[SelfEnergies2L`DCp[flds][LIdx], FirstOrderSeries[Cpexpr, tadpoleSeriesParameters]]};
       SetOptions[D, NonConstants -> {}];
       vertexRulesShifted /. (Reverse /@ makeParametersUnique) //. ReplaceSARAHInternalIndices
 ];
 
+GenerateCouplingShifts[selfEnergies_, vertexShiftRules_] :=
+Module[{output},
+   (*Necessary output format:{{field,expr},{field,expr},...}*)
+   output = Replace[#, nPF_[fld_, expr_] :> {fld, expr}] & /@ selfEnergies;
+   Susyno`LieGroups`conj /: Susyno`LieGroups`conj[SelfEnergies2L`Cpdelta] := SelfEnergies2L`Cpdelta;
+   output = output /. {SARAH`Cp[flds__][Lidx_] :> SARAH`Cp[flds][Lidx] + SelfEnergies2L`Cpdelta*SelfEnergies2L`DCp[flds][Lidx],
+                       SARAH`Cp[flds__] :> SARAH`Cp[flds] + SelfEnergies2L`Cpdelta*SelfEnergies2L`DCp[flds]};
+   SetOptions[D, NonConstants -> {SARAH`sum}];
+   output = MapAt[FirstOrderSeries[#, {{SelfEnergies2L`Cpdelta, 0}}] &, {All, 2}]@output;
+   SetOptions[D, NonConstants -> {}];
+   output /. {SelfEnergies2L`Cpdelta -> 1} /. vertexShiftRules /. {SelfEnergies2L`DCp[__][__] -> 0, SelfEnergies2L`DCp[__] -> 0}
+];
+
+
 GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
    Module[{shiftedFields, massMatShifted, makeParametersUnique, tadpoleSeriesParameters},
    makeParametersUnique = EWSB`MakeParametersUnique[FlexibleSUSY`EWSBOutputParameters];
-   tadpoleSeriesParameters =
-      Flatten[Table[{{Symbol["tadpole"][i], 0}, {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}], 1];
+   tadpoleSeriesParameters = Flatten[Table[{{Symbol["tadpole"][i], 0},
+                              {Susyno`LieGroups`conj[Symbol["tadpole"][i]], 0}}, {i, 1, nHiggs}], 1];
    massMatShifted = massMat /. EWSBSubst /. makeParametersUnique /. glSub;
 
-   massMatShifted = Select[massMatShifted, EWSBNFreeQ] //. Flatten[treeSol];
+   massMatShifted = Select[massMatShifted, EWSBNFreeQ] //. (Flatten[treeSol] /. makeParametersUnique);
    shiftedFields = Flatten[Transpose[(List @@@ massMatShifted)][[2]]];
    SetOptions[D, NonConstants -> {SARAH`sum}];
-   massMatShifted = massMatShifted /.
-    TreeMasses`FSMassMatrix[mm_, field_, rot_] :>
+   massMatShifted = massMatShifted /. TreeMasses`FSMassMatrix[mm_, field_, rot_] :>
      SelfEnergies2L`FSMassMatrixShift @@ {field,
-      RotateShiftMatrix[
-         FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
+      RotateShiftMatrix[FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
    SetOptions[D, NonConstants -> {}];
    massMatShifted = massMatShifted /. (Reverse /@ makeParametersUnique);
    {shiftedFields, massMatShifted}
@@ -554,7 +565,7 @@ GetMassShift[fld_, massShifts_] :=
 ];
 
 OrderingToTarget[list_, sourceIds_, targetIds_] :=
-  list[[Ordering @ sourceIds]][[Ordering @ Ordering@targetIds]];
+  list[[Ordering @ sourceIds]][[Ordering @ Ordering @ targetIds]];
 
 CreateEnterGauglessLimitFunction[brokencouplings_]:=Module[{output="",
    couplingnames = Symbol[SymbolName[#]]& /@ brokencouplings},
