@@ -413,8 +413,10 @@ Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
                      {SelfEnergies`FSSelfEnergy[f_,L1_,___]->SelfEnergies`SelfEnergies`FSSelfEnergy[f,L1]};
 
    vertexRules = Vertices`VertexRules[Join[tadpole1L,selfEnergy1L], massMat];
-   Print[Context[vertexRules[[1,1]]]];
-   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /.Cases[vertexRules /. {g1 -> 0, g2 -> 0}, HoldPattern[Rule[CpExpr_, 0]]];
+   Print[vertexRules];
+   Print[Cases[vertexRules /. glSub, HoldPattern[Rule[_, 0]]]];
+
+   {tadpole1L,selfEnergy1L} = {tadpole1L,selfEnergy1L} /.Cases[vertexRules /. glSub, HoldPattern[Rule[_, 0]]];
 
    If[Length[tadpole1L] === 1,
       treeSol = EWSB`ReplaceFixedParametersBySymbolsInTarget[treeEWSBsol /. glSub /. EWSBSubst];
@@ -423,26 +425,20 @@ Module[{glSub,tadpole1L,selfEnergy1L,treeSol,higgstoewsb,nHiggs,tadpoleFields,
       tadpoleFields = (GetnPointField[#] & /@ Sarah1LTadsList) /. StripFieldRotation;
       selfenergyFields = (GetnPointField[#] & /@ GetRelevantSEs[Sarah1LSEList]) /. StripFieldRotation;
 
-      {shiftedFields,massMatShifts} = GenerateMassMatrixShifts[massMat, glSub, treeSol, nHiggs, EWSBSubst];
 
+      {shiftedFields,massMatShifts} = GenerateMassMatrixShifts[massMat, glSub, treeSol, nHiggs, EWSBSubst];
       relevantMassTadpoles = GetMassShiftedExpressions[Sarah1LTadsList,shiftedFields];
       relevantMassSelfEnergies = GetMassShiftedExpressions[GetRelevantSEs[Sarah1LSEList],shiftedFields];
-
       massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
       massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
 
+
       vertexShiftRules = GenerateVertexShifts[vertexRules, glSub, treeSol, nHiggs, EWSBSubst];
-
-      Print[vertexShiftRules];
-
       couplingTadpoleShift = GenerateCouplingShifts[tadpole1L,vertexShiftRules];
       couplingSelfEnergyShift = GenerateCouplingShifts[selfEnergy1L,vertexShiftRules];
+      couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
+      couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields];
 
-      (* Print[couplingTadpoleShift]; *)
-      Print[tadpole1L];
-
-      (* couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
-      couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields]; *)
 
       tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
       selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
@@ -507,6 +503,7 @@ GenerateCouplingShifts[selfEnergies_, vertexShiftRules_] :=
 Module[{output},
    (*Necessary output format:{{field,expr},{field,expr},...}*)
    output = Replace[#, nPF_[fld_, expr_] :> {fld, expr}] & /@ selfEnergies;
+   output = output /.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
    Susyno`LieGroups`conj /: Susyno`LieGroups`conj[SelfEnergies2L`Cpdelta] := SelfEnergies2L`Cpdelta;
    output = output /. {SARAH`Cp[flds__][Lidx_] :> SARAH`Cp[flds][Lidx] + SelfEnergies2L`Cpdelta*SelfEnergies2L`DCp[flds][Lidx],
                        SARAH`Cp[flds__] :> SARAH`Cp[flds] + SelfEnergies2L`Cpdelta*SelfEnergies2L`DCp[flds]};
