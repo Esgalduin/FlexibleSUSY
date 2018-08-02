@@ -1,4 +1,4 @@
-BeginPackage["SelfEnergies2L`", {"SARAH`","TreeMasses`","CConversion`","EWSB`"}];
+BeginPackage["SelfEnergies2L`", {"SARAH`","TreeMasses`","Parameters`","CConversion`","EWSB`"}];
 
 Unprotect["SelfEnergies2L`*"];
 ClearAll["SelfEnergies2L`*"];
@@ -503,7 +503,7 @@ GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
       SetOptions[D, NonConstants -> {SARAH`sum}];
       massMatShifted = massMatShifted /. TreeMasses`FSMassMatrix[mm_, field_, rot_] :>
          SelfEnergies2L`FSMassMatrixShift @@ {field,
-         RotateShiftMatrix[FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
+         RotateShiftMatrix[Parameters`IncreaseIndexLiterals @ FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
       SetOptions[D, NonConstants -> {}];
       massMatShifted = massMatShifted /. (Reverse /@ makeParametersUnique);
       {shiftedFields, massMatShifted}
