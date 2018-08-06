@@ -457,6 +457,8 @@ endif
 ifeq ($(WITH_lowNMSSM) $(WITH_SOFTSUSY),yes yes)
 TEST_SH += \
 		$(DIR)/test_lowNMSSM_spectrum.sh
+TEST_SRC += \
+      $(DIR)/test_lowNMSSM_SARAH_2L.cpp
 endif
 
 ifeq ($(WITH_CMSSMGSLHybrid) $(WITH_CMSSMGSLHybridS) $(WITH_CMSSMGSLBroyden) $(WITH_CMSSMGSLNewton) $(WITH_CMSSMFPIRelative) $(WITH_CMSSMFPIAbsolute) $(WITH_CMSSMFPITadpole),yes yes yes yes yes yes yes)
@@ -843,6 +845,8 @@ $(DIR)/test_NMSSM_benchmark.x.xml: $(RUN_NMSSM_EXE) $(RUN_SOFTPOINT_EXE)
 
 $(DIR)/test_NMSSM_slha_output.x.xml: $(EXAMPLES_EXE) $(DIR)/test_NMSSM_slha_output.in.spc $(RUN_SOFTPOINT_EXE)
 $(DIR)/test_NMSSM_slha_output.x: $(LIBNMSSM)
+
+$(DIR)/test_lowNMSSM_SARAH_2L.x: $(LIBlowNMSSM)
 
 $(DIR)/test_SMSSM_beta_functions.x: $(LIBSMSSM)
 
