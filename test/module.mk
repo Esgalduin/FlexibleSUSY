@@ -454,6 +454,11 @@ TEST_SH += \
 		$(DIR)/test_lowMSSM.sh
 endif
 
+ifeq ($(WITH_lowMSSM),yes)
+TEST_SRC += \
+		$(DIR)/test_lowMSSM_SARAH_2L.cpp
+endif
+
 ifeq ($(WITH_lowNMSSM) $(WITH_SOFTSUSY),yes yes)
 TEST_SH += \
 		$(DIR)/test_lowNMSSM_spectrum.sh
@@ -847,6 +852,8 @@ $(DIR)/test_NMSSM_slha_output.x.xml: $(EXAMPLES_EXE) $(DIR)/test_NMSSM_slha_outp
 $(DIR)/test_NMSSM_slha_output.x: $(LIBNMSSM)
 
 $(DIR)/test_lowNMSSM_SARAH_2L.x: $(LIBlowNMSSM)
+
+$(DIR)/test_lowMSSM_SARAH_2L.x: $(LIBlowMSSM)
 
 $(DIR)/test_SMSSM_beta_functions.x: $(LIBSMSSM)
 
