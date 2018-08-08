@@ -45,7 +45,7 @@ Eigen::Matrix<double, 3, 1> tadpole_higgs_2loop_at_as_nmssm(
    Eigen::Matrix<double, 3, 1> result;
    result.head<2>() = t_mssm;
    // rescale T1 to get TS
-   result(2) = t_mssm(0) * std::sqrt(vev2) * cosb / (svev * std::sqrt(2.));
+   result(2) = t_mssm(0) * sqr(std::sqrt(vev2) * cosb / (svev * std::sqrt(2.)));
 
    return result;
 }
