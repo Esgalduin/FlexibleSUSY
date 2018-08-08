@@ -134,3 +134,112 @@ BOOST_AUTO_TEST_CASE( lowNMSSM_SARAH_2L_SPheno_comparison )
 
 }
 
+
+
+BOOST_AUTO_TEST_CASE( lowNMSSM_SARAH_2L_literature_comparison )
+{
+   lowNMSSM_mass_eigenstates nmssm;
+
+   setup_lowNMSSM(nmssm);
+
+   double mst1, mst2, thetat;
+
+   Eigen::Matrix<double,3,3>
+      Yu = Eigen::Matrix<double,3,3>::Zero(),
+      Yd = Eigen::Matrix<double,3,3>::Zero(),
+      Ye = Eigen::Matrix<double,3,3>::Zero(),
+      Tu = Eigen::Matrix<double,3,3>::Zero(),
+      Td = Eigen::Matrix<double,3,3>::Zero(),
+      Te = Eigen::Matrix<double,3,3>::Zero(),
+      mu2 = Eigen::Matrix<double,3,3>::Zero(),
+      md2 = Eigen::Matrix<double,3,3>::Zero(),
+      me2 = Eigen::Matrix<double,3,3>::Zero(),
+      ml2 = Eigen::Matrix<double,3,3>::Zero(),
+      mq2 = Eigen::Matrix<double,3,3>::Zero();
+
+   Yu(2,2) =    8.73058219E-01;
+   Tu(2,2) =   -4.14385376E+02;
+   mu2(2,2) =   1.04647252E+05;
+
+   mq2(2,2) =   1.65139305E+05;
+
+   nmssm.set_Yu(Yu);
+   nmssm.set_Yd(Yd);
+   nmssm.set_Ye(Ye);
+   nmssm.set_TYu(Tu);
+   nmssm.set_TYd(Td);
+   nmssm.set_TYe(Te);
+   nmssm.set_mu2(mu2);
+   nmssm.set_md2(md2);
+   nmssm.set_ml2(ml2);
+   nmssm.set_mq2(mq2);
+   nmssm.set_me2(me2);
+
+   nmssm.enter_gaugeless_limit();
+
+   nmssm.calculate_M2Su_3rd_generation(mst1,mst2,thetat);
+
+   Eigen::Matrix<double, 3, 3> self_energy_hh_atas_literature = flexiblesusy::nmssm_twoloophiggs::self_energy_higgs_2loop_at_as_nmssm(
+      mssm.get_MFu(2), mssm.get_MGlu(), mst1, mst2,
+      std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()),
+      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()),mssm.get_Lambdax(),
+      flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*mssm.get_vS())),
+      sqr(mssm.get_g3()) / (4.0 * flexiblesusy::Pi), flexiblesusy::Re(-0.7071067811865475*mssm.get_vS()*mssm.get_Lambdax()));
+
+   Eigen::Matrix<double, 3, 3> self_energy_Ah_atas_literature = flexiblesusy::nmssm_twoloophiggs::self_energy_pseudoscalar_2loop_at_as_nmssm(
+      mssm.get_MFu(2), mssm.get_MGlu(), mst1, mst2,
+      std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()),
+      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()),mssm.get_Lambdax(),
+      flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*mssm.get_vS())),
+      sqr(mssm.get_g3()) / (4.0 * flexiblesusy::Pi), flexiblesusy::Re(-0.7071067811865475*mssm.get_vS()*mssm.get_Lambdax()));
+
+   Eigen::Matrix<double, 3, 1> tadpole_atas_literature = flexiblesusy::nmssm_twoloophiggs::tadpole_higgs_2loop_at_as_nmssm(
+      sqr(mssm.get_MFu(2)), mssm.get_MGlu(), mst1, mst2,
+      std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()),flexiblesusy::Re(-0.7071067811865475*mssm.get_vS()*mssm.get_Lambdax()),
+      mssm.get_vu()/mssm.get_vd(),sqr(mssm.get_vu())+sqr(mssm.get_vd()),
+      mssm.get_g3(),flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*mssm.get_vS())));
+
+   Eigen::Matrix<double, 3, 3> self_energy_hh_atas_sarah = (nmssm.self_energy_hh_2loop(sqr(125))).real();
+   Eigen::Matrix<double, 3, 3> self_energy_Ah_atas_sarah = (nmssm.self_energy_Ah_2loop(sqr(125))).real();
+   Eigen::Matrix<double, 3, 1>  tadpole_atas_sarah;
+   tadpole_atas_sarah << (nmssm.tadpole_hh_2loop(0)).real()/nmssm.get_vd(),
+                         (nmssm.tadpole_hh_2loop(1)).real()/nmssm.get_vu(),
+                         (nmssm.tadpole_hh_2loop(2)).real()/nmssm.get_vS();
+
+   nmssm.set_g3(0);
+   nmssm.calculate_vertices();
+
+   self_energy_hh_atas_sarah -= (nmssm.self_energy_hh_2loop(sqr(125))).real();
+   self_energy_Ah_atas_sarah -= (nmssm.self_energy_Ah_2loop(sqr(125))).real();
+
+   tadpole_atas_sarah(0) -= (nmssm.tadpole_hh_2loop(0)).real()/nmssm.get_vd();
+   tadpole_atas_sarah(1) -= (nmssm.tadpole_hh_2loop(1)).real()/nmssm.get_vu();
+   tadpole_atas_sarah(2) -= (nmssm.tadpole_hh_2loop(2)).real()/nmssm.get_vS();
+
+
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(0,0), self_energy_hh_atas_sarah(0,0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(0,1), self_energy_hh_atas_sarah(0,1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(0,2), self_energy_hh_atas_sarah(0,2), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(1,0), self_energy_hh_atas_sarah(1,0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(1,1), self_energy_hh_atas_sarah(1,1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(1,2), self_energy_hh_atas_sarah(1,2), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,0), self_energy_hh_atas_sarah(2,0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,1), self_energy_hh_atas_sarah(2,1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,2), self_energy_hh_atas_sarah(2,2), 1e-12);
+
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(0,0), self_energy_Ah_atas_sarah(0,0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(0,1), self_energy_Ah_atas_sarah(0,1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(0,2), self_energy_Ah_atas_sarah(0,2), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(1,0), self_energy_Ah_atas_sarah(1,0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(1,1), self_energy_Ah_atas_sarah(1,1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(1,2), self_energy_Ah_atas_sarah(1,2), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(2,0), self_energy_Ah_atas_sarah(2,0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(2,1), self_energy_Ah_atas_sarah(2,1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(2,2), self_energy_Ah_atas_sarah(2,2), 1e-12);
+
+   BOOST_CHECK_CLOSE_FRACTION(tadpole_atas_literature(0), tadpole_atas_sarah(0), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(tadpole_atas_literature(1), tadpole_atas_sarah(1), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(tadpole_atas_literature(2), tadpole_atas_sarah(2), 1e-12);
+
+
+}

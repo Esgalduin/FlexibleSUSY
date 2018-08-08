@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( lowMSSM_SARAH_2L_SPheno_comparison )
             to a lower value (here 10^-12), since otherwise some expressions are discarded
    */
 
-   std::array<std::complex<double>, 3> tadpole2L{};
+   std::array<std::complex<double>, 2> tadpole2L{};
    tadpole2L[0] = mssm.tadpole_hh_2loop(0);
    tadpole2L[1] = mssm.tadpole_hh_2loop(1);
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( lowMSSM_SARAH_2L_SPheno_comparison )
    BOOST_CHECK_SMALL(Im(tadpole2L[0]),1e-8);
    BOOST_CHECK_SMALL(Im(tadpole2L[1]),1e-8);
 
-   std::array<std::complex<double>, 3> tadpole2Lshift{};
+   std::array<std::complex<double>, 2> tadpole2Lshift{};
    tadpole2Lshift[0] = mssm.tadpole_shift_hh_2loop(0);
    tadpole2Lshift[1] = mssm.tadpole_shift_hh_2loop(1);
 
