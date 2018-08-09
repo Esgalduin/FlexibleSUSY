@@ -371,6 +371,8 @@ ExtractFieldName[field_]              := ToValidCSymbolString[field];
 
 StripFieldRotation := {Symbol["U"<>ToString[SARAH`HiggsBoson]]->SARAH`HiggsBoson,Symbol["U"<>ToString[SARAH`PseudoScalar]]->SARAH`PseudoScalar};
 
+StripGenerationIndex := {fld_[__] :> fld};
+
 (* creates expressions for shifts of 1L selfenergies and tadpoles through
    1L corrections to the EWSB parameters. The sign is opposite to that of
    the values given by CalculatePi2S in SPheno. The signs used here are
@@ -479,7 +481,7 @@ GenerateVertexShiftRules[vertexRules_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
 GenerateVertexShifts[selfEnergies_, vertexShiftRules_] :=
    Module[{output},
       (*output format:{{field,expr},{field,expr},...}*)
-      output = Replace[#, nPF_[fld_, expr_] :> {fld, expr}] & /@ selfEnergies;
+      output = Replace[#, nPF_[fld_, expr_] :> {fld /. StripGenerationIndex, expr}] & /@ selfEnergies;
       output = output /.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
       Susyno`LieGroups`conj /: Susyno`LieGroups`conj[SelfEnergies2L`Cpdelta] := SelfEnergies2L`Cpdelta;
       output = output /. {SARAH`Cp[flds__][Lidx_] :> SARAH`Cp[flds][Lidx] + SelfEnergies2L`Cpdelta*SelfEnergies2L`DCp[flds][Lidx],
