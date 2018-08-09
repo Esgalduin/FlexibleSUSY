@@ -5,8 +5,7 @@ ClearAll["SelfEnergies2L`*"];
 ClearAll["SelfEnergies2L`Private`*"];
 
 
-ConvertSarah2LDiagramList::usage = "Converts SARAH's list with 2-loop
- self-energy and tadpole diagrams."
+ConvertSarah2LDiagramList::usage = "Converts SARAH's list with 2-loopself-energy and tadpole diagrams."
 
 CreateCHKZEROMULTWrapper::usage = "Adds CHKZEROMULT Macro to expressions with 2-loop functions for improved efficiency"
 

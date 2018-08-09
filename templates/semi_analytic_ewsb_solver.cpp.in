@@ -223,11 +223,14 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
 {
    int error = EWSB_solver::SUCCESS;
 
+   VERBOSE_MSG("\t\tSolving EWSB equations consistently...");
+
    /* this is set during model creation, so that consistent solution cannot be attempted,
       if we were unable to calculate shifts */
    if(!@ewsbSolveConsistently@) {
       error = EWSB_solver::FAIL;
       model.get_problems().flag_no_ewsb();
+      VERBOSE_MSG("\t\tError: Consistent EWSB solution was disabled during model generation");
       return error;
    };
 
