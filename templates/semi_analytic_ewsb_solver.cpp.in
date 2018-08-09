@@ -137,7 +137,7 @@ int CLASSNAME::solve_iteratively_with(
    const int status = solver->solve(x_init);
 
    if (status == EWSB_solver::SUCCESS)
-      set_ewsb_solution(model_to_solve, solver);
+      set_ewsb_solution(model_to_solve, solver);problems.set_suppress_running_tachyon_warning(true);
 
    return status;
 }
@@ -223,8 +223,8 @@ int CLASSNAME::solve_consistently_at(@ModelName@_mass_eigenstates& model, int l)
 {
    int error = EWSB_solver::SUCCESS;
 
-   // this is set during model creation, so that consistent solution cannot be attempted,
-   // if we were unable to calculate shifts
+   /* this is set during model creation, so that consistent solution cannot be attempted,
+      if we were unable to calculate shifts */
    if(!@ewsbSolveConsistently@) {
       error = EWSB_solver::FAIL;
       model.get_problems().flag_no_ewsb();

@@ -1309,8 +1309,11 @@ WriteEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List, ewsbInitial
               calculateTwoLoopTadpolesNoStruct = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "+", "model."];
              ];
            If[FlexibleSUSY`UseSARAH2Loop === True,
-              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.solve_ewsb_tree_level();\nmodel_gl.calculate_DRbar_masses();\nmodel_gl.calculate_vertices();\n";
-              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", ""];
+              calculateTwoLoopTadpolesNoStruct = calculateTwoLoopTadpolesNoStruct <>
+                  "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\n" <>
+                  "model_gl.get_problems().set_suppress_running_tachyon_warning(true);\nmodel_gl.solve_ewsb_tree_level();\n" <>
+                  "model_gl.calculate_DRbar_masses();\nmodel_gl.calculate_vertices();\n";
+              calculateTwoLoopTadpolesNoStruct = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", ""];
               If[FlexibleSUSY`UseConsistentEWSBSolution === True,
                calculateTwoLoopTadpoleShiftsNoStruct = calculateTwoLoopTadpoleShiftsNoStruct <>
                   SelfEnergies`FillArrayWithLoopTadpoleShifts[2, higgsToEWSBEqAssociation, "tadpole", "+"];];
@@ -1381,7 +1384,10 @@ WriteSemiAnalyticEWSBSolverClass[ewsbEquations_List, parametersFixedByEWSB_List,
               calculateTwoLoopTadpolesNoStruct = SelfEnergies`FillArrayWithTwoLoopTadpoles[SARAH`HiggsBoson, "tadpole", "+", "model."];
              ];
            If[FlexibleSUSY`UseSARAH2Loop === True,
-              calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\nmodel_gl.solve_ewsb_tree_level();\nmodel_gl.calculate_DRbar_masses();\nmodel_gl.calculate_vertices();\n";
+              calculateTwoLoopTadpolesNoStruct = calculateTwoLoopTadpolesNoStruct <>
+                  "auto model_gl = model;\nmodel_gl.set_g1(0);\nmodel_gl.set_g2(0);\n" <>
+                  "model_gl.get_problems().set_suppress_running_tachyon_warning(true);\nmodel_gl.solve_ewsb_tree_level();\n" <>
+                  "model_gl.calculate_DRbar_masses();\nmodel_gl.calculate_vertices();\n";
               calculateTwoLoopTadpolesNoStruct     = calculateTwoLoopTadpolesNoStruct <> SelfEnergies`FillArrayWithLoopTadpoles[2, higgsToEWSBEqAssociation, "tadpole", "+", ""];
               If[FlexibleSUSY`UseConsistentEWSBSolution === True,
               calculateTwoLoopTadpoleShiftsNoStruct = calculateTwoLoopTadpoleShiftsNoStruct <>
