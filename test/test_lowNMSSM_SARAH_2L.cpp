@@ -5,8 +5,7 @@
 #include <Eigen/Core>
 #include <cmath>
 
-#include "mssm_twoloophiggs.hpp"
-#include "mssm_twoloophiggs.h"
+#include "nmssm_twoloophiggs.hpp"
 #include "lowNMSSM_mass_eigenstates.hpp"
 #include "lowNMSSM_slha_io.hpp"
 
@@ -180,24 +179,24 @@ BOOST_AUTO_TEST_CASE( lowNMSSM_SARAH_2L_literature_comparison )
    nmssm.calculate_M2Su_3rd_generation(mst1,mst2,thetat);
 
    Eigen::Matrix<double, 3, 3> self_energy_hh_atas_literature = flexiblesusy::nmssm_twoloophiggs::self_energy_higgs_2loop_at_as_nmssm(
-      mssm.get_MFu(2), mssm.get_MGlu(), mst1, mst2,
-      std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()),
-      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()),mssm.get_Lambdax(),
-      flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*mssm.get_vS())),
-      sqr(mssm.get_g3()) / (4.0 * flexiblesusy::Pi), flexiblesusy::Re(-0.7071067811865475*mssm.get_vS()*mssm.get_Lambdax()));
+      nmssm.get_MFu(2), nmssm.get_MGlu(), mst1, mst2,
+      std::sin(thetat), std::cos(thetat), sqr(nmssm.get_scale()),
+      nmssm.get_vu()/nmssm.get_vd(), sqr(nmssm.get_vu())+sqr(nmssm.get_vd()),nmssm.get_Lambdax(),
+      flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*nmssm.get_vS())),
+      sqr(nmssm.get_g3()) / (4.0 * flexiblesusy::Pi), flexiblesusy::Re(-0.7071067811865475*nmssm.get_vS()*nmssm.get_Lambdax()));
 
    Eigen::Matrix<double, 3, 3> self_energy_Ah_atas_literature = flexiblesusy::nmssm_twoloophiggs::self_energy_pseudoscalar_2loop_at_as_nmssm(
-      mssm.get_MFu(2), mssm.get_MGlu(), mst1, mst2,
-      std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()),
-      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()),mssm.get_Lambdax(),
-      flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*mssm.get_vS())),
-      sqr(mssm.get_g3()) / (4.0 * flexiblesusy::Pi), flexiblesusy::Re(-0.7071067811865475*mssm.get_vS()*mssm.get_Lambdax()));
+      nmssm.get_MFu(2), nmssm.get_MGlu(), mst1, mst2,
+      std::sin(thetat), std::cos(thetat), sqr(nmssm.get_scale()),
+      nmssm.get_vu()/nmssm.get_vd(), sqr(nmssm.get_vu())+sqr(nmssm.get_vd()),nmssm.get_Lambdax(),
+      flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*nmssm.get_vS())),
+      sqr(nmssm.get_g3()) / (4.0 * flexiblesusy::Pi), flexiblesusy::Re(-0.7071067811865475*nmssm.get_vS()*nmssm.get_Lambdax()));
 
    Eigen::Matrix<double, 3, 1> tadpole_atas_literature = flexiblesusy::nmssm_twoloophiggs::tadpole_higgs_2loop_at_as_nmssm(
-      sqr(mssm.get_MFu(2)), mssm.get_MGlu(), mst1, mst2,
-      std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()),flexiblesusy::Re(-0.7071067811865475*mssm.get_vS()*mssm.get_Lambdax()),
-      mssm.get_vu()/mssm.get_vd(),sqr(mssm.get_vu())+sqr(mssm.get_vd()),
-      mssm.get_g3(),flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*mssm.get_vS())));
+      sqr(nmssm.get_MFu(2)), nmssm.get_MGlu(), mst1, mst2,
+      std::sin(thetat), std::cos(thetat), sqr(nmssm.get_scale()),flexiblesusy::Re(-0.7071067811865475*nmssm.get_vS()*nmssm.get_Lambdax()),
+      nmssm.get_vu()/nmssm.get_vd(),sqr(nmssm.get_vu())+sqr(nmssm.get_vd()),
+      nmssm.get_g3(),flexiblesusy::Abs(flexiblesusy::Re(-0.7071067811865475*nmssm.get_vS())));
 
    Eigen::Matrix<double, 3, 3> self_energy_hh_atas_sarah = (nmssm.self_energy_hh_2loop(sqr(125))).real();
    Eigen::Matrix<double, 3, 3> self_energy_Ah_atas_sarah = (nmssm.self_energy_Ah_2loop(sqr(125))).real();
@@ -225,7 +224,7 @@ BOOST_AUTO_TEST_CASE( lowNMSSM_SARAH_2L_literature_comparison )
    BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(1,2), self_energy_hh_atas_sarah(1,2), 1e-12);
    BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,0), self_energy_hh_atas_sarah(2,0), 1e-12);
    BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,1), self_energy_hh_atas_sarah(2,1), 1e-12);
-   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,2), self_energy_hh_atas_sarah(2,2), 1e-12);
+   BOOST_CHECK_CLOSE_FRACTION(self_energy_hh_atas_literature(2,2), self_energy_hh_atas_sarah(2,2), 2e-10);
 
    BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(0,0), self_energy_Ah_atas_sarah(0,0), 1e-12);
    BOOST_CHECK_CLOSE_FRACTION(self_energy_Ah_atas_literature(0,1), self_energy_Ah_atas_sarah(0,1), 1e-12);
