@@ -156,11 +156,14 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atat_atab_abab_SARAH_literature )
    mssm.set_ml2(ml2);
    mssm.set_mq2(mq2);
    mssm.set_me2(me2);
+   mssm.set_Mu(1000);
 
    mssm.enter_gaugeless_limit();
 
    mssm.calculate_M2Su_3rd_generation(mst1,mst2,thetat);
    mssm.calculate_M2Sd_3rd_generation(msb1,msb2,thetab);
+   
+   std::cout << mst1 << ", " << mst2 << "\n";
 
    Eigen::Matrix<double, 2, 2> self_energy_hh_atat_atab_abab_literature = flexiblesusy::mssm_twoloophiggs::self_energy_higgs_2loop_at_at_mssm(
       sqr(mssm.get_MFu(2)), sqr(mssm.get_MFd(2)), mssm.get_M2Ah(1), mst1, mst2, msb1, msb2,
@@ -241,7 +244,8 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atau_atau_SARAH_literature )
    mssm.set_ml2(ml2);
    mssm.set_mq2(mq2);
    mssm.set_me2(me2);
-
+   mssm.set_Mu(1000);
+   
    mssm.enter_gaugeless_limit();
 
    mssm.calculate_M2Se_3rd_generation(mstau1,mstau2,thetatau);
@@ -321,7 +325,8 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atas_SARAH_literature )
    mssm.set_ml2(ml2);
    mssm.set_mq2(mq2);
    mssm.set_me2(me2);
-
+   mssm.set_Mu(1000);
+   
    mssm.enter_gaugeless_limit();
 
    mssm.calculate_M2Su_3rd_generation(mst1,mst2,thetat);
