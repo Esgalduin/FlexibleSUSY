@@ -397,8 +397,6 @@ ifeq ($(WITH_MSSM),yes)
 TEST_SH += \
 		$(DIR)/test_MSSM_stable_ewsb_failure.sh \
 		$(DIR)/test_standalone.sh
-TEST_SRC += \
-		$(DIR)/test_MSSM_higgs_loop_corrections.cpp
 endif
 
 ifeq ($(WITH_CMSSM),yes)
@@ -819,8 +817,6 @@ $(DIR)/test_CMSSMCPV_ewsb.x: $(LIBCMSSMCPV)
 $(DIR)/test_CMSSMCPV_tree_level_spectrum.x: $(LIBCMSSM) $(LIBCMSSMCPV)
 
 $(DIR)/test_MSSMEFTHiggs_lambda_threshold_correction.x: $(LIBMSSMEFTHiggs)
-
-$(DIR)/test_MSSM_higgs_loop_corrections.x: $(LIBMSSM)
 
 $(DIR)/test_NMSSMCPV_ewsb.x: $(LIBNMSSMCPV)
 
