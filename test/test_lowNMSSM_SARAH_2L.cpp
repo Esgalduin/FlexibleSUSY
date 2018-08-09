@@ -29,6 +29,7 @@ void setup_lowNMSSM(lowNMSSM_mass_eigenstates &nmssm)
       recalculates the tree-level EWSB parameters for the masses.
       When this gets fixed in SPheno, this should also be changed.
    */
+   nmssm.get_problems().set_suppress_running_tachyon_warning(true);
    nmssm.solve_ewsb_tree_level();
 
    nmssm.set_g1(0);
