@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atau_atau_SARAH_literature )
    Eigen::Matrix<double, 2, 2> self_energy_Ah_atau_atau_literature = flexiblesusy::mssm_twoloophiggs::self_energy_pseudoscalar_2loop_atau_atau_mssm(
       sqr(mssm.get_MFe(2)), mssm.get_M2Ah(1), msv2, mstau1, mstau2,
       std::sin(thetatau), std::cos(thetatau), sqr(mssm.get_scale()),
-      -mssm.get_Mu(), mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()),0);
+      -mssm.get_Mu(), mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()));
 
    Eigen::Matrix<double, 2, 1> tadpole_atau_atau_literature = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_atau_atau_mssm(
       sqr(mssm.get_MFe(2)), mssm.get_M2Ah(1), msv2, mstau1, mstau2,
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atas_SARAH_literature )
    Eigen::Matrix<double, 2, 2> self_energy_Ah_atas_literature = flexiblesusy::mssm_twoloophiggs::self_energy_pseudoscalar_2loop_at_as_mssm(
       sqr(mssm.get_MFu(2)), mssm.get_MGlu(), mst1, mst2,
       std::sin(thetat), std::cos(thetat), sqr(mssm.get_scale()), -mssm.get_Mu(),
-      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()), mssm.get_g3(), 0);
+      mssm.get_vu()/mssm.get_vd(), sqr(mssm.get_vu())+sqr(mssm.get_vd()), mssm.get_g3());
 
    Eigen::Matrix<double, 2, 1> tadpole_atas_literature = flexiblesusy::mssm_twoloophiggs::tadpole_higgs_2loop_at_as_mssm(
       sqr(mssm.get_MFu(2)), mssm.get_MGlu(), mst1, mst2,
