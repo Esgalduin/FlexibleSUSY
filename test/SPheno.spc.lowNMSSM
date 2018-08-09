@@ -24,10 +24,6 @@ Block SPINFO         # Program information
      1   SPhenoSARAH      # spectrum calculator
      2   v4.0.3      # version number of SPheno
      9   4.12.2      # version number of SARAH
-Block MODSEL  # Input parameters
-     1  1   #  GUT scale input
-     2  1   #  Boundary conditions 
-     6  1   #  switching on flavour violation
 Block MINPAR  # Input parameters
     1    1.00000000E+03  # m0
     2    1.00000000E+03  # m12
