@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atat_atab_abab_SARAH_literature )
 {
    lowMSSM_mass_eigenstates mssm;
 
-   setup_MSSM(mssm);
+   setup_lowMSSM(mssm);
 
    double mst1, mst2, thetat;
    double msb1, msb2, thetab;
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atau_atau_SARAH_literature )
 {
    lowMSSM_mass_eigenstates mssm;
 
-   setup_MSSM(mssm);
+   setup_lowMSSM(mssm);
 
    double mstau1, mstau2, thetatau;
    double msv1, msv2, thetav;
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( MSSM_higgs_2loop_atas_SARAH_literature )
 {
    lowMSSM_mass_eigenstates mssm;
 
-   setup_MSSM(mssm);
+   setup_lowMSSM(mssm);
 
    double mst1, mst2, thetat;
 
