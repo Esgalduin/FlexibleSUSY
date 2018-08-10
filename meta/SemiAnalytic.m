@@ -1116,7 +1116,11 @@ SetConsistentEWSBSolution[ewsbSolution_, solutions_List, substitutions_List, str
                             parStr = CConversion`ToValidCSymbolString[par];
                             body = body <> Parameters`SetParameter[par, parStr, struct, None];
                            ];
-                        body = body <> "solutions->evaluate_solutions(model);\n";
+                        body = body <>
+                               If[ewsbSolution =!= {},
+                                  EWSB`FillArrayWithParameters["ewsb_parameters", parametersFixedByEWSB] <>
+                                  "VERBOSE_MSG(\"\\t\\t\\tConsistent EWSB solution: \" << ewsb_parameters.transpose());\n"
+                                  , ""] <> "solutions->evaluate_solutions(model);\n";
                         If[substitutions === {},
                            result = result <>
                                     "if (is_finite) {\n" <>

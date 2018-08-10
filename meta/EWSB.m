@@ -1111,6 +1111,10 @@ SetConsistentSolution[ewsbSolution_, substitutions_List:{}, struct_String:"model
               result = result <>
                        "if (is_finite) {\n" <>
                        IndentText[body] <>
+                       If[ewsbSolution =!= {},
+                          IndentText[EWSB`FillArrayWithParameters["ewsb_parameters", parametersFixedByEWSB]] <>
+                          IndentText["VERBOSE_MSG(\"\\t\\t\\tConsistent EWSB solution: \" << ewsb_parameters.transpose());\n"]
+                          , ""] <>
                        If[substitutions === {}, "",
                           IndentText[WrapLines[SetModelParametersFromEWSB[parametersFixedByEWSB, substitutions, struct]]]
                          ] <>
