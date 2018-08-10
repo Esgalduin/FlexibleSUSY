@@ -408,18 +408,14 @@ Make1L2LShifts[Sarah1LTadsList_List,Sarah1LSEList_List,nPointFuncs_List, massMat
          massTadpoleShift = Plus @@@ (GenerateTadpoleMassShifts[#,massMatShifts]& /@ relevantMassTadpoles);
          massSelfEnergyShift = Plus @@@ (GenerateSelfEnergyMassShifts[#,massMatShifts]& /@ relevantMassSelfEnergies);
 
-
          vertexShiftRules = GenerateVertexShiftRules[vertexRules, glSub, treeSol, nHiggs, EWSBSubst];
          couplingTadpoleShift = GenerateVertexShifts[tadpole1L,vertexShiftRules];
          couplingSelfEnergyShift = GenerateVertexShifts[selfEnergy1L,vertexShiftRules];
-         couplingTadpoleShift = OrderingToTarget[Replace[couplingTadpoleShift,{_,expr_}->expr,{1}],
-                                                 Replace[couplingTadpoleShift,{field_,_}->ExtractFieldName[field],{1}],tadpoleFields];
-         couplingSelfEnergyShift = OrderingToTarget[Replace[couplingSelfEnergyShift,{_,expr_}->expr,{1}],
-                                                    Replace[couplingSelfEnergyShift,{field_,_}->ExtractFieldName[field],{1}],selfenergyFields];
 
-
-         tadpoleShifts = massTadpoleShift + couplingTadpoleShift;
-         selfEnergyShifts = massSelfEnergyShift + couplingSelfEnergyShift;
+         tadpoleShifts = massTadpoleShift;
+         selfEnergyShifts = massSelfEnergyShift;
+         ({tadpoleFields,tadpoleShifts} = CombineShiftsFunction[#, tadpoleFields, tadpoleShifts]) & /@ couplingTadpoleShift;
+         ({selfenergyFields,selfEnergyShifts} = CombineShiftsFunction[#, selfenergyFields, selfEnergyShifts]) & /@ couplingSelfEnergyShift;
 
          tadpoleNPointForm = Thread[SelfEnergies`TadpoleShift[tadpoleFields,0,tadpoleShifts]] /. tadpoleReplacementRules[] /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
          selfEnergyNPointForm = Thread[SelfEnergies`FSSelfEnergyShift[selfenergyFields,0,selfEnergyShifts]] /. tadpoleReplacementRules[] /. {xy_^(-1/2) -> 1/AbsSqrt[xy], Sqrt[xy_] -> AbsSqrt[xy]};
@@ -448,6 +444,18 @@ ReplaceSARAHInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
          ToString[idx], {"j" -> "SARAH`gI",
           idxnum : DigitCharacter .. :>
            ToString[ToExpression[idxnum] + 6]}]]}])};
+
+
+CombineShiftsFunction[tbashift_, fields_, shifts_] :=
+Module[{pos = Position[fields, tbashift[[1]]],
+   fieldscp = fields, shiftscp = shifts},
+   If[pos === {},
+      AppendTo[fieldscp, tbashift[[1]]];
+      AppendTo[shiftscp, tbashift[[2]]];,
+      shiftscp[[pos[[1, 1]]]] += tbashift[[2]];
+   ];
+   {fieldscp, shiftscp}
+];
 
 
 
