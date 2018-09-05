@@ -499,7 +499,7 @@ GenerateVertexShifts[selfEnergies_, vertexShiftRules_] :=
                           SARAH`Cp[flds__] :> SARAH`Cp[flds] + SelfEnergies2L`Cpdelta*SelfEnergies2L`DCp[flds]};
       SetOptions[D, NonConstants -> {SARAH`sum}];
       output = MapAt[FirstOrderSeries[#, {{SelfEnergies2L`Cpdelta, 0}}] &, {All, 2}]@output;
-      SetOptions[D, NonConstants -> {}];
+      SetOptions[D, NonConstants -> Complement[NonConstants /. Options[D], {SARAH`sum}]];
       output /. {SelfEnergies2L`Cpdelta -> 1} /. vertexShiftRules /. {SelfEnergies2L`DCp[__][__] -> 0, SelfEnergies2L`DCp[__] -> 0}
 ];
 
@@ -517,7 +517,7 @@ GenerateMassMatrixShifts[massMat_, glSub_, treeSol_, nHiggs_, EWSBSubst_] :=
       massMatShifted = massMatShifted /. TreeMasses`FSMassMatrix[mm_, field_, rot_] :>
          SelfEnergies2L`FSMassMatrixShift @@ {field,
          RotateShiftMatrix[Parameters`IncreaseIndexLiterals @ FirstOrderSeries[mm, tadpoleSeriesParameters], field, rot]};
-      SetOptions[D, NonConstants -> {}];
+      SetOptions[D, NonConstants -> Complement[NonConstants /. Options[D], {SARAH`sum}]];
       massMatShifted = massMatShifted /. (Reverse /@ makeParametersUnique);
       {shiftedFields, massMatShifted}
 ];
