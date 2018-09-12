@@ -67,7 +67,7 @@ int CLASSNAME::solve_iteratively(@ModelName@_mass_eigenstates& model_to_solve)
       solutions->evaluate_solutions(model);
 @applyEWSBSubstitutions@
       if (this->loop_order > 0)
-         model.calculate_current_DRbar_masses();
+         model.calculate_DRbar_masses();
 
       return this->ewsb_step(model);
    };
@@ -78,7 +78,7 @@ int CLASSNAME::solve_iteratively(@ModelName@_mass_eigenstates& model_to_solve)
       solutions->evaluate_solutions(model);
 @applyEWSBSubstitutions@
       if (this->loop_order > 0)
-         model.calculate_current_DRbar_masses();
+         model.calculate_DRbar_masses();
 
       return this->tadpole_equations(model);
    };

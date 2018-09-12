@@ -492,7 +492,7 @@ double CLASSNAME::G0(double p, double m1, double m2) const noexcept
 }
 
 /**
- * routine which finds the @RenScheme@ mass eigenstates and mixings with tree-level EWSB parameters.
+ * routine which finds the @RenScheme@ mass eigenstates and mixings.
  */
 void CLASSNAME::calculate_DRbar_masses()
 {
@@ -500,14 +500,6 @@ void CLASSNAME::calculate_DRbar_masses()
 @saveEWSBOutputParameters@
 @solveEWSBTemporarily@
 
-@calculateAllMasses@
-}
-
-/**
- * routine which finds the @RenScheme@ mass eigenstates and mixings with current (potentially loop) EWSB parameters.
- */
-void CLASSNAME::calculate_current_DRbar_masses()
-{
 @calculateAllMasses@
 }
 
