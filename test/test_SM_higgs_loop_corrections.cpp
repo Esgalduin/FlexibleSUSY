@@ -210,6 +210,7 @@ BOOST_AUTO_TEST_CASE( test_SM_2loop_literature )
    m.set_Yd(2,2, Yd22);
    m.set_g3(0.);
    m.calculate_DRbar_masses();
+   m.calculate_vertices();
 
    BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
    BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
@@ -224,6 +225,7 @@ BOOST_AUTO_TEST_CASE( test_SM_2loop_literature )
    m.set_Yu(2,2, Yu22);
    m.set_g3(0.);
    m.calculate_DRbar_masses();
+   m.calculate_vertices();
 
    BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
    BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
@@ -240,6 +242,7 @@ BOOST_AUTO_TEST_CASE( test_SM_2loop_literature )
    m.set_Yu(2,2, Yu22);
    m.set_g3(g3);
    m.calculate_DRbar_masses();
+   m.calculate_vertices();
 
    BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
    BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
@@ -254,6 +257,7 @@ BOOST_AUTO_TEST_CASE( test_SM_2loop_literature )
    m.set_Ye(2,2, Ye22);
    m.set_g3(0);
    m.calculate_DRbar_masses();
+   m.calculate_vertices();
 
    BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
    BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
@@ -270,6 +274,7 @@ BOOST_AUTO_TEST_CASE( test_SM_2loop_literature )
    m.set_Ye(2,2, Ye22);
    m.set_g3(g3);
    m.calculate_DRbar_masses();
+   m.calculate_vertices();
 
    BOOST_CHECK_SMALL(m.tadpole_hh_2loop().imag(),eps);
    BOOST_CHECK_SMALL(m.self_energy_hh_2loop(125.).imag(),eps);
