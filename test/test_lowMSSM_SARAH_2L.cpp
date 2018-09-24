@@ -26,7 +26,7 @@ void setup_lowMSSM(lowMSSM_mass_eigenstates &mssm)
       At the moment, SPheno is using the solutions of the full tree-level EWSB eqs. (g1,g2 non-zero)
       to calculate the 2-loop expressions and shifts with g1=g2=0. To allow comparison we therefore
       first call solve_ewsb_tree_level() before setting g1,g2 to zero, and in particular we then call
-      calculate_current_DRbar_masses() instead of calculate_DRbar_masses(), since the latter
+      calculate_off_minimum_DRbar_masses() instead of calculate_DRbar_masses(), since the latter
       recalculates the tree-level EWSB parameters for the masses.
       When this gets fixed in SPheno, this should also be changed.
    */
@@ -36,7 +36,7 @@ void setup_lowMSSM(lowMSSM_mass_eigenstates &mssm)
    mssm.set_g1(0);
    mssm.set_g2(0);
 
-   mssm.calculate_current_DRbar_masses();
+   mssm.calculate_off_minimum_DRbar_masses();
    mssm.calculate_vertices();
 }
 
