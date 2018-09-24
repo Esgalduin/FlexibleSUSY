@@ -184,19 +184,19 @@ CalcTadShiftSSS[diag_List,massMatShifts_] :=
       tempexpr
 ];
 
-CalcTadShiftFFS[diag_List,massshift_] :=
+CalcTadShiftFFS[diag_List,massshifts_] :=
    Module[{tempexpr,loopfield,loopfunctions,nField,couplings,prefactors},
       If[FlexibleSUSY`Exclude1L2LFermionShifts === False,
          loopfield = ReFields @ diag[[2]];
          nField = TreeMasses`GetDimension[loopfield];
 
-         couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI4};
+         couplings = diag[[3]]/.{SARAH`gI1->SARAH`gI4,SARAH`gI2->SARAH`gI5};
 
-         prefactors = -4*diag[[5]]*diag[[6]]*couplings*{AbsSqrt[Re[massshift]],
+         prefactors = -4*diag[[5]]*diag[[6]]*couplings*{1/2*Re[GetMassShift[loopfield, massMatShifts]],
                                                         massshift*SARAH`Mass[loopfield[{SARAH`gI4}]]}/.{Symbol["generation"]->SARAH`gI4};
 
-         loopfunctions = {-Symbol["A0"][SARAH`Mass2[loopfield[{SARAH`gI4}]]],
-                          -Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI4}]]]};
+         loopfunctions = {-Symbol["A0"][SARAH`Mass2[loopfield[{SARAH`gI4}]]]-Symbol["A0"][SARAH`Mass2[loopfield[{SARAH`gI5}]]],
+                          -Symbol["BB"][SARAH`Mass2[loopfield[{SARAH`gI4}]],SARAH`Mass2[loopfield[{SARAH`gI5}]]]};
 
          If[nField == 1, loopfunctions = loopfunctions /. {x_[{SARAH`gI4}]->x}];
          tempexpr = Plus @@ (prefactors * loopfunctions);
