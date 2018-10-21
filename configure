@@ -5,12 +5,12 @@
 
 PROGRAM_NAME=FlexibleSUSY
 FLEXIBLESUSY_MAJOR=2
-FLEXIBLESUSY_MINOR=1
+FLEXIBLESUSY_MINOR=2
 FLEXIBLESUSY_PATCH=0
 FLEXIBLESUSY_EXTRA=""
 FLEXIBLESUSY_VERSION="${FLEXIBLESUSY_MAJOR}.${FLEXIBLESUSY_MINOR}.${FLEXIBLESUSY_PATCH}${FLEXIBLESUSY_EXTRA}"
 GIT_COMMIT=$(git rev-parse HEAD 2> /dev/null || echo unknown)
-GM2CALC_VERSION="1.3.3"
+GM2CALC_VERSION="1.4.3"
 HIMALAYA_VERSION="unknown"
 
 # directory of this script
@@ -462,8 +462,8 @@ check_library() {
             liblist=$(echo $p/$l) # expands wildcard
             for n in ${liblist} ; do
                 if test -f $n ; then
-                    found_dir=$p
-                    found_lib=$l
+                    found_dir=$(echo $p) # strip whitespace
+                    found_lib=$(echo $l) # strip whitespace
                     break 3
                 fi
             done
@@ -529,8 +529,8 @@ check_header() {
             hdrlist=$(echo $p/$h) # expands wildcard
             for n in ${hdrlist} ; do
                 if test -f $n ; then
-                    found_dir=$p
-                    found_hdr=$hdr
+                    found_dir=$(echo $p)   # strip whitespace
+                    found_hdr=$(echo $hdr) # strip whitespace
                     break 3
                 fi
             done
@@ -1248,7 +1248,7 @@ check_platform() {
     IFS=":"
     for p in $PATH; do
         unset IFS
-        logmsg "PATH: ${p}"
+        logmsg "PATH: \"${p}\""
     done
     unset IFS
     logmsg ""
@@ -1256,7 +1256,23 @@ check_platform() {
     IFS=":"
     for p in $LD_LIBRARY_PATH; do
         unset IFS
-        logmsg "LD_LIBRARY_PATH: ${p}"
+        logmsg "LD_LIBRARY_PATH: \"${p}\""
+    done
+    unset IFS
+    logmsg ""
+
+    IFS=":"
+    for p in $CPATH; do
+        unset IFS
+        logmsg "CPATH: \"${p}\""
+    done
+    unset IFS
+    logmsg ""
+
+    IFS=":"
+    for p in $CPLUS_INCLUDE_PATH; do
+        unset IFS
+        logmsg "CPLUS_INCLUDE_PATH: \"${p}\""
     done
     unset IFS
     logmsg ""
@@ -1905,6 +1921,11 @@ int main() {
 
     result "ok (version ${HIMALAYA_VERSION})"
     logmsg "   Himalaya version found: ${HIMALAYA_VERSION}"
+
+    version_at_least "$HIMALAYA_VERSION" "2.0.0" || {
+        message "Warning: An old version of Himalaya has been detected ($HIMALAYA_VERSION)."
+        message "   Please consider upgrading to version 2.0.0 (or higher)."
+    }
 }
 
 #_____________________________________________________________________
@@ -1951,7 +1972,7 @@ check_himalaya_libs() {
             # assume that the linker will look in the default paths
             HIMALAYALIBS="$HIMALAYALIBS_"
         else
-            HIMALAYALIBS="-L$himalaya_lib_dir $HIMALAYALIBS_"
+            HIMALAYALIBS="-L$himalaya_lib_dir -Wl,-rpath,$himalaya_lib_dir $HIMALAYALIBS_"
         fi
     fi
     return 0
@@ -2075,6 +2096,12 @@ check_loop_functions() {
     if test "$enable_looptools" = "yes" ; then
         LOOPFUNCFLAGS="$LOOPTOOLSFLAGS"
         LOOPFUNCLIBS="$LOOPTOOLSLIBS"
+
+        message "Note: LoopTools is thread-unsafe since it accepts the renormalization scale"
+        message "   via a global variable.  This might lead to a race condition if different"
+        message "   RGE solvers run in multiple threads.  For such an application, consider the"
+        message "   alternative \`--enable-fflite'.  For now, multi-threading is disabled."
+        enable_threads=no
     fi
 
     if test "$enable_fflite" = "yes" ; then
@@ -2658,10 +2685,6 @@ enable_defines() {
     if test "x$enable_looptools" = "xyes" ; then
         DEFINE_ENABLE_LOOPTOOLS="#define ENABLE_LOOPTOOLS 1"
         message "Enabling usage of LoopTools"
-	message "Warning: LoopTools is thread-unsafe since it accepts the renormalization scale"
-	message "   via a global variable.  This might lead to a race condition if different"
-	message "   RGE solvers run in multiple threads.  For such an application, consider the"
-	message "   alternative \`--enable-fflite'."
         logmsg "   ${DEFINE_ENABLE_LOOPTOOLS}"
     else
         DEFINE_ENABLE_LOOPTOOLS="#undef ENABLE_LOOPTOOLS"
@@ -2756,7 +2779,7 @@ enable_defines() {
 
     for a in ${ADDONS}; do
         local addon_name="$(basename ${a})"
-        DEFINE_ENABLE_ADDONS="${DEFINE_ENABLE_ADDONS}\n#define ENABLE_${addon_name} 1"
+        DEFINE_ENABLE_ADDONS="${DEFINE_ENABLE_ADDONS}@n@#define ENABLE_${addon_name} 1"
     done
 }
 
@@ -3197,6 +3220,8 @@ sed -e "s|@FLEXIBLESUSY_VERSION@|$FLEXIBLESUSY_VERSION|" \
     -e "s|@DEFINE_ENABLE_LATTICE_SOLVER@|$DEFINE_ENABLE_LATTICE_SOLVER|" \
     -e "s|@DEFINE_ENABLE_SEMI_ANALYTIC_SOLVER@|$DEFINE_ENABLE_SEMI_ANALYTIC_SOLVER|" \
     -e "s|@DEFINE_ENABLE_ADDONS@|$DEFINE_ENABLE_ADDONS|"       \
+    -e 's|@n@|\
+|g' \
     < $CONFIGHDR_TMPL > $CONFIGHDR
 
 sed -e "s|@FLEXIBLESUSY_VERSION@|$FLEXIBLESUSY_VERSION|" \

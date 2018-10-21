@@ -204,6 +204,10 @@ GetSMTauLepton::usage      = "returns SM tau, Fe[3] or Ftau";
 GetSMNeutrino1::usage      = "returns SM neutrino 1, Fv[1] or FveL";
 GetSMNeutrino2::usage      = "returns SM neutrino 2, Fv[2] or FvmL";
 GetSMNeutrino3::usage      = "returns SM neutrino 3, Fv[3] or FvmL";
+GetPhoton::usage           = "returns the photon";
+GetGluon::usage            = "returns the gluon";
+GetZBoson::usage           = "returns the Z boson";
+GetWBoson::usage           = "returns the W boson";
 
 GetSMTopQuarkMultiplet::usage    = "Returns multiplet containing the top quark, Fu or Ft";
 GetSMBottomQuarkMultiplet::usage = "Returns multiplet containing the bottom quark, Fd or Fb";
@@ -381,7 +385,19 @@ IsRealScalar[sym_List] :=
     And[IsScalar[sym], And @@ (Parameters`IsRealParameter /@ sym)];
 
 IsMassless[Susyno`LieGroups`conj[sym_], states_:FlexibleSUSY`FSEigenstates] := IsMassless[sym, states];
+
 IsMassless[SARAH`bar[sym_], states_:FlexibleSUSY`FSEigenstates] := IsMassless[sym, states];
+
+(* Massless ghosts are not stored in SARAH`Massless[FSEigenstates],
+   so use mass of the corresponding vector boson. *)
+IsMassless[sym_?IsGhost] :=
+    Module[{v = Symbol["V" <> StringDrop[ToString[sym],1]]},
+           Switch[RXi[v],
+                  0, True,
+                  _, IsMassless[v]
+                 ]
+         ];
+
 IsMassless[sym_Symbol, states_:FlexibleSUSY`FSEigenstates] :=
     MemberQ[SARAH`Massless[states], sym];
 
@@ -2133,6 +2149,23 @@ CreateMixingArraySetter[masses_List, array_String] :=
            paramCount += nAssignments;
            Return[set];
           ];
+
+(* Once Dominik wanted to have functions identifying SM particles.
+   This might be non-trivial in some models.
+   For now, we just have wrappers that return SM particles using SARAH symbols *)
+
+GetPhoton[] := SARAH`Photon;
+GetGluon[] := SARAH`Gluon;
+GetZBoson[] := SARAH`Zboson;
+GetWBoson[] :=
+   Module[{temp},
+      temp = Select[Unevaluated[{SARAH`Wboson, SARAH`VectorW}], ValueQ];
+      If[Length @ DeleteDuplicates[temp] === 1,
+         temp[[1]],
+         Print["Could not identify the name given to the W-boson"]; Quit[1]
+      ]
+   ];
+GetHiggsBoson[] := SARAH`HiggsBoson;
 
 End[];
 

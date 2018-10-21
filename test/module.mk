@@ -129,10 +129,13 @@ TEST_SRC += \
 		$(DIR)/test_CMSSM_initial_guesser.cpp \
 		$(DIR)/test_CMSSM_low_scale_constraint.cpp \
 		$(DIR)/test_CMSSM_model.cpp \
+		$(DIR)/test_CMSSM_slha_output.cpp \
 		$(DIR)/test_CMSSM_spectrum.cpp \
 		$(DIR)/test_CMSSM_susy_scale_constraint.cpp \
 		$(DIR)/test_CMSSM_weinberg_angle.cpp \
 		$(DIR)/test_CMSSM_weinberg_angle_meta.cpp
+TEST_SH += \
+		$(DIR)/test_CMSSM_gluino.sh
 endif
 
 ifeq ($(WITH_SOFTSUSY) $(WITH_CMSSMMassWInput),yes yes)
@@ -143,12 +146,6 @@ endif
 ifeq ($(WITH_CMSSMLowPrecision),yes)
 TEST_SRC += \
 		$(DIR)/test_CMSSMLowPrecision.cpp
-endif
-ifeq ($(WITH_SOFTSUSY) $(WITH_CMSSM),yes yes)
-TEST_SRC += \
-		$(DIR)/test_CMSSM_slha_output.cpp
-TEST_SH += \
-		$(DIR)/test_CMSSM_gluino.sh
 endif
 
 ifeq ($(WITH_SOFTSUSY) $(WITH_CMSSMCKM),yes yes)
@@ -162,6 +159,7 @@ endif
 
 ifeq ($(WITH_SOFTSUSY) $(WITH_NMSSM),yes yes)
 TEST_SRC += \
+		$(DIR)/test_NMSSM_benchmark.cpp \
 		$(DIR)/test_NMSSM_beta_functions.cpp \
 		$(DIR)/test_NMSSM_ewsb.cpp \
 		$(DIR)/test_NMSSM_high_scale_constraint.cpp \
@@ -169,15 +167,10 @@ TEST_SRC += \
 		$(DIR)/test_NMSSM_low_scale_constraint.cpp \
 		$(DIR)/test_NMSSM_one_loop_spectrum.cpp \
 		$(DIR)/test_NMSSM_self_energies.cpp \
+		$(DIR)/test_NMSSM_slha_output.cpp \
 		$(DIR)/test_NMSSM_spectrum.cpp \
 		$(DIR)/test_NMSSM_susy_scale_constraint.cpp \
 		$(DIR)/test_NMSSM_tree_level_spectrum.cpp
-endif
-
-ifeq ($(WITH_SOFTSUSY) $(WITH_NMSSM),yes yes)
-TEST_SRC += \
-		$(DIR)/test_NMSSM_benchmark.cpp \
-		$(DIR)/test_NMSSM_slha_output.cpp
 endif
 
 ifeq ($(WITH_SOFTSUSY) $(WITH_SMSSM),yes yes)
@@ -440,6 +433,8 @@ endif
 ifeq ($(WITH_SMSU3),yes)
 TEST_SRC += \
 		$(DIR)/test_SMSU3_low_scale_constraint.cpp
+TEST_META += \
+		$(DIR)/test_SMSU3_TreeMasses.m
 endif
 
 ifeq ($(WITH_NSM),yes)
@@ -560,6 +555,11 @@ endif
 ifeq ($(WITH_SMHighPrecision) $(WITH_SMEFTHiggs),yes yes)
 TEST_SH += \
 		$(DIR)/test_SMEFTHiggs.sh
+endif
+
+ifeq ($(WITH_SplitMSSMEFTHiggs),yes)
+TEST_SH += \
+		$(DIR)/test_SplitMSSMEFTHiggs.sh
 endif
 
 ifeq ($(WITH_SM) $(WITH_SMEFTHiggs),yes yes)
@@ -738,6 +738,8 @@ $$(for f in $^ ; do echo "\t<test filename=\"$$(basename $$f)\"/>"; done)\n\
 </tests>" > $@
 
 $(DIR)/test_lowMSSM.sh.xml: $(RUN_CMSSM_EXE) $(RUN_lowMSSM_EXE)
+
+$(DIR)/test_run_all_spectrum_generators.sh.xml: allexec
 
 $(DIR)/test_CMSSM_NMSSM_linking.x: $(LIBCMSSM) $(LIBNMSSM)
 

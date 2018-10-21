@@ -27,7 +27,9 @@ EXTPAR = {
     {200, DeltaEFT},
     {201, DeltaYt},
     {202, DeltaOS},
-    {203, Qmatch}
+    {203, Qmatch},
+    {204, DeltaLambda3L},
+    {205, ThreeLoopAtAsAs}
 };
 
 FSAuxiliaryParameterInfo = {
@@ -143,6 +145,11 @@ HighScaleInput = {
                          If[TwoLoopAtAt >= 1, lambda2LDRtoOSAtAt, 0],
                          0]
                 )
+                + UnitStep[LambdaLoopOrder-3] (
+                    + If[LambdaLoopOrder >= 3,
+                         FSHimalayaMh23L,
+                         0]
+                )
                 (* contributions for uncertainty estimation *)
                 + If[Abs[Qmatch] > 1,
                      Which[LambdaLoopOrder < 1, deltaLambdaQmatch1L,
@@ -223,3 +230,30 @@ SARAH`ParameterDefinitions = Append[
 
 Get[FileNameJoin[{Directory[], "meta", "SM", "HSSUSY_corrections.m"}]];
 Get[FileNameJoin[{Directory[], "meta", "SM", "HSSUSY_scale_variation.m"}]];
+
+FSHimalayaInput = {
+    RenormalizationScheme -> MSbar,
+    Lambda3L -> ThreeLoopAtAsAs,
+    Lambda3LUncertainty -> DeltaLambda3L,
+    \[Mu] -> MuInput,
+    g1 -> g1,
+    g2 -> g2,
+    g3 -> g3,
+    vu -> v Sin[ArcTan[TanBeta]],
+    vd -> v Cos[ArcTan[TanBeta]],
+    MSQ2 -> msq2,
+    MSD2 -> msd2,
+    MSU2 -> msu2,
+    MSL2 -> msl2,
+    MSE2 -> mse2,
+    Au -> AtInput,
+    Ad -> AbInput,
+    Ae -> AtauInput,
+    Yu -> Yu,
+    Yd -> Yd,
+    Ye -> Ye,
+    M1 -> M1Input,
+    M2 -> M2Input,
+    M3 -> M3Input,
+    mA -> mAInput
+};

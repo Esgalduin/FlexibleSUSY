@@ -157,6 +157,7 @@ const int Standard_model::numberOfParameters;
 Standard_model::Standard_model()
 {
    set_number_of_parameters(numberOfParameters);
+   set_thresholds(3);
 }
 
 Standard_model::Standard_model(double scale_, double loops_, double thresholds_
@@ -1559,7 +1560,8 @@ Eigen::Matrix<double,3,3> Standard_model::calc_beta_Yu_four_loop(const Beta_trac
 
    Eigen::Matrix<double,3,3> beta_Yu;
 
-   beta_Yu = (1154.09*PROJECTOR*Power8(g3)*Quad(oneOver16PiSqr)).real();
+   beta_Yu = (2308.18*PROJECTOR*Power8(g3)*Quad(oneOver16PiSqr)*Yu(2,2))
+      .real();
 
    return beta_Yu;
 }
@@ -4575,10 +4577,8 @@ double Standard_model::calculate_MFu_DRbar(double m_pole, int idx) const
    if (get_thresholds() > 2 && threshold_corrections.mt > 2) {
       qcd_3l = -0.0008783313853540776*Power6(g3) -
          5.078913443827405e-6*Cube(Log(Sqr(currentScale)/Sqr(MFu(idx))))*Power6
-         (g3) - 0.0004114970933517977*Log(Sqr(currentScale)/Sqr(MFu(idx)))*
-         Power6(g3) - 0.0002952541682011665*Log(Sqr(MFu(idx))/Sqr(currentScale)
-         )*Power6(g3) + 0.00005282069981580501*Power6(g3)*Sqr(Log(Sqr(MFu(idx))
-         /Sqr(currentScale))) - 0.00007466002762426286*Power6(g3)*Sqr(Log(Sqr(
+         (g3) - 0.00011624292515063117*Log(Sqr(currentScale)/Sqr(MFu(idx)))*
+         Power6(g3) - 0.00002183932780845784*Power6(g3)*Sqr(Log(Sqr(
          currentScale)/Sqr(MFu(idx))));
    }
 

@@ -14,7 +14,6 @@ LIBSOFTSUSY_HDR  := \
 		$(DIR)/linalg.h \
 		$(DIR)/lowe_legacy.h \
 		$(DIR)/mycomplex.h \
-		$(DIR)/numerics.h \
 		$(DIR)/numerics_legacy.h \
 		$(DIR)/rge.h \
 		$(DIR)/rk_legacy.hpp \
@@ -36,7 +35,6 @@ LIBSOFTSUSY_SRC  := \
 		$(DIR)/nmssmsoftsusy.cpp \
 		$(DIR)/nmssmsusy.cpp \
 		$(DIR)/nmssm1loop.f \
-		$(DIR)/numerics.cpp \
 		$(DIR)/numerics_legacy.cpp \
 		$(DIR)/physpars.cpp \
 		$(DIR)/rge.cpp \
@@ -80,7 +78,7 @@ RUN_SOFTPOINT_DEP := $(RUN_SOFTPOINT_OBJ:.o=.d)
 RUN_SOFTPOINT_EXE := $(RUN_SOFTPOINT_OBJ:.o=.x)
 
 .PHONY:         all-$(MODNAME) clean-$(MODNAME) distclean-$(MODNAME) \
-		clean-$(MODNAME)-dep clean-$(MODNAME)-obj
+		clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj
 
 all-$(MODNAME): $(LIBSOFTSUSY)
 
@@ -88,6 +86,9 @@ clean-$(MODNAME)-dep:
 		-rm -f $(LIBSOFTSUSY_DEP)
 		-rm -f $(RUN_SOFTSUSY_DEP)
 		-rm -f $(RUN_SOFTPOINT_DEP)
+
+clean-$(MODNAME)-lib:
+		-rm -f $(LIBSOFTSUSY)
 
 clean-$(MODNAME)-obj:
 		-rm -f $(LIBSOFTSUSY_OBJ)
@@ -107,7 +108,7 @@ distclean::     distclean-$(MODNAME)
 
 $(LIBSOFTSUSY_DEP) $(RUN_SOFTSUSY_DEP) $(RUN_SOFTPOINT_DEP) \
 $(LIBSOFTSUSY_OBJ) $(RUN_SOFTSUSY_OBJ) $(RUN_SOFTPOINT_OBJ): \
-	CPPFLAGS += $(MODSOFTSUSY_INC) $(EIGENFLAGS)
+	CPPFLAGS += $(MODSOFTSUSY_INC) $(BOOSTFLAGS) $(EIGENFLAGS)
 
 $(LIBSOFTSUSY): $(LIBSOFTSUSY_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^

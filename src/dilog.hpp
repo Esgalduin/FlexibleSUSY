@@ -21,23 +21,27 @@
 
 #include <complex>
 
-namespace gm2calc {
+#define DILOGATTR noexcept
+
+namespace flexiblesusy {
 
 /// real dilogarithm
-double dilog(double);
+double dilog(double) DILOGATTR;
 
 /// real dilogarithm
-long double dilog(long double);
+long double dilog(long double) DILOGATTR;
 
 /// complex dilogarithm
-std::complex<double> dilog(const std::complex<double>&);
+std::complex<double> dilog(const std::complex<double>&) DILOGATTR;
 
 /// complex dilogarithm
-std::complex<long double> dilog(const std::complex<long double>&);
+std::complex<long double> dilog(const std::complex<long double>&) DILOGATTR;
 
 /// Clausen function Cl_2(x)
-double clausen_2(double);
+double clausen_2(double) DILOGATTR;
 
-} // namespace gm2calc
+} // namespace flexiblesusy
+
+#undef DILOGATTR
 
 #endif

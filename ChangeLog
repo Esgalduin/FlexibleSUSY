@@ -1,3 +1,93 @@
+FlexibleSUSY 2.2.1 [not released yet]
+
+ * Bugfix (commit e5473865): Take non-standard normalization of VEVs
+   into account in FlexibleEFTHiggs models.
+
+FlexibleSUSY 2.2.0 [August, 26 2018]
+
+ * Feature: The symbols `upQuarksDRbar`, `downQuarksDRbar`,
+   `downLeptonsDRbar` and `neutrinoDRbar` are now accessible in all
+   the individual low-scale constraint settings (not only in the ones
+   that set the SM-like Yukawa couplings `Yu`, `Yd`, `Ye` and `Yv`).
+
+ * Feature: 3-loop corrections of O(alpha_t^2 alpha_s^2) from
+   [1807.03509] to the quartic Higgs coupling of the SM can be used in
+   HSSUSY.  To use the corrections, FlexibleSUSY must be configured
+   with Himalaya 2.0.0 [https://github.com/Himalaya-Library/Himalaya]:
+
+   $ HIMALAYA_DIR=/path/to/Himalaya-2.0.0
+
+   $ ./configure --with-models=[...] --enable-himalaya \
+     --with-himalaya-incdir=$HIMALAYA_DIR/source/include \
+     --with-himalaya-libdir=$HIMALAYA_DIR/build
+
+   $ export LD_LIBRARY_PATH="$HIMALAYA_DIR/build:$LD_LIBRARY_PATH"
+
+ * Change: If unspecified, the pole mass and EWSB loop order is set to
+   4 and the threshold correction loop order is set to 3.  In this way
+   all available loop corrections are enable by default.
+
+ * Bugfix (commit a9860038a): Properly treat `Re[p]` and `Im[p]` in
+   the parameter list of `FSFindRoot[]` and `FSMinimize[]`, when the
+   parameter `p` has indices.
+
+ * Bugfix (commit 85f145a72): Speed-up the generation of the C++ code
+   in models with complicated boundary conditions, like HSSUSY for
+   example.
+
+ * Bugfix (commit 00b6798a7): Speed-up the generation of the C++ code
+   with Mathematica 11.3.
+
+   Thanks to Wojciech Kotlarski.
+
+ * Bugfix (commit f2b91c358): Flag error when non-perturbative
+   corrections appear in calculation of Weinberg angle.
+
+ * Bugfix (commits 38e5b30, 5c64b0c): Pick correct neutrino mass
+   eigenstate in Delta_VB calculation in models with neutrino mixing.
+   This avoids a division by zero if neutrinos are strongly mixed.
+
+ * Bugfix (commit 8d508521d): Correcting 4-loop beta function of the
+   Standard Model top Yukawa coupling.  Note: A factor yt is missing
+   in the expression betaytl4 in the file ttp16_008.m at
+   https://www.ttp.kit.edu/Progdata/ttp16/ttp16-008/ .  This factor yt
+   is present in Eq.(3.5) of 1604.00853.
+
+ * Bugfix (commit a2de8a30d): Stripping leading/trailing whitespace
+   from system directory paths used in the configure script.
+
+ * Bugfix (commit 7da3f384d): Don't extract local const references
+   from a sum of expressions because the sum may accidentally be zero.
+
+ * Bugfix (commit 35d4f1952): Correcting re-scaling factor of the
+   2-loop singlet tadpole in the NMSSM.
+
+   Thanks to Sebastian Pögel.
+
+ * Bugfix (commit a9047718d): Disable multi-threading when LoopTools
+   is used to avoid race conditions.  Note that LoopTools is
+   thread-unsafe, because it accepts the renormalization scale via a
+   global variable.
+
+ * Bugfix (commit e31280702): Correcting 2-loop O(at*as) threshold
+   corrections in the THDM-like EFTs of the MSSM (THDMIIMSSMBC*,
+   HTHDMIIMSSMBC, HGTHDMIIMSSMBC*).
+
+   Note: The distribution of the sum
+
+      lambda_{345} = lambda_3 + lambda_4 + lambda_5
+
+   (see Eq.(61) of [1508.00576]) onto the individual lambda_{3,4,5} is
+   not unique.  In FlexibleSUSY's THDM-like models we now chose the
+   same distribution as in MhEFT 1.0 and 1.1.
+
+   Thanks to Jobst Ziebell.
+
+ * Bugfix (commit 8eba91256): Correcting IsMassless[] function for
+   ghost fields.
+
+   Thanks to Wojciech Kotlarski.
+
 FlexibleSUSY 2.1.0 [March, 05 2018]
 
  * Feature: Allow user to perform replacements on beta functions,
