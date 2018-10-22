@@ -21,7 +21,7 @@
 *)
 
 BeginPackage["WeinbergAngle`", {"SARAH`", "CConversion`", "Parameters`", "SelfEnergies`",
-                                "TextFormatting`", "ThresholdCorrections`", "TreeMasses`",
+                                "TextFormatting`", "TreeMasses`",
                                 "Utils`", "Vertices`"}];
 
 CheckMuonDecayRunning::usage="";
@@ -80,7 +80,7 @@ InitMuonDecay[eigenstates_:FlexibleSUSY`FSEigenstates] :=
           ];
 
 DefSMhyperCoupling[] :=
-    Module[{result},
+      Module[{result, coupStr = CConversion`ToValidCSymbolString[SARAH`hyperchargeCoupling]},
            result = "const auto gY = ";
            If[!MuonDecayWorks,
               Return[result <> "1.;"]];
@@ -91,7 +91,7 @@ DefSMhyperCoupling[] :=
           ];
 
 DefSMleftCoupling[] :=
-    Module[{result},
+      Module[{result, coupStr = CConversion`ToValidCSymbolString[SARAH`leftCoupling]},
            result = "const auto g2 = ";
            If[!MuonDecayWorks,
               Return[result <> "1.;"]];
@@ -108,7 +108,8 @@ GetWPlusBoson[] :=
             _, Print["Error: W Boson has charge of neither +1 nor -1"]; Null
           ];
 
-GetBottomMass[] := ThresholdCorrections`GetParameter[TreeMasses`GetMass[TreeMasses`GetDownQuark[3,True]]];
+GetBottomMass[] := "MODEL->get_" <> CConversion`RValueToCFormString[
+    TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMBottomQuarkMultiplet[], True, True]];
 
 GetTopMass[] := "MODEL->get_" <> CConversion`RValueToCFormString[
     TreeMasses`GetThirdGenerationMass[TreeMasses`GetSMTopQuarkMultiplet[], True, True]];

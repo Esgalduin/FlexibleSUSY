@@ -44,6 +44,9 @@ double c0(double m12, double m22, double m32) noexcept;
 double d27(double m12, double m22, double m32, double m42) noexcept;
 double d0(double m12, double m22, double m32, double m42) noexcept;
 
+// function derivatives
+double d1_b0(double p2, double m12, double m22) noexcept;
+
 } // namespace flexiblesusy
 
 #endif

@@ -567,7 +567,7 @@ double ReD1B0(double p2, double m2a, double m2b) noexcept
 #if defined(ENABLE_LOOPTOOLS) || defined(ENABLE_FFLITE)
    return D1B0(p2, m2a, m2b).real();
 #else
-   return softsusy::d1_b0(p2, m2a, m2b);
+   return d1_b0(p2, m2a, m2b);
 #endif
 }
 
