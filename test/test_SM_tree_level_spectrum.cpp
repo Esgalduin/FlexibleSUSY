@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( test_SM_tree_level_Higgs_masses )
    BOOST_CHECK_CLOSE(m.get_mu2(), mu2, 1.0e-10);
 
    // neutral CP even Higgs
-   const double hh(m.get_Mhh());
+   const double hh(Sqrt(m.get_M2hh()));
    const double lambda = m.get_Lambdax();
    const double v = m.get_v();
    const double hh_tree = Sqrt(lambda * Sqr(v));

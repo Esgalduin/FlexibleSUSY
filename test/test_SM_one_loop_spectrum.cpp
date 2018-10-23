@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( test_SM_one_loop_Higgs_masses )
    BOOST_CHECK(m.get_mu2() != mu2);
 
    // check Higgs pole mass
-   const double Mhh_1l(m.get_physical().Mhh);
+   const double Mhh_1l(Sqrt(m.get_physical().M2hh));
 
    // Note: in SARAH v4.13.0 the definition of mu2 was changed by an
    // overall sign
