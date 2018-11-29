@@ -11,6 +11,7 @@
 
 #include "effective_couplings.hpp"
 #include "ew_input.hpp"
+#include "linalg2.hpp"
 #include "wrappers.hpp"
 
 using namespace flexiblesusy;
