@@ -109,13 +109,13 @@ SortCps[nPointFunctions_List] := Module[{
 
    	Print["sort and replace..."];
 
-      sortCplsRules = If[# =!= SortCp[#], Rule[#,SortCp[#]], Nothing]& /@ relevantCpls;
+      sortCplsRules = If[# =!= SortCp[#], Rule[#,SortCp[#]], Symbol["Nothing"]]& /@ relevantCpls;
       result = Timing[nPointFunctions /. Dispatch[sortCplsRules]];
       Print["Coupling sorting rules applied in ", result[[1]], " seconds."];
       ,
       relevantCpls = Union @ Select[cpls, UnresolvedColorFactorFreeQ[#, exprs] &];
 
-      sortCplsRules = If[# =!= SortCp[#], Rule[#,SortCp[#]], Nothing]& /@ relevantCpls;
+      sortCplsRules = If[# =!= SortCp[#], Rule[#,SortCp[#]], Symbol["Nothing"]]& /@ relevantCpls;
       result = Timing[nPointFunctions /. Dispatch[sortCplsRules]];
    ];
    result[[2]]

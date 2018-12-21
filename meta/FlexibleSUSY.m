@@ -30,7 +30,9 @@ If[$VersionNumber <= 9.,
    Protect[FirstPosition];
   ];
 
-
+If[$VersionNumber < 10.2,
+   Nothing /: List[a___, Nothing, b___] := List[a, b];
+];
 BeginPackage["FlexibleSUSY`",
              {"SARAH`",
               "AnomalousDimension`",
