@@ -2710,21 +2710,21 @@ FSCheckLoopCorrections[eigenstates_] :=
 FSCheckFlags[] :=
     Module[{},
            If[FlexibleSUSY`UseHiggs3LoopMSSM === True,
-              (* SARAH`UseHiggs2LoopMSSM = True; *)
+              SARAH`UseHiggs2LoopMSSM = True;
               FlexibleSUSY`UseMSSMYukawa2Loop = True;
               FlexibleSUSY`UseMSSMAlphaS2Loop = True;
               FlexibleSUSY`UseMSSM3LoopRGEs = True;
              ];
 
            If[FlexibleSUSY`UseHiggs3LoopSM === True,
-              (* FlexibleSUSY`UseSARAH2Loop = True; *)
+              FlexibleSUSY`UseSARAH2Loop = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
               FlexibleSUSY`UseYukawa3LoopQCD = True;
               FlexibleSUSY`UseSM3LoopRGEs = True;
              ];
 
            If[FlexibleSUSY`UseHiggs4LoopSM === True,
-              (* FlexibleSUSY`UseSARAH2Loop = True; *)
+              FlexibleSUSY`UseSARAH2Loop = True;
               FlexibleSUSY`UseHiggs3LoopSM = True;
               FlexibleSUSY`UseSMAlphaS3Loop = True;
               FlexibleSUSY`UseYukawa3LoopQCD = True;
