@@ -2769,6 +2769,14 @@ FSCheckFlags[] :=
               References`AddReference["Bednyakov:2010ni"];
              ];
 
+          If[FlexibleSUSY`UseSARAH2Loop,
+            Print["Adding 2-loop SARAH Higgs mass contributions, ",
+                  "[arxiv:1411.0675, arxiv:1503.03098, arxiv:1706.05372]"];
+            References`AddReference["Goodsell:2014bna"];
+            References`AddReference["Goodsell:2015ira"];
+            References`AddReference["Braathen:2017izn"];
+           ];
+
            If[FlexibleSUSY`UseHiggs2LoopSM,
               Print["Adding 2-loop SM Higgs mass contributions from ",
                     "[arxiv:1205.6497, arxiv:1407.4336]"];
