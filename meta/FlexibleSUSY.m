@@ -1710,6 +1710,7 @@ WriteModelClass[massMatrices_List, ewsbEquations_List,
               FlexibleSUSY`UseMSSMAlphaS2Loop === True),
                   twoLoopHiggsHeaders = "#include \"sfermions.hpp\"\n";
            ];
+           (* The helpers below are included to allow testing of the SARAH 2-loop output against the previously implemented literature expressions *)
            If[(FlexibleSUSY`UseSARAH2Loop === True && (FlexibleSUSY`FSDefaultSARAHModel === Symbol["MSSM"] || FlexibleSUSY`FSDefaultSARAHModel === Symbol["NMSSM"])) ||
               SARAH`UseHiggs2LoopMSSM === True ||
               FlexibleSUSY`UseHiggs2LoopNMSSM === True ||

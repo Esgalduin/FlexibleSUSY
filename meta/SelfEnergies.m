@@ -94,8 +94,7 @@ CreateCouplingSymbol::usage = "";
 
 ReplaceGhosts::usage="";
 
-CreateSingleNPointFunctionDefs::usage = "Creates files for nPoint functions of loop ordered
->=2";
+CreateSingleNPointFunctionDefs::usage = "Creates files for nPoint functions of loop order >= 2";
 
 Begin["`Private`"];
 
@@ -635,26 +634,51 @@ CreateNPointFunction[nPointFunction_TadpoleShift|nPointFunction_FSSelfEnergyShif
         ];
 
 CreateNPointFunction[nPointFunction_, vertexRules_List, loops_] :=
-    Module[{decl, expr, prototype, body, functionName},
+    Module[{decl, expr, prototype, body, functionName, varDefs = "", addExpr = ""},
            expr = CreateVertexStructWrapper[SelfEnergies2L`CreateCHKZEROMULTWrapper @ GetExpression[nPointFunction, loops],Head[nPointFunction],loops];
            If[expr === Null, Return[{"",""}]];
            functionName = CreateFunctionPrototype[nPointFunction, loops];
            type = CConversion`CreateCType[CConversion`ScalarType[CConversion`complexScalarCType]];
+           If[FlexibleSUSY`UseSARAH2Loop === True && MatchQ[nPointFunction, _FSSelfEnergy],
+               {varDefs, addExpr} = GetTwoLoopSelfEnergyMomCorrection[GetField[nPointFunction], loops, FlexibleSUSY`FSModelName];
+            ];
            prototype = type <> " " <> functionName <> ";\n";
            decl = "\n" <> type <> " CLASSNAME::" <> functionName <> "\n{\n";
-           body = type <> " result;\n\n" <>
+           body = type <> " result;\n\n" <> varDefs <>
                   ExpressionToStringSequentially[
                                      DecreaseLiteralCouplingIndices[expr] /.
                                      vertexRules /.
                                      a_[List[i__]] :> a[i] /.
                                      ReplaceGhosts[FlexibleSUSY`FSEigenstates] /.
                                      C -> 1,
-                                     TreeMasses`GetParticles[], "result"]  <>
+                                     TreeMasses`GetParticles[], "result"]  <> addExpr <>
                   "\nreturn result * " <> CConversion`RValueToCFormString[CConversion`oneOver16PiSqr^loops] <> ";";
            body = IndentText[WrapLines[body]];
            decl = decl <> body <> "\n}\n";
            Return[{prototype, decl}];
           ];
+
+GetTwoLoopSelfEnergyMomCorrection[particle_ /; particle === SARAH`HiggsBoson, loops_ /; loops === 2, model_String /; model === "SM"] :=
+  Module[{mtStr, ytStr, g3Str, varDefs = "", addExpr = ""},
+         mtStr   = CConversion`RValueToCFormString[TreeMasses`GetMass[TreeMasses`GetUpQuark[3,True]]];
+         ytStr   = CConversion`RValueToCFormString[Parameters`GetThirdGeneration[SARAH`UpYukawa]];
+         g3Str   = CConversion`RValueToCFormString[SARAH`strongCoupling];
+
+         varDefs =
+"const double mt = " <> mtStr <> ";
+const double yt = " <> ytStr <> ";
+const double gs = " <> g3Str <> ";
+const double scale = get_scale();\n\n";
+
+         addExpr =
+"\n\nresult += sm_twoloophiggs::self_energy_higgs_2loop_at_as_p2_only_sm(p2,scale,mt,yt,gs)
+\t\t/Sqr(oneOver16PiSqr);\n";
+
+         {varDefs, addExpr}
+        ];
+
+GetTwoLoopSelfEnergyMomCorrection[particle_, loops_, model_] := {"", ""};
+
 
 CreateVertexStructWrapper[expr_,nPointType_,loops_] := expr /. If[loops === 2, {SARAH`Cp[fields__]/;HasFieldIndexQ[{fields}]:>Symbol["VERTEXSTRUCT"][SARAH`Cp[fields]],
                                      SARAH`Cp[fields__][lorentz_]/;HasFieldIndexQ[{fields}]:>Symbol["VERTEXSTRUCT"][SARAH`Cp[fields][lorentz]]}, {}];
@@ -763,10 +787,13 @@ CreateNPointFunctions[nPointFunctions_List, vertexRules_List] :=
           ];
 
 CreateSingleNPointFunctionDefs[nPointFun_List, templateFile_String] :=
-  Module[{files = {}, functionname = "", functiondef = "", inputFile, outputFile, NPsemiAnalyticSolutionHeader = ""},
-          If[MemberQ[FlexibleSUSY`FSBVPSolvers,Symbol["SemiAnalyticSolver"]],
-              NPsemiAnalyticSolutionHeader = NPsemiAnalyticSolutionHeader <>
-                                             "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"";];
+  Module[{files = {}, functionname = "", functiondef = "", inputFile, outputFile, NPHeader = ""},
+         If[MemberQ[FlexibleSUSY`FSBVPSolvers,Symbol["SemiAnalyticSolver"]],
+              NPHeader = NPHeader <>
+                                             "#include \"" <> FlexibleSUSY`FSModelName <> "_semi_analytic_solutions.hpp\"\n";];
+         If[FlexibleSUSY`FSModelName === "SM",
+            NPHeader = NPHeader <> "#include \"sm_twoloophiggs.hpp\"\n";
+         ];
          For[n = 1, n <= Length[nPointFun], n++,
              functionname = nPointFun[[n,3]];
              functiondef = nPointFun[[n,4]];
@@ -777,7 +804,7 @@ CreateSingleNPointFunctionDefs[nPointFun_List, templateFile_String] :=
                                                       {".cpp.in" -> functionname <> ".cpp"}]}];
              WriteOut`ReplaceInFiles[{{inputFile, outputFile}},
                    { "@nPointFunction@"     -> functiondef,
-                     "@NPsemiAnalyticSolutionHeader@" -> NPsemiAnalyticSolutionHeader,
+                     "@NPHeader@" -> NPHeader,
                      Sequence @@ FlexibleSUSY`GeneralReplacementRules[]
                    } ];
              AppendTo[files, outputFile];
