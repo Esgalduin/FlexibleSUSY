@@ -35,6 +35,10 @@ double delta_mh_1loop_at_sm(
 double self_energy_higgs_2loop_at_as_sm(
    double p2, double scale, double mt, double yt, double g3);
 
+/// SM Higgs self-energy 2-loop, only p2 dependence O(alpha_t alpha_s)
+double self_energy_higgs_2loop_at_as_p2_only_sm(
+   double p2, double scale, double mt, double yt, double g3)
+
 /// SM Higgs self-energy 2-loop, only O(alpha_b alpha_s)
 double self_energy_higgs_2loop_ab_as_sm(
    double p2, double scale, double mb, double yb, double g3);

@@ -152,6 +152,36 @@ double self_energy_higgs_2loop_at_as_sm(
 }
 
 /**
+ * Standard Model Higgs self-energy 2-loop momentum dependent piece only, \f$O(\alpha_t
+ * \alpha_s)\f$ .
+ *
+ * @warning The result is in Landau gauge (\f$\xi = 0\f$).
+ *
+ * @param p2    squared momentum
+ * @param scale renormalization scale
+ * @param mt MS-bar top mass
+ * @param yt MS-bar Yukawa coupling
+ * @param g3 MS-bar strong gauge coupling
+ *
+ * @return real part of the momentum dependent 2-loop self-energy piece \f$O(\alpha_t \alpha_s)\f$
+ */
+double self_energy_higgs_2loop_at_as_p2_only_sm(
+   double p2, double scale, double mt, double yt, double g3)
+{
+   const double yt2 = Sqr(yt);
+   const double g32 = Sqr(g3);
+   const double t = Sqr(mt);
+   const double q = Sqr(scale);
+   const double lnt = std::log(t/q);
+
+   const double result = self_energy_higgs_2loop_at_as_sm(
+      p2, scale, mt, yt, g3) - self_energy_higgs_2loop_at_as_sm(
+         0., scale, mt, yt, g3);
+
+   return result;
+}
+
+/**
  * Standard Model Higgs self-energy 2-loop, \f$O(\alpha_b
  * \alpha_s)\f$, for zero momentum.
  *
