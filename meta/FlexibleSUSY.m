@@ -32,7 +32,9 @@ If[$VersionNumber <= 9.,
 
 If[$VersionNumber < 10.2,
    Nothing /: List[a___, Nothing, b___] := List[a, b];
+   Vertices`Private`Nothing /: List[a___, Vertices`Private`Nothing, b___] := List[a, b];
 ];
+
 BeginPackage["FlexibleSUSY`",
              {"SARAH`",
               "AnomalousDimension`",
