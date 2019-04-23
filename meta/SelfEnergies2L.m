@@ -300,14 +300,14 @@ CalcSEShiftFFS[diag_List,massMatShifts_] :=
                                                    -(SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]] + SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]-SARAH`p^2)*2*massshifts[[2]]*SARAH`Mass[loopfields[[2]][{SARAH`gI5}]]};
 
          loopfunctions = {+Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                         +Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                         -Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                         -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                         -Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                         -Symbol["BB"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                         +Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
-                         -Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
-                         -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
+                          +Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                          -Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                          -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                          -Symbol["BB"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                          -Symbol["BB"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                          +Symbol["BBs"][SARAH`p^2, SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]],
+                          -Symbol["CCtilde"][SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]]],
+                          -Symbol["CCtilde"][SARAH`Mass2[loopfields[[1]][{SARAH`gI4}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]],SARAH`Mass2[loopfields[[2]][{SARAH`gI5}]]]};
 
          If[nFields[[1]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI4}]->x}];
          If[nFields[[2]] == 1, loopfunctions=loopfunctions//.{x_[{SARAH`gI5}]->x}];
@@ -437,16 +437,9 @@ Make1L2LShifts[Sarah1LTadsList_List,Sarah1LSEList_List,nPointFuncs_List, massMat
 ReplaceSARAHInternalIndices := {SARAH`sum[idx_, bndLow_, bndHigh_, Expr_] /;
    StringMatchQ[ToString[idx],
     RegularExpression["j[0-9]*"]] :> (SARAH`sum[
-    ToExpression[
-     StringReplace[
-      ToString[idx], {"j" -> "SARAH`gI",
-       idxnum : DigitCharacter .. :>
-        ToString[ToExpression[idxnum] + 6]}]], bndLow, bndHigh,
-    Expr /. {idx ->
-       ToExpression[
-        StringReplace[
-         ToString[idx], {"j" -> "SARAH`gI",
-          idxnum : DigitCharacter .. :>
+    ToExpression[StringReplace[ToString[idx], {"j" -> "SARAH`gI", idxnum : DigitCharacter .. :>
+    ToString[ToExpression[idxnum] + 6]}]], bndLow, bndHigh,Expr /.
+    {idx -> ToExpression[StringReplace[ToString[idx], {"j" -> "SARAH`gI", idxnum : DigitCharacter .. :>
            ToString[ToExpression[idxnum] + 6]}]]}])};
 
 

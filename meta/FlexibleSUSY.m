@@ -3800,7 +3800,7 @@ SetupMassMatrices[allParameters_] :=
 
 SetupOutputParameters[massMatrices_] :=
 		Module[{allParticles, allOutputParameters},
-           allParticles = FlexibleSUSY`M[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices;
+           allParticles = TreeMasses`GetMass[TreeMasses`GetMassEigenstate[#]]& /@ massMatrices;
            allOutputParameters = DeleteCases[DeleteDuplicates[
                Join[allParticles,
                     Flatten[TreeMasses`GetMixingMatrixSymbol[#]& /@ massMatrices]]], Null];
