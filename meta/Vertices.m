@@ -45,9 +45,9 @@ ToRotatedField::usage;
 ReplaceUnrotatedFields::usage;
 StripGroupStructure::usage="Removes group generators and Kronecker deltas.";
 StripFieldIndices::usage;
+SarahColorIndexQ::usage="Checks if an index is a color index. Returns True for indices starting with ct and followed by a number."
+SarahLorentzIndexQ::usage="Checks if an index is a Lorentz index. Returns True for indices starting with lt and followed by a number."
 
-FindVertexWithLorentzStructure::usage="";
-SarahToFSVertexConventions::usage="";
 SortFieldsInCp::usage="";
 
 Begin["`Private`"]
@@ -339,22 +339,6 @@ VertexExp[cpPattern_, nPointFunctions_, massMatrices_] := Module[{
 	Parameters`ApplyGUTNormalization[]
 ];
 
-SarahToFSVertexConventions[sortedFields_List, expr_,
-		OptionsPattern[{StripColorStructure -> False}]] :=
-	Module[{contraction},
-		contraction = If[OptionValue[StripColorStructure],
-			StripGroupStructure[expr, {}],
-			expr];
-		
-		(* corrupts a polynomial (monomial + monomial + ...) summand *)
-    contraction = Block[{SARAH`sum},
-			ExpandSarahSum @ SimplifyContraction @ contraction];
-		
-    (* see SPhenoCouplingList[] in SARAH/Package/SPheno/SPhenoCoupling.m
-       for the following sign factor *)
-    -I TreeMasses`ReplaceDependencies[contraction] /.
-			Parameters`ApplyGUTNormalization[]
-  ]
 (* recreating functionality of sumOverNonAbelianIndicesPOLE in SARAH/Package/SPheno/SPhenoCoupling.m *)
 ContractFourScalarIndices[vertex_, fields_, indices_] :=
    Module[{contractions = FindContractions[fields], deltacontractions, sumparameters, result},
@@ -738,6 +722,9 @@ SarahInternalGenerationIndexQ[index_Symbol] :=
 
 SarahColorIndexQ[index_Symbol] :=
     StringMatchQ[ToString[index], RegularExpression["ct[[:digit:]]+"]];
+
+SarahLorentzIndexQ[index_Symbol] :=
+    StringMatchQ[ToString[index], RegularExpression["lt[[:digit:]]+"]];
 
 GetLorentzStructure[SARAH`Cp[__]] := 1;
 

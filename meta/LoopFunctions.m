@@ -292,15 +292,14 @@ B22impl[p2_, m12_, m22_, mu2_] :=
 B22zero[m12_, m22_, mu2_] :=
     Which[PossibleZeroQ[m12] && PossibleZeroQ[m22],
           0,
-          PossibleZeroQ[m12],
-          (m22*(5 + 3*Delta + 3*Log[mu2/m22]))/12,
-          PossibleZeroQ[m22],
-          (m12*(5 + 3*Delta + 3*Log[mu2/m12]))/12,
-          PossibleZeroQ[m12 - m22],
-          (m22*(1 + Delta + Log[mu2/m22]))/2,
+          PossibleZeroQ[m1],
+          (m2^2*(9/2 + 3*Delta + 3*Log[mu^2/m2^2]))/12,
+          PossibleZeroQ[m2],
+          (m1^2*(9/2 + 3*Delta + 3*Log[mu^2/m1^2]))/12,
+          PossibleZeroQ[m1 - m2],
+          (m2^2*(1 + Delta + Log[mu^2/m2^2]))/2,
           True,
-          ((5 + 3*Delta)*(m12^2 - m22^2) + m12*(3*m12 + m22)*Log[mu2/m12] -
-           m22*(m12 + 3*m22)*Log[mu2/m22])/(12*(m12 - m22))
+          (A0impl[m2,mu] + m1^2 B0zero[m1, m2, mu] + (m1^2 + m2^2)/2)/4
       ];
 
 DivB22[p2_, m12_, m22_, _] := Delta (3*m12 + 3*m22 - p2)/12;
@@ -468,15 +467,15 @@ D0impl[p12_, p22_, p32_, m12_, m22_, m32_, m42_, mu2_] :=
 
 (* D0 for p = 0 [arxiv:hep-ph/9606211 Eq. (C.21)] *)
 D0zero[m12_, m22_, m32_, m42_] := Which[
-   PossibleZeroQ[m12 - m22] && PossibleZeroQ[m12 - m32] && 
+   PossibleZeroQ[m12 - m22] && PossibleZeroQ[m12 - m32] &&
     PossibleZeroQ[m12 - m42],
    1/(6 m12^2),
    PossibleZeroQ[m12 - m22] && PossibleZeroQ[m22 - m32],
-   (8*(m22 - m42)2*(m22 + m42) + (-23*m22^2*m42 - 10*m22*m42^2 + 
+   (8*(m22 - m42)2*(m22 + m42) + (-23*m22^2*m42 - 10*m22*m42^2 +
          m42^3)*Log[m22/m42] + (-7*m22^2*m42 - 26*m22*m42^2 + m42^3)*
        Log[m42/m22])/(16*m22*(m22 - m42)2^2),
    PossibleZeroQ[m12 - m22] && PossibleZeroQ[m22 - m42],
-   (8*(m22 - m32)2*(m22 + m32) + (7*m22^2*m32 + 26*m22*m32^2 - 
+   (8*(m22 - m32)2*(m22 + m32) + (7*m22^2*m32 + 26*m22*m32^2 -
          m32^3)*Log[m22/m32] + (23*m22^2*m32 + 10*m22*m32^2 - m32^3)*
        Log[m32/m22])/(16*m22*(m22 - m32)2^2),
    PossibleZeroQ[m12 - m22] && PossibleZeroQ[m32 - m42],
@@ -484,9 +483,9 @@ D0zero[m12_, m22_, m32_, m42_] := Which[
        Log[m22/m42] - (3*m22^2 + 8*m22*m42 + m42^2)*
        Log[m42/m22])/(4*(m22 - m42)2^2),
    PossibleZeroQ[m12 - m22],
-   (-((m2 - m3)*(m2 + m3)*(m2 - m4)*(m3 - m4)*(m2 + m4)*(m3 + 
-           m4)) - (m22^2 - m32*m42)*(m32*Log[m32/m22] + 
-         m42*Log[m22/m42]) + 
+   (-((m2 - m3)*(m2 + m3)*(m2 - m4)*(m3 - m4)*(m2 + m4)*(m3 +
+           m4)) - (m22^2 - m32*m42)*(m32*Log[m32/m22] +
+         m42*Log[m22/m42]) +
       m32*m42*(-2*m22 + m32 + m42)*
        Log[m42/m32])/((m22 - m32)2*(m22 - m42)2*(m32 - m42)),
    True,

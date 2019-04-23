@@ -8,9 +8,9 @@ FlexibleSUSY
    :align: right
 
 FlexibleSUSY provides Mathematica and C++ code to create spectrum
-generators for non-minimal supersymmetric models.  It is designed for
-generating fast and modular C++ code, allowing for easy modification,
-extension and reuse.
+generators for supersymmetric and non-supersymmetric models.  It is
+designed for generating fast and modular C++ code, allowing for easy
+modification, extension and reuse.
 
 * Homepage:                https://flexiblesusy.hepforge.org
 * Mailing list:            flexiblesusy@projects.hepforge.org
@@ -47,7 +47,7 @@ Building FlexibleSUSY
 Requirements
 ------------
 
-* C++ compiler (g++ >= 4.8.4 or clang++ >= 3.8.1 or icpc >= 15.0.0)
+* C++ compiler (g++ >= 5.0.0 or clang++ >= 3.8.1 or icpc >= 17.0.0)
 * Fortran compiler (gfortran, ifort)
 * Mathematica (version 7.0 or higher)
 * SARAH_ (version 4.11.0 or higher)
@@ -59,6 +59,8 @@ Optional:
 
 * BLAS_
 * LAPACK_
+* FeynArts_ (version 3.9 or higher)
+* FormCalc_ (version 9.5 or higher)
 * LoopTools_ (version 2.8 or higher)
 * Himalaya_
 
@@ -86,6 +88,24 @@ script::
 
 See ``./install-sarah --help`` for more options.
 
+Installation of FeynArts/FormCalc/LoopTools
+-------------------------------------------
+
+If you want FlexibleSUSY to use either FeynArts_, FormCalc_ or
+LoopTools_ you will need to install these packages first.  Also — as
+with SARAH — they need to be loadable with the ``Needs[]`` command
+from inside Mathematica.  We recommend using the installation script
+``FeynInstall`` provided on the FeynArts web page. e.g.::
+
+    cd ~/.local
+    wget http://www.feynarts.de/FeynInstall
+    chmod 755 FeynInstall
+    ./FeynInstall
+
+which will install the latest versions of FeynArts, FormCalc and
+LoopTools in the ``~/.local/`` directory as well as configure
+Mathematica to find these packages.  Note that running the
+``FeynInstall`` script might require user intervention.
 
 Building a FlexibleSUSY model
 -----------------------------
@@ -113,18 +133,9 @@ Building a FlexibleSUSY model
 
    To modify the model details (input parameters, boundary conditions,
    etc.), edit the FlexibleSUSY model file
-   ``models/<model>/FlexibleSUSY.m``.
-
-   Further reading:
-
-   * `FlexibleSUSY model file`_
-   * `FlexibleEFTHiggs`_
-   * `SLHA input parameters`_
-
-.. _`FlexibleSUSY model file`: doc/model_file.rst
-.. _`FlexibleEFTHiggs`: doc/FlexibleEFTHiggs.rst
-.. _`SLHA input parameters`: doc/slha_input.rst
-
+   ``models/<model>/FlexibleSUSY.m``.  For more details see the
+   documentation of the `FlexibleSUSY model file`_ and
+   `FlexibleEFTHiggs`_.
 
 2. Create the Makefile and register your model(s)::
 
@@ -174,15 +185,47 @@ documentation.
  `NUHMSSMNoFVHimalaya`_   fixed-order MSSM
 ======================== ====================================
 
-.. _`HSSUSY`: doc/HSSUSY.rst
-.. _`MSSMEFTHiggs`: doc/MSSMEFTHiggs.rst
-.. _`NUHMSSMNoFVHimalaya`: doc/NUHMSSMNoFVHimalaya.rst
+.. _`HSSUSY`: doc/models/HSSUSY.rst
+.. _`MSSMEFTHiggs`: doc/models/MSSMEFTHiggs.rst
+.. _`NUHMSSMNoFVHimalaya`: doc/models/NUHMSSMNoFVHimalaya.rst
 
-Plotting the mass spectrum and renormalization group running
-------------------------------------------------------------
 
-The pole mass spectrum and the RG flow can be written to data files
-for easy plotting.  In the MSSM for example these data files can be
+Command line
+------------
+
+For each model FlexibleSUSY creates an executable
+``models/<model>/run_<model>.x`` that can be run from the command
+line.  The executable accepts the input in the SLHA format, for
+example in form of a file::
+
+    ./models/MSSM/run_MSSM.x \
+       --slha-input-file=models/MSSM/LesHouches.in.MSSM \
+       --slha-output-file=LesHouches.out.MSSM
+
+or as a stream::
+
+    cat models/MSSM/LesHouches.in.MSSM \
+       | ./models/MSSM/run_MSSM.x --slha-input-file=- --slha-output-file=LesHouches.out.MSSM
+
+For a documentation of FlexibleSUSY-specific switches in the SLHA
+input see the section on `SLHA input parameters`_.
+
+By default the executable writes the output in SLHA format to stdout.
+The output can also be appended to an SQLite database::
+
+    ./models/MSSM/run_MSSM.x \
+       --slha-input-file=models/MSSM/LesHouches.in.MSSM \
+       --slha-output-file=LesHouches.out.MSSM \
+       --database-output-file=points.db
+
+See ``models/<model>/run_<model>.x --help`` for further options.
+
+
+Mass spectrum and renormalization group running
+```````````````````````````````````````````````
+
+The pole mass spectrum and the RG flow can be written to text files
+for easy plotting.  In the MSSM for example these text files can be
 generated via::
 
     ./models/MSSM/run_MSSM.x \
@@ -191,7 +234,8 @@ generated via::
        --spectrum-output-file=MSSM_spectrum.dat
 
 The generated files ``MSSM_rgflow.dat`` and ``MSSM_spectrum.dat`` can
-be plotted with the gnuplot scripts in the model directory::
+be plotted for example with the gnuplot scripts in the model
+directory::
 
     gnuplot -persist -e "filename='MSSM_spectrum.dat'" \
        models/MSSM/MSSM_plot_spectrum.gnuplot
@@ -200,9 +244,9 @@ be plotted with the gnuplot scripts in the model directory::
        models/MSSM/MSSM_plot_rgflow.gnuplot
 
 The gnuplot scripts are just for illustration and currently plot all
-DR-bar parameters, regardless of mass dimension, so the resulting plot
-is not particularly informative.  However, the user may adapt the
-scripts to plot any chosen subset of the parameters.
+running parameters, regardless of their mass dimension, so the
+resulting plot is not particularly informative.  However, one may
+easily adapt the scripts to plot any chosen subset of the parameters.
 
 
 Mathematica interface
@@ -674,32 +718,48 @@ are listed:
 * ``utils/`` contains some utility scripts to perform scans or extract
   data from SLHA files
 
+
+Further reading
+===============
+
+* `FlexibleSUSY model file`_
+* `FlexibleEFTHiggs`_
+* `LibraryLink documentation`_
+* `meta code documentation`_
+* `SLHA input parameters`_
+
+
+References
+==========
+
 .. _slhaea: https://github.com/fthomas/slhaea
 .. _GM2Calc: https://arxiv.org/abs/1510.08071
 .. _SARAH: http://sarah.hepforge.org
 .. _SOFTSUSY: http://softsusy.hepforge.org
 .. _Boost: http://www.boost.org
 .. _Eigen 3: http://eigen.tuxfamily.org
+.. _FeynArts: http://www.feynarts.de
+.. _FormCalc: http://www.feynarts.de/formcalc
 .. _GNU scientific library: http://www.gnu.org/software/gsl/
 .. _BLAS: http://www.netlib.org/blas/
 .. _LAPACK: http://www.netlib.org/lapack/
 .. _LoopTools: http://www.feynarts.de/looptools/
 .. _Himalaya: https://github.com/Himalaya-Library/Himalaya
 
+.. _`FlexibleSUSY model file`: doc/model_file.rst
+.. _`FlexibleEFTHiggs`: doc/FlexibleEFTHiggs.rst
 .. _`meta code documentation`: doc/meta_code.rst
-
-.. [1406.2319] `CPC 190 (2015) 139-172 <https://inspirehep.net/record/1299998>`_ [`arxiv:1406.2319 <https://arxiv.org/abs/1406.2319>`_]
-.. [1609.00371] `JHEP 1701 (2017) 079 <https://inspirehep.net/record/1484857>`_ [`arxiv:1609.00371 <https://arxiv.org/abs/1609.00371>`_]
-.. [1710.03760] `CPC 230 (2018) 145-217 <https://inspirehep.net/record/1629978>`_ [`arXiv:1710.03760 <https://arxiv.org/abs/1710.03760>`_]
-
-.. [1005.5709]  `JHEP 1008 (2010) 104 <https://inspirehep.net/record/856612>`_  [`arxiv:1005.5709 <https://arxiv.org/abs/1005.5709>`_]
-.. [1708.05720] `Eur.Phys.J. C77 (2017) no.12, 814 <https://inspirehep.net/record/1617767>`_ [`arxiv:1708.05720 <https://arxiv.org/abs/1708.05720>`_]
-.. [1807.03509] `Eur.Phys.J. C78 (2018) no.10, 874 <https://inspirehep.net/record/1681658>`_ [`arxiv:1807.03509 <https://arxiv.org/abs/1807.03509>`_]
-
-.. [0909.2863] `CPC 181 (2010) 1077-1086 <https://inspirehep.net/record/831371>`_ [`arxiv:0909.2863 <http://arxiv.org/abs/0909.2863>`_]
-.. [1002.0840] `CPC 182 (2011) 808-833 <https://inspirehep.net/record/845241>`_   [`arxiv:1002.0840 <http://arxiv.org/abs/1002.0840>`_]
-.. [1207.0906] `CPC 184 (2013) 1792-1809 <https://inspirehep.net/record/1121136>`_ [`arxiv:1207.0906 <http://arxiv.org/abs/1207.0906>`_]
-.. [1309.7223] `CPC 185 (2014) 1773-1790 <https://inspirehep.net/record/1255845>`_ [`arxiv:1309.7223 <http://arxiv.org/abs/1309.7223>`_]
+.. _`SLHA input parameters`: doc/slha_input.rst
 
 .. [hep-ph:0104145] `CPC 143 (2002) 305-331 <https://inspirehep.net/record/555481>`_ [`arxiv:hep-ph/0104145 <http://arxiv.org/abs/hep-ph/0104145>`_]
+.. [0909.2863] `CPC 181 (2010) 1077-1086 <https://inspirehep.net/record/831371>`_ [`arxiv:0909.2863 <http://arxiv.org/abs/0909.2863>`_]
+.. [1002.0840] `CPC 182 (2011) 808-833 <https://inspirehep.net/record/845241>`_   [`arxiv:1002.0840 <http://arxiv.org/abs/1002.0840>`_]
+.. [1005.5709]  `JHEP 1008 (2010) 104 <https://inspirehep.net/record/856612>`_  [`arxiv:1005.5709 <https://arxiv.org/abs/1005.5709>`_]
+.. [1207.0906] `CPC 184 (2013) 1792-1809 <https://inspirehep.net/record/1121136>`_ [`arxiv:1207.0906 <http://arxiv.org/abs/1207.0906>`_]
+.. [1309.7223] `CPC 185 (2014) 1773-1790 <https://inspirehep.net/record/1255845>`_ [`arxiv:1309.7223 <http://arxiv.org/abs/1309.7223>`_]
 .. [1311.7659] `CPC 185 (2014) 2322 <https://inspirehep.net/record/1266808>`_  [`arxiv:1311.7659 <http://arxiv.org/abs/1311.7659>`_]
+.. [1406.2319] `CPC 190 (2015) 139-172 <https://inspirehep.net/record/1299998>`_ [`arxiv:1406.2319 <https://arxiv.org/abs/1406.2319>`_]
+.. [1609.00371] `JHEP 1701 (2017) 079 <https://inspirehep.net/record/1484857>`_ [`arxiv:1609.00371 <https://arxiv.org/abs/1609.00371>`_]
+.. [1708.05720] `Eur.Phys.J. C77 (2017) no.12, 814 <https://inspirehep.net/record/1617767>`_ [`arxiv:1708.05720 <https://arxiv.org/abs/1708.05720>`_]
+.. [1710.03760] `CPC 230 (2018) 145-217 <https://inspirehep.net/record/1629978>`_ [`arXiv:1710.03760 <https://arxiv.org/abs/1710.03760>`_]
+.. [1807.03509] `Eur.Phys.J. C78 (2018) no.10, 874 <https://inspirehep.net/record/1681658>`_ [`arxiv:1807.03509 <https://arxiv.org/abs/1807.03509>`_]

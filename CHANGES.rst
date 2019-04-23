@@ -1,5 +1,95 @@
-FlexibleSUSY 2.2.1 [not released yet]
+FlexibleSUSY 2.4.0 [not released yet]
 =====================================
+
+Changes
+-------
+
+* The C++ language version has been increased to C++14.  As a result,
+  a C++14-compatible compiler is required to compile FlexibleSUSY.
+  This is the case for
+
+  - g++ >= 5.0.0
+  - clang++ >= 3.8.1
+  - icpc >= 17.0.0
+
+New features
+------------
+
+* Implementation of the 4-loop O(αs^4) contributions to the running
+  MS-bar top mass of the Standard Model from [`1604.01134
+  <https://arxiv.org/abs/1604.01134>`_].  The contributions can be
+  enabled in SM-like models by setting the flag::
+
+      UseYukawa4LoopQCD = True
+
+  or::
+
+      UseYukawa4LoopQCD = Automatic
+
+  The 4-loop threshold correction is taken into account at run-time if
+  both the global threshold correction loop order flag
+  (``FlexibleSUSY[7]`` or ``thresholdCorrectionsLoopOrder``) and the
+  individual top Yukawa coupling threshold correction flag
+  (``FlexibleSUSY[24]`` or ``thresholdCorrections``) are set to a
+  value > 3.
+
+  Example (SLHA input file)::
+
+      Block FlexibleSUSY
+          7   4          # global threshold corrections loop order flag
+         24   124111321  # individual threshold correction loop orders
+
+  Example (Mathematica interface)::
+
+      fsSettings = {
+          thresholdCorrectionsLoopOrder -> 4,
+          thresholdCorrections -> 124111321,
+          ...
+      }
+
+* Implementation of 3-loop contributions O(αb,ατ) to the Standard
+  Model beta functions from [`1604.00853
+  <https://arxiv.org/abs/1604.00853>`_].
+
+
+FlexibleSUSY 2.3.0 [January, 22 2019]
+=====================================
+
+New features
+------------
+
+* Implementation of the 5-loop beta function of the strong gauge
+  coupling in the SM from [`1606.08659
+  <https://arxiv.org/abs/1606.08659>`_].  The 5-loop contribution is
+  enabled in all FlexibleEFTHiggs models by default and can be enabled
+  in other SM-like models by setting the flag ::
+
+      UseSM5LoopRGEs = True
+
+  in the corresponding model file.
+
+* An internal FeynArts_/FormCalc_ interface has been added, which
+  allows for loop calculations inside FlexibleSUSY's meta code.  This
+  interface is currently optional and FlexibleSUSY can be run without
+  a FeynArts_/FormCalc_ installation.
+
+Changes
+-------
+
+* The documentation of FlexibleSUSY has been extended and changed to
+  the `reStructuredText <http://docutils.sourceforge.net/rst.html>`_
+  format for easier access.  The documentation root file is
+  `README.rst <README.rst>`_.  It can be read online at `github
+  <https://github.com/FlexibleSUSY/FlexibleSUSY/blob/development/README.rst>`_
+  or locally using for example `restview
+  <https://mg.pov.lt/restview/>`_::
+
+      restview README.rst
+
+* The unused file ``test/SOFTSUSY/nmssm1loop.f`` has been removed.
+
+* The calculation of the vertices with the ``CXXDiagrams`` module has
+  been improved and is now significantly faster.
 
 Fixed bugs
 ----------
@@ -9,8 +99,6 @@ Fixed bugs
 
 * [commit 79651844]: Avoid linker-specific ``--start-group`` and
   ``--end-group`` in order to make the tests build on MacOS.
-
-  Thanks to Wojciech Kotlarski.
 
 * [commits 6a4a32324, 2cdd71861, 90ca05d70]: Compatibility fixes for
   SARAH 4.14.0.
@@ -25,6 +113,17 @@ Fixed bugs
   top mass in the MSSM.  This change improves the numerical precision
   and the stability of the correction for large SUSY scales above 10
   TeV.
+
+* [commits 41d704f05, e0b468e3a]: Correcting implementation of
+  analytic ``B00`` function in ``meta/LoopFunctions.m`` for vanishing
+  momentum.
+
+* [commits 4a8b249e0, ff0ca140b]: The speed of the conversion of the
+  SARAH-generated beta functions to FlexibleSUSY format has been
+  improved.  This change is significant for complicated BSM models
+  with many couplings.
+
+* [commit e88c1c8ab]: Fix linking with ifort compiled LoopTools_.
 
 
 FlexibleSUSY 2.2.0 [August, 26 2018]
@@ -1933,3 +2032,6 @@ FlexibleSUSY-0.5 [November 18, 2013]
 
 .. _GM2Calc: https://arxiv.org/abs/1510.08071
 .. _MhEFT: https://gabrlee.com/code/
+.. _FeynArts: http://www.feynarts.de
+.. _FormCalc: http://www.feynarts.de/formcalc
+.. _LoopTools: http://www.feynarts.de/looptools/
